@@ -17,7 +17,12 @@ import {
 	type FormData,
 } from '../../hooks/useAutofillMockData';
 
-export function IntakeForm() {
+interface IntakeFormProps {
+	onSubmit?: (data: FormData) => void;
+	isSubmitting?: boolean;
+}
+
+export function IntakeForm({ onSubmit, isSubmitting = false }: IntakeFormProps) {
 	const {
 		getRandomScenario,
 		mapScenarioToFormData,
@@ -127,7 +132,7 @@ export function IntakeForm() {
 
 		// Basic validation
 		const hasMonthlyData = formData.monthlyUsage.some((u) => u.kWh > 0);
-		if (!hasMonthlyData) {
+		if (!hasMonthlyData && formData.annualConsumption === 0) {
 			setFormError('Please enter at least one month of usage data');
 			return;
 		}
@@ -140,9 +145,11 @@ export function IntakeForm() {
 		// eslint-disable-next-line no-console
 		console.log('[IntakeForm] Submitting form data:', formData);
 
-		// TODO: Submit to /api/recommend endpoint
-		// For now, just log the data
-		alert('Form submitted! Check console for data.');
+		// Trigger parent component's onSubmit callback
+		// This allows App.tsx to handle the state transition
+		if (onSubmit) {
+			onSubmit(formData);
+		}
 	};
 
 	return (
@@ -553,8 +560,15 @@ export function IntakeForm() {
 
 				{/* Submit Button */}
 				<div className="flex justify-end">
-					<Button type="submit" size="lg" className="px-8">
-						Get Recommendations
+					<Button type="submit" size="lg" className="px-8" disabled={isSubmitting}>
+						{isSubmitting ? (
+							<>
+								<span className="animate-spin mr-2">⏳</span>
+								Processing...
+							</>
+						) : (
+							'Get Recommendations'
+						)}
 					</Button>
 				</div>
 			</form>
