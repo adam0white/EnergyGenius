@@ -18,10 +18,10 @@
 #   - done: Story complete and merged
 
 development_status:
-  epic-8: planning
-  8.1-fix-validation-relax-plan-names: ready-for-dev
-  8.2-fix-zero-cost-display: ready-for-dev
-  8.3-fix-progress-duration-display: ready-for-dev
+  epic-8: active
+  8.1-fix-validation-relax-plan-names: done
+  8.2-fix-zero-cost-display: done
+  8.3-fix-progress-duration-display: done
   8.4-verify-scraper-plan-data: ready-for-dev
 
 # Epic 8 Notes:
