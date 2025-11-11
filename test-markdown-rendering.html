@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Rendering Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="p-8">
+    <h1 class="text-2xl font-bold mb-4">Test Narrative Rendering</h1>
+
+    <div class="bg-white p-6 rounded shadow mb-6">
+        <h2 class="text-lg font-semibold mb-2">Raw Input (Markdown Format):</h2>
+        <pre class="bg-gray-100 p-4 rounded text-sm" id="raw-input"></pre>
+    </div>
+
+    <div class="bg-white p-6 rounded shadow">
+        <h2 class="text-lg font-semibold mb-2">Expected Formatted Output:</h2>
+        <div id="formatted-output" class="space-y-2"></div>
+    </div>
+
+    <script type="module">
+        // Simulate the narrative text from AI (with markdown)
+        const narrativeWithMarkdown = `This plan is our top recommendation because it could save you approximately $214 annually compared to your current plan.
+
+**Key Benefits:**
+- 15% annual savings over your current plan
+- 100% renewable energy from wind and solar
+- Flexible 12-month contract with no early termination fee
+
+**Important to Know:**
+This plan offers fixed rates, so your monthly costs will be predictable.
+
+**Estimated Annual Savings: $214.00**`;
+
+        // Display raw input
+        document.getElementById('raw-input').textContent = narrativeWithMarkdown;
+
+        // Expected formatted output (what FormattedNarrative should produce)
+        const formattedDiv = document.getElementById('formatted-output');
+        formattedDiv.innerHTML = `
+            <p class="text-sm text-gray-700 leading-relaxed my-2">This plan is our top recommendation because it could save you approximately $214 annually compared to your current plan.</p>
+
+            <p class="text-sm text-gray-700 leading-relaxed my-2"><strong>Key Benefits:</strong></p>
+            <ul class="space-y-2 my-3" role="list">
+                <li class="flex items-start text-sm text-gray-700 leading-relaxed">
+                    <span class="text-blue-600 font-bold mr-2 mt-0.5">•</span>
+                    <span>15% annual savings over your current plan</span>
+                </li>
+                <li class="flex items-start text-sm text-gray-700 leading-relaxed">
+                    <span class="text-blue-600 font-bold mr-2 mt-0.5">•</span>
+                    <span>100% renewable energy from wind and solar</span>
+                </li>
+                <li class="flex items-start text-sm text-gray-700 leading-relaxed">
+                    <span class="text-blue-600 font-bold mr-2 mt-0.5">•</span>
+                    <span>Flexible 12-month contract with no early termination fee</span>
+                </li>
+            </ul>
+
+            <p class="text-sm text-gray-700 leading-relaxed my-2"><strong>Important to Know:</strong></p>
+            <p class="text-sm text-gray-700 leading-relaxed my-2">This plan offers fixed rates, so your monthly costs will be predictable.</p>
+
+            <div class="my-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p class="text-sm text-gray-800 font-medium leading-relaxed"><strong>Estimated Annual Savings: $214.00</strong></p>
+            </div>
+        `;
+
+        console.log('Raw markdown:', narrativeWithMarkdown);
+        console.log('Note: Markdown bold syntax (**text**) should be rendered as <strong>text</strong>');
+        console.log('Bullet lists with - should be rendered as styled bullet points');
+    </script>
+</body>
+</html>

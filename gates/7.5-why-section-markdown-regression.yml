@@ -1,0 +1,130 @@
+gate_decision: CONCERNS
+story_id: 7.5
+story_slug: why-section-markdown-regression
+epic: Epic 7
+reviewed_by: Quinn (Test Architect & Quality Advisor)
+review_date: 2025-11-11
+status: REQUIRES_REVISION
+
+decision_rationale: |
+  While the fix successfully addresses markdown bold syntax (**text**), a strict review
+  reveals critical gaps in scope and approach. The solution is incomplete, handles only
+  one markdown syntax variant, and fails to address the underlying prompt design issue.
+  The fix is a band-aid when a more comprehensive solution is needed.
+
+critical_issues:
+  - category: Incomplete Markdown Coverage
+    severity: HIGH
+    description: |
+      The fix only strips bold syntax (**text**). It does NOT handle:
+      - Single asterisks for italics (*italic*)
+      - Underscores (_italic_)
+      - Headers (# Header, ## Subheader)
+      - Inline code (`code`)
+      - Links ([text](url))
+      - Other markdown variants
+
+      If Claude returns any of these patterns, users will still see raw markdown.
+    remediation: Expand markdown stripping to handle additional syntax or fix the prompt
+
+  - category: Root Cause Not Fixed
+    severity: MEDIUM-HIGH
+    description: |
+      The prompt in narrative.ts instructs the AI to use markdown format in examples
+      while claiming to want "plain text." This is a design contradiction.
+
+      Current fix: Strip markdown at render time (symptom relief)
+      Better fix: Prevent markdown generation at the source (root cause fix)
+
+      By not fixing the prompt, you create maintenance burden and leave the system
+      fragile to future markdown variants.
+    remediation: Refactor narrative.ts prompt to request plain text without markdown examples
+
+  - category: Incomplete Test Coverage
+    severity: MEDIUM
+    description: |
+      2 new tests added, but coverage is narrow:
+      - Only tests bold markdown stripping
+      - Uses mock data, not real Claude API responses
+      - No tests for other markdown syntax
+      - No edge cases (nested bold, bold with newlines)
+      - No integration tests (prompt → AI → parser → render)
+
+      Only 2 of 18 narrative-parser tests address markdown stripping. Insufficient
+      for a P0 critical regression fix.
+    remediation: Add 5-8+ tests covering markdown variants and edge cases
+
+acceptance_criteria_status:
+  - criterion: Root cause documented and verified
+    status: PASS
+    notes: Correct identification, but incomplete analysis. Prompt design issue not highlighted.
+
+  - criterion: Fix strips markdown syntax from AI responses
+    status: CONDITIONAL_PASS
+    notes: |
+      AC states "markdown syntax" but fix only handles bold (**). Does NOT handle
+      italics (*_), headers (#), links, code, etc. This is a scope mismatch.
+
+  - criterion: Regression tests cover the markdown stripping
+    status: PASS
+    notes: 2 tests added, but scope is narrow (bold only) and uses mock data
+
+  - criterion: All existing tests pass
+    status: PASS
+    notes: 74 passing, 3 skipped. No regressions.
+
+  - criterion: Tested with sample AI output
+    status: PARTIAL_PASS
+    notes: Tested with mock markdown strings, NOT with actual Claude Sonnet 4.5 API responses
+
+blocking_items:
+  - Expand markdown stripping to handle at least italics (*text*), headers (#), and code (`text`)
+  - Add test cases for each markdown variant (minimum 5+ total tests)
+  - Or: Provide documented reasoning why other markdown syntax is not needed
+
+high_priority_items:
+  - Fix narrative.ts prompt to not include markdown in example output
+  - Add integration test validating prompt → AI → parser → render flow with no markdown
+  - Test with real Claude Sonnet 4.5 API output (not mocked)
+
+recommendations:
+  - Refactor narrative.ts to show plain-text example format without markdown syntax
+  - Create comprehensive stripMarkdown() function handling all variants
+  - Add integration tests between prompt builder and parser
+  - Validate with actual Claude API responses before re-submitting
+
+risk_assessment:
+  risk_level: MEDIUM
+  residual_risks:
+    - Markdown variants (italics, headers, links) may still appear to users
+    - Prompt continues to instruct markdown generation
+    - System fragile to future markdown patterns
+    - No real-world validation with Claude API
+
+technical_debt_identified:
+  - Prompt design contradiction (plain text requested, markdown shown in example)
+  - Single-variant markdown stripping (only bold)
+  - No comprehensive markdown sanitizer function
+  - No integration tests between prompt and parser
+
+summary: |
+  The fix partially solves the user-visible symptom (bold markdown stripping) but
+  doesn't address the design problem (prompt instructs markdown generation) and
+  doesn't prevent other markdown variants from appearing.
+
+  This is a good start but requires expansion to address all markdown syntax
+  and ideally requires fixing the root cause in the prompt design.
+
+  Recommend revision before production merge.
+
+next_steps:
+  - Expand markdown stripping coverage
+  - Add tests for markdown variants
+  - Consider prompt redesign (preferred approach)
+  - Test with real Claude responses
+  - Resubmit for QA review
+
+approval_blockers:
+  - Must address high-severity incomplete markdown coverage
+  - Must add tests for additional markdown syntax variants
+  - Should fix prompt design issue (medium-priority but recommended)

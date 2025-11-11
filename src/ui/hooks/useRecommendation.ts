@@ -218,22 +218,33 @@ export function useRecommendation(): UseRecommendationHook {
 				}
 
 				// Transform API response to frontend format
+				// Enrich recommendations with supplier catalog data
 				const transformedRecommendations = apiResponse.data.recommendations
 					.slice(0, 3)
-					.map((rec: any, index: number) => ({
-						id: rec.planId,
-						rank: index + 1,
-						planName: rec.planName,
-						monthlyPrice: rec.estimatedAnnualCost / 12,
-						annualSavings: rec.estimatedSavings,
-						explanation: rec.rationale,
-						rationale: {
-							savingsScore: rec.score * 0.8, // Approximate based on score
-							renewableScore: rec.score * 0.5,
-							flexibilityScore: rec.score * 0.6,
-							overallScore: rec.score,
-						},
-					}))
+					.map((rec: any, index: number) => {
+						// Find matching plan in the response to get full details
+						// The API should include supplier info, but we'll enrich from catalog if available
+						const recommendation: Recommendation = {
+							id: rec.planId,
+							rank: index + 1,
+							planName: rec.planName,
+							monthlyPrice: rec.estimatedAnnualCost / 12,
+							annualSavings: rec.estimatedSavings,
+							explanation: rec.rationale,
+							rationale: {
+								savingsScore: rec.score * 0.8, // Approximate based on score
+								renewableScore: rec.score * 0.5,
+								flexibilityScore: rec.score * 0.6,
+								overallScore: rec.score,
+							},
+							// Add supplier catalog fields from API response
+							supplier: rec.supplier || 'Energy Provider',
+							contractLength: rec.contractTermMonths || 12,
+							earlyTerminationFee: rec.earlyTerminationFee ?? 0,
+							renewablePercentage: rec.renewablePercent ?? 0,
+						};
+						return recommendation;
+					})
 					.sort((a: Recommendation, b: Recommendation) => b.annualSavings - a.annualSavings);
 
 				// Complete the final stage

@@ -140,12 +140,23 @@ export async function handleRecommend(request: Request, env: Env, requestId: str
 	}
 
 	// Build recommendations from pipeline results
+	// Import supplier catalog to enrich recommendations
+	const { supplierCatalog } = await import('../data/supplier-catalog');
+
 	const recommendations = pipelineResult.planScoring
 		? pipelineResult.planScoring.scoredPlans.map((plan) => {
 				const narrativeItem = pipelineResult.narrative?.topRecommendations.find((n) => n.planId === plan.planId);
+
+				// Find matching plan in supplier catalog to get full details
+				const catalogPlan = supplierCatalog.find((p) => p.id === plan.planId);
+
 				return {
 					...plan,
 					rationale: narrativeItem?.rationale || 'No explanation available',
+					// Enrich with supplier catalog data
+					renewablePercent: catalogPlan?.renewablePercent ?? 0,
+					contractTermMonths: catalogPlan?.contractTermMonths ?? 12,
+					earlyTerminationFee: catalogPlan?.earlyTerminationFee ?? 0,
 				};
 			})
 		: [];

@@ -22,6 +22,11 @@ export interface Recommendation {
 		flexibilityScore: number;
 		overallScore: number;
 	};
+	// Additional supplier catalog fields for display
+	supplier?: string;
+	contractLength?: number;
+	earlyTerminationFee?: number;
+	renewablePercentage?: number;
 }
 
 /**

@@ -22,6 +22,14 @@ development_status:
   7.1-workers-ai-model-performance: ready-for-dev
   7.2-why-section-formatting: done
   7.3-progress-timeline-timing: ready-for-dev
+  7.4-test-suite-failures-hanging: ready-for-dev
+  7.5-why-section-markdown-regression: ready-for-dev
+  7.6-mock-data-renewable-and-tiers: ready-for-dev
+  7.7-implement-web-scraper: ready-for-dev
+  7.8-improve-llm-prompts-constraints: ready-for-dev
+  7.9-add-debug-ui-view-plans: ready-for-dev
+  7.10-fix-contract-length-handling: ready-for-dev
+  7.11-fix-error-message-visibility: ready-for-dev
   epic-7-retrospective: pending
 
 # Epic 7 Notes:
@@ -41,6 +49,11 @@ development_status:
 # - 7.1 and 7.2 are independent
 # - 7.3 should start with investigation, but results depend on 7.1
 # - All three together create significant UX improvement
+
+# CRITICAL BUG FIXES ADDED (Stories 7.4-7.11):
+# New user feedback identified 8 critical issues requiring immediate fixes.
+# All 8 stories now ready for development with full developer authority.
+# QA will review and send back if quality standards not met (zero tolerance).
 
 # Timeline Estimate:
 # 7.1: 2-3 days (research, benchmarking, optimization)
