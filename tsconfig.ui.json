@@ -13,7 +13,11 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/ui/*"]
+    }
   },
   "include": ["src/ui/**/*"],
   "exclude": ["node_modules"]
