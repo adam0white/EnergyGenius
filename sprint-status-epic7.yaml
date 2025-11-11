@@ -1,0 +1,52 @@
+# Sprint Status - Epic 7: Post-Launch Improvements
+# generated: 2025-11-11
+# project: EnergyGenius
+# tracking_system: file-system
+# story_location: stories/
+
+# STATUS DEFINITIONS:
+# Epic Status:
+#   - planning: Epic created, stories drafted
+#   - active: At least one story in development
+#   - review: Stories in review phase
+#   - done: All stories complete
+#
+# Story Status:
+#   - ready-for-dev: Story ready for developer to start
+#   - in-progress: Developer actively working
+#   - review: Implementation complete, awaiting review
+#   - done: Story complete and merged
+
+development_status:
+  epic-7: planning
+  7.1-workers-ai-model-performance: ready-for-dev
+  7.2-why-section-formatting: ready-for-dev
+  7.3-progress-timeline-timing: ready-for-dev
+  epic-7-retrospective: pending
+
+# Epic 7 Notes:
+# =============
+# Three critical post-launch improvements based on user feedback:
+# 1. Performance: Recommendation takes 45-60s, need to optimize Workers AI model (7.1)
+# 2. UX: "Why" explanations need better formatting (7.2)
+# 3. Progress: Timeline shows "success" at 10s but waits 50s more (7.3)
+#
+# Recommended execution order:
+# 1. Start 7.1 (Model Performance) - longest, uses context7 MCP
+# 2. Parallel: 7.2 (Why Formatting) - independent
+# 3. Parallel: 7.3 (Progress Timing) - investigate immediately, conclusions after 7.1
+# 4. Future: Exploratory testing with Playwright MCP
+#
+# Dependencies:
+# - 7.1 and 7.2 are independent
+# - 7.3 should start with investigation, but results depend on 7.1
+# - All three together create significant UX improvement
+
+# Timeline Estimate:
+# 7.1: 2-3 days (research, benchmarking, optimization)
+# 7.2: 1-2 days (parsing, UI update, testing)
+# 7.3: 1 day (investigation, fix, validation)
+# Total: 4-6 days for full epic
+
+created_at: 2025-11-11
+created_by: Scrum Master
