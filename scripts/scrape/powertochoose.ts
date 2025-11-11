@@ -33,8 +33,10 @@ import * as cheerio from 'cheerio';
  * Configuration for scraper behavior
  */
 const CONFIG = {
-	/** Target URL for Power to Choose website */
-	URL: 'https://www.powertochoose.org',
+	/** Target URL for Power to Choose CSV export */
+	CSV_URL: 'https://www.powertochoose.org/en-us/Plan/ExportToCsv',
+	/** Default ZIP code for Houston, TX */
+	ZIP_CODE: process.env.SCRAPE_ZIP_CODE || '77002',
 	/** Request timeout in milliseconds */
 	TIMEOUT_MS: parseInt(process.env.SCRAPE_TIMEOUT_MS || '30000', 10),
 	/** Output directory for scraped data */
@@ -63,6 +65,7 @@ interface SupplierPlan {
 	};
 	features: string[];
 	availableInStates: string[];
+	language?: string; // Temporary field for filtering
 }
 
 /**
@@ -79,27 +82,32 @@ const log = (...args: any[]) => {
  */
 async function main() {
 	console.log('🔍 Starting Power to Choose scraper...');
-	console.log('📍 Target URL:', CONFIG.URL);
+	console.log('📍 Target CSV URL:', CONFIG.CSV_URL);
+	console.log('📮 ZIP Code:', CONFIG.ZIP_CODE);
 	console.log('⏱️  Timeout:', CONFIG.TIMEOUT_MS, 'ms');
 	console.log('');
 
 	try {
-		// Step 1: Fetch website HTML
-		console.log('📥 Fetching website...');
-		const html = await fetchWebsite(CONFIG.URL);
-		log('HTML fetched, length:', html.length);
+		// Step 1: Fetch CSV data
+		console.log('📥 Fetching CSV data from Power to Choose...');
+		const csvData = await fetchCSV(CONFIG.CSV_URL, CONFIG.ZIP_CODE);
+		log('CSV data fetched, length:', csvData.length);
 
-		// Step 2: Extract plan data
-		console.log('🔎 Extracting plan data...');
-		const plans = extractPlans(html);
-		console.log(`✓ Extracted ${plans.length} plans`);
+		// Step 2: Parse CSV data
+		console.log('🔎 Parsing CSV data...');
+		const plans = parseCSV(csvData);
+		console.log(`✓ Parsed ${plans.length} plans`);
 
-		// Step 3: Validate data
+		// Step 3: Filter to max plans and English only
+		const filteredPlans = plans.filter((p) => p.language === 'English').slice(0, CONFIG.MAX_PLANS);
+		console.log(`✓ Filtered to ${filteredPlans.length} English plans`);
+
+		// Step 4: Validate data
 		console.log('✅ Validating extracted data...');
-		const validatedPlans = validatePlans(plans);
+		const validatedPlans = validatePlans(filteredPlans);
 		console.log(`✓ ${validatedPlans.length} plans passed validation`);
 
-		// Step 4: Write output
+		// Step 5: Write output
 		console.log('💾 Writing output file...');
 		writeOutput(validatedPlans);
 		console.log(`✓ Output saved to ${CONFIG.OUTPUT_DIR}/raw-scrape-output.json`);
@@ -107,7 +115,8 @@ async function main() {
 		// Summary
 		console.log('');
 		console.log('✅ Scraping complete!');
-		console.log(`   Plans extracted: ${plans.length}`);
+		console.log(`   Plans parsed: ${plans.length}`);
+		console.log(`   Plans filtered: ${filteredPlans.length}`);
 		console.log(`   Plans validated: ${validatedPlans.length}`);
 		console.log('');
 		console.log('⚠️  Next steps:');
@@ -135,20 +144,29 @@ async function main() {
 }
 
 /**
- * Fetches HTML content from Power to Choose website
+ * Fetches CSV data from Power to Choose export endpoint
  *
- * @param url - Target URL to fetch
- * @returns HTML content as string
+ * @param url - CSV export URL
+ * @param zipCode - ZIP code to filter plans
+ * @returns CSV data as string
  * @throws Error if fetch fails or times out
  */
-async function fetchWebsite(url: string): Promise<string> {
+async function fetchCSV(url: string, zipCode: string): Promise<string> {
 	try {
-		const response = await axios.get(url, {
-			timeout: CONFIG.TIMEOUT_MS,
-			headers: {
-				'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-			},
-		});
+		const response = await axios.post(
+			url,
+			new URLSearchParams({
+				zip_code: zipCode,
+				language: 'en',
+			}),
+			{
+				timeout: CONFIG.TIMEOUT_MS,
+				headers: {
+					'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+					'Content-Type': 'application/x-www-form-urlencoded',
+				},
+			}
+		);
 
 		if (response.status !== 200) {
 			throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -167,87 +185,161 @@ async function fetchWebsite(url: string): Promise<string> {
 }
 
 /**
- * Extracts supplier plan data from HTML content
+ * Parses CSV data from Power to Choose into SupplierPlan objects
  *
- * NOTE: This is a placeholder implementation. The actual implementation
- * depends on the current HTML structure of powertochoose.org.
+ * CSV Columns:
+ * - [RepCompany]: Supplier company name
+ * - [Product]: Plan name
+ * - [kwh1000]: Rate at 1000 kWh usage ($/kWh)
+ * - [Renewable]: Renewable percentage (0-100)
+ * - [TermValue]: Contract term in months
+ * - [CancelFee]: Early termination fee
+ * - [Rating]: Supplier rating (1-5)
+ * - [Language]: Plan language (English/Spanish)
+ * - [SpecialTerms]: Features and special terms
  *
- * @param html - Raw HTML content from website
- * @returns Array of extracted supplier plans
+ * @param csvData - Raw CSV data from Power to Choose
+ * @returns Array of parsed supplier plans
  */
-function extractPlans(html: string): SupplierPlan[] {
-	const _$ = cheerio.load(html);
-	const _plans: SupplierPlan[] = [];
+function parseCSV(csvData: string): SupplierPlan[] {
+	const plans: SupplierPlan[] = [];
+	const lines = csvData.split('\n');
 
-	log('Loaded HTML into Cheerio');
+	// Parse header row to get column indices
+	const headerLine = lines[0];
+	if (!headerLine) {
+		throw new Error('CSV data is empty');
+	}
 
-	/**
-	 * IMPLEMENTATION NOTE:
-	 *
-	 * The actual extraction logic depends on the current HTML structure
-	 * of powertochoose.org, which changes over time.
-	 *
-	 * Example extraction pattern (adjust selectors as needed):
-	 *
-	 * $('.plan-card').each((index, element) => {
-	 *   const supplier = $(element).find('.supplier-name').text().trim();
-	 *   const planName = $(element).find('.plan-name').text().trim();
-	 *   const baseRateText = $(element).find('.rate').text().trim();
-	 *   const baseRate = parseRate(baseRateText);
-	 *   // ... extract other fields
-	 *
-	 *   plans.push({
-	 *     id: generatePlanId(supplier, planName),
-	 *     supplier,
-	 *     planName,
-	 *     baseRate,
-	 *     // ... other fields
-	 *   });
-	 * });
-	 *
-	 * For now, this returns mock data to demonstrate the structure.
-	 */
+	const headers = parseCSVLine(headerLine);
+	const colIndices = {
+		supplier: headers.indexOf('[RepCompany]'),
+		planName: headers.indexOf('[Product]'),
+		kwh1000: headers.indexOf('[kwh1000]'),
+		renewable: headers.indexOf('[Renewable]'),
+		termValue: headers.indexOf('[TermValue]'),
+		cancelFee: headers.indexOf('[CancelFee]'),
+		rating: headers.indexOf('[Rating]'),
+		language: headers.indexOf('[Language]'),
+		specialTerms: headers.indexOf('[SpecialTerms]'),
+		fixed: headers.indexOf('[Fixed]'),
+	};
 
-	// PLACEHOLDER: Return mock data for demonstration
-	// TODO: Implement actual scraping logic based on current website structure
-	console.warn('⚠️  WARNING: Using mock data. Implement actual scraping logic in extractPlans()');
+	log('Column indices:', colIndices);
 
-	const mockPlans: SupplierPlan[] = [
-		{
-			id: 'plan-green-energy-001',
-			supplier: 'Green Energy Co',
-			planName: 'Eco Max 100',
-			baseRate: 0.119,
-			monthlyFee: 9.95,
-			contractTermMonths: 12,
-			earlyTerminationFee: 0,
-			renewablePercent: 100,
-			ratings: {
-				reliabilityScore: 4.5,
-				customerServiceScore: 4.3,
-			},
-			features: ['100% Renewable Energy', 'Fixed Rate', 'Online Account Management', 'Paperless Billing'],
-			availableInStates: ['TX'],
-		},
-		{
-			id: 'plan-power-plus-002',
-			supplier: 'Power Plus',
-			planName: 'Budget Saver 24',
-			baseRate: 0.089,
-			monthlyFee: 4.95,
-			contractTermMonths: 24,
-			earlyTerminationFee: 150,
-			renewablePercent: 12,
-			ratings: {
-				reliabilityScore: 4.1,
-				customerServiceScore: 3.8,
-			},
-			features: ['24-Month Fixed Rate', 'Low Monthly Fee', 'Auto-Pay Discount', 'Mobile App'],
-			availableInStates: ['TX'],
-		},
-	];
+	// Parse data rows (skip header)
+	for (let i = 1; i < lines.length; i++) {
+		const line = lines[i].trim();
+		if (!line) continue; // Skip empty lines
 
-	return mockPlans.slice(0, CONFIG.MAX_PLANS);
+		try {
+			const cols = parseCSVLine(line);
+
+			const supplier = cols[colIndices.supplier] || '';
+			const planName = cols[colIndices.planName] || '';
+			const baseRateStr = cols[colIndices.kwh1000] || '0';
+			const renewableStr = cols[colIndices.renewable] || '0';
+			const termStr = cols[colIndices.termValue] || '12';
+			const cancelFeeStr = cols[colIndices.cancelFee] || '0';
+			const ratingStr = cols[colIndices.rating] || '3';
+			const language = cols[colIndices.language] || 'English';
+			const specialTerms = cols[colIndices.specialTerms] || '';
+			const fixedStr = cols[colIndices.fixed] || '0';
+
+			// Skip if missing critical data
+			if (!supplier || !planName) {
+				log(`Skipping row ${i}: missing supplier or planName`);
+				continue;
+			}
+
+			// Parse numeric values
+			const baseRate = parseFloat(baseRateStr);
+			const renewablePercent = parseInt(renewableStr, 10);
+			const contractTermMonths = parseInt(termStr, 10);
+			const earlyTerminationFee = parseFloat(cancelFeeStr);
+			const rating = parseInt(ratingStr, 10);
+			const isFixed = fixedStr === '1';
+
+			// Extract features from special terms
+			const features: string[] = [];
+			if (specialTerms) {
+				// Split on ::: which is the delimiter used in the data
+				const terms = specialTerms.split(':::').map((t) => t.trim());
+				features.push(...terms.filter((t) => t.length > 0));
+			}
+			if (isFixed) {
+				features.unshift('Fixed Rate');
+			}
+			if (renewablePercent === 100) {
+				features.unshift('100% Renewable Energy');
+			}
+
+			// Generate plan ID
+			const id = generatePlanId(supplier, planName);
+
+			// Create plan object
+			const plan: SupplierPlan = {
+				id,
+				supplier,
+				planName,
+				baseRate,
+				monthlyFee: 9.95, // Default - not in CSV
+				contractTermMonths,
+				earlyTerminationFee,
+				renewablePercent,
+				ratings: {
+					reliabilityScore: rating,
+					customerServiceScore: rating, // Use same rating for both
+				},
+				features,
+				availableInStates: ['TX'], // Power to Choose is Texas-only
+				language,
+			};
+
+			plans.push(plan);
+		} catch (error) {
+			log(`Error parsing row ${i}:`, error);
+			// Continue with other rows
+		}
+	}
+
+	return plans;
+}
+
+/**
+ * Parses a single CSV line, handling quoted fields properly
+ *
+ * @param line - Single CSV line
+ * @returns Array of field values
+ */
+function parseCSVLine(line: string): string[] {
+	const fields: string[] = [];
+	let currentField = '';
+	let inQuotes = false;
+
+	for (let i = 0; i < line.length; i++) {
+		const char = line[i];
+
+		if (char === '"') {
+			// Handle escaped quotes
+			if (inQuotes && line[i + 1] === '"') {
+				currentField += '"';
+				i++; // Skip next quote
+			} else {
+				inQuotes = !inQuotes;
+			}
+		} else if (char === ',' && !inQuotes) {
+			fields.push(currentField);
+			currentField = '';
+		} else {
+			currentField += char;
+		}
+	}
+
+	// Add last field
+	fields.push(currentField);
+
+	return fields;
 }
 
 /**
@@ -257,39 +349,19 @@ function extractPlans(html: string): SupplierPlan[] {
  * @param planName - Plan name
  * @returns Unique plan ID (e.g., "plan-green-energy-eco-max")
  */
-function _generatePlanId(supplier: string, planName: string): string {
+function generatePlanId(supplier: string, planName: string): string {
 	const sanitize = (str: string) =>
 		str
 			.toLowerCase()
 			.replace(/[^a-z0-9]+/g, '-')
 			.replace(/^-|-$/g, '');
 
-	return `plan-${sanitize(supplier)}-${sanitize(planName)}`;
+	const supplierPart = sanitize(supplier).slice(0, 20);
+	const planPart = sanitize(planName).slice(0, 20);
+
+	return `plan-${supplierPart}-${planPart}`;
 }
 
-/**
- * Parses rate string to decimal number
- *
- * Examples:
- *   "11.9¢/kWh" → 0.119
- *   "$0.119/kWh" → 0.119
- *   "11.9" → 0.119
- *
- * @param rateText - Rate text from website
- * @returns Rate as decimal number ($/kWh)
- */
-function _parseRate(rateText: string): number {
-	// Remove non-numeric characters except decimal point
-	const cleaned = rateText.replace(/[^0-9.]/g, '');
-	const rate = parseFloat(cleaned);
-
-	// If rate is in cents (>1), convert to dollars
-	if (rate > 1) {
-		return rate / 100;
-	}
-
-	return rate;
-}
 
 /**
  * Validates extracted plans and returns only valid plans
@@ -351,17 +423,18 @@ function validatePlan(plan: SupplierPlan): string[] {
 	}
 
 	// Numeric field validations
-	if (typeof plan.baseRate !== 'number' || plan.baseRate < 0.05 || plan.baseRate > 0.3) {
-		errors.push(`baseRate ${plan.baseRate} out of range (expected 0.05-0.30)`);
+	if (typeof plan.baseRate !== 'number' || plan.baseRate < 0.05 || plan.baseRate > 0.5) {
+		errors.push(`baseRate ${plan.baseRate} out of range (expected 0.05-0.50)`);
 	}
-	if (typeof plan.monthlyFee !== 'number' || plan.monthlyFee < 0 || plan.monthlyFee > 50) {
-		errors.push(`monthlyFee ${plan.monthlyFee} out of range (expected 0-50)`);
+	if (typeof plan.monthlyFee !== 'number' || plan.monthlyFee < 0 || plan.monthlyFee > 100) {
+		errors.push(`monthlyFee ${plan.monthlyFee} out of range (expected 0-100)`);
 	}
-	if (![3, 6, 12, 24].includes(plan.contractTermMonths)) {
-		errors.push(`contractTermMonths ${plan.contractTermMonths} invalid (expected 3, 6, 12, or 24)`);
+	// Contract terms can be 0 (no contract/variable), 1-60 months
+	if (typeof plan.contractTermMonths !== 'number' || plan.contractTermMonths < 0 || plan.contractTermMonths > 60) {
+		errors.push(`contractTermMonths ${plan.contractTermMonths} invalid (expected 0-60)`);
 	}
-	if (typeof plan.earlyTerminationFee !== 'number' || plan.earlyTerminationFee < 0 || plan.earlyTerminationFee > 500) {
-		errors.push(`earlyTerminationFee ${plan.earlyTerminationFee} out of range (expected 0-500)`);
+	if (typeof plan.earlyTerminationFee !== 'number' || plan.earlyTerminationFee < 0 || plan.earlyTerminationFee > 1000) {
+		errors.push(`earlyTerminationFee ${plan.earlyTerminationFee} out of range (expected 0-1000)`);
 	}
 	if (typeof plan.renewablePercent !== 'number' || plan.renewablePercent < 0 || plan.renewablePercent > 100) {
 		errors.push(`renewablePercent ${plan.renewablePercent} out of range (expected 0-100)`);
@@ -407,9 +480,15 @@ function writeOutput(plans: SupplierPlan[]): void {
 		log('Created output directory:', outputDir);
 	}
 
+	// Remove language field from output (was only used for filtering)
+	const cleanedPlans = plans.map((plan) => {
+		const { language, ...cleanPlan } = plan;
+		return cleanPlan;
+	});
+
 	// Write JSON file
 	const outputPath = path.join(outputDir, 'raw-scrape-output.json');
-	fs.writeFileSync(outputPath, JSON.stringify(plans, null, 2), 'utf-8');
+	fs.writeFileSync(outputPath, JSON.stringify(cleanedPlans, null, 2), 'utf-8');
 
 	log('Output written to:', outputPath);
 }

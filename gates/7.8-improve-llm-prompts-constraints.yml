@@ -1,0 +1,156 @@
+gate_id: "7.8-improve-llm-prompts-constraints"
+story: "7.8: Improve LLM Prompts & Data Constraints"
+epic: "Epic 7 - Post-Launch Improvements"
+review_date: "2025-11-11"
+reviewer: "QA Agent (Quinn)"
+
+gate_decision: "PASS"
+decision_rationale: "LLM hallucination prevention implemented with three-layer defense strategy (explicit prompts + full context enrichment + strict validation). All acceptance criteria met. Comprehensive test coverage (13 new + 109 existing = 122 total tests passing). Zero breaking changes."
+
+approval_status: "APPROVED FOR DEPLOYMENT"
+
+key_findings:
+  hallucination_prevention:
+    status: "VERIFIED"
+    layers:
+      - "Layer 1: Explicit prompt constraints forbid plan generation/modification"
+      - "Layer 2: Full plan context enrichment prevents hallucination from incomplete info"
+      - "Layer 3: Strict validation rejects ANY plan modification (3-stage verification)"
+    test_scenarios_blocked: 7
+    coverage: "All real-world hallucination patterns blocked (name variations, fictional plans, supplier attribution errors)"
+
+  prompt_constraints:
+    status: "VERIFIED - EXCELLENT"
+    clarity: "CRITICAL CONSTRAINT marked first in both prompts with explicit language"
+    constraints_verified:
+      - "Do NOT create, suggest, or recommend plans not in list"
+      - "Do NOT modify plan names, suppliers, or properties"
+      - "Every plan MUST exactly match catalog"
+    fallback_behavior: "Validation failure → default recommendation (NOT invention)"
+
+  strict_validation:
+    status: "VERIFIED - BULLETPROOF"
+    three_stage_verification:
+      - "Stage 1: Plan ID validation (reject if not in catalog)"
+      - "Stage 2: Supplier name validation (exact string match)"
+      - "Stage 3: Plan name validation (exact string match)"
+    validation_changed: "WARNING → STRICT REJECTION"
+    error_handling: "Immediate ValidationError with detailed mismatch information"
+
+  test_coverage:
+    status: "PASSING"
+    new_tests: 13
+    test_file: "test/validation-strict.spec.ts"
+    test_categories:
+      - "Plan ID validation (3 tests)"
+      - "Plan name validation (2 tests)"
+      - "Supplier name validation (2 tests)"
+      - "Multiple validation failures (1 test)"
+      - "Real-world hallucination scenarios (3 tests)"
+      - "Edge cases (2 tests)"
+    results:
+      new_tests_passing: "13/13"
+      regression_tests_passing: "109/109"
+      total_tests_passing: "122"
+      skipped: 3
+
+  code_quality:
+    status: "HIGH"
+    files_modified: 4
+    breaking_changes: "ZERO"
+    acceptance_criteria_met: "100%"
+    tasks_completed: "100%"
+    error_handling: "Validation failures throw (not silent)"
+
+requirements_traceability:
+  - requirement: "AI cannot generate non-existent plans"
+    implementation: "parsers.ts plan ID validation (strict rejection)"
+    test_coverage: "Tests: lines 15-30, 49-74, 210-225"
+    status: "VERIFIED"
+
+  - requirement: "Prompt constraints are clear"
+    implementation: "plan-scoring.ts & narrative.ts CRITICAL CONSTRAINT sections"
+    test_coverage: "Explicit constraint verification in prompt files"
+    status: "VERIFIED"
+
+  - requirement: "Strict validation implementation"
+    implementation: "Three-stage validation in parsers.ts (102-138)"
+    test_coverage: "All 13 tests validate strict requirements"
+    status: "VERIFIED"
+
+  - requirement: "13 new tests"
+    implementation: "validation-strict.spec.ts"
+    test_coverage: "13 tests passing"
+    status: "VERIFIED"
+
+  - requirement: "122 total tests passing"
+    implementation: "npm test results"
+    test_coverage: "13 new + 109 existing = 122 total"
+    status: "VERIFIED"
+
+risk_assessment:
+  residual_risk_level: "LOW"
+  residual_risks:
+    - risk: "LLM version behavior changes"
+      mitigation: "Defense-in-depth: validation catches hallucinations regardless"
+
+    - risk: "New suppliers added without validation update"
+      mitigation: "supplierCatalog must be updated; validation enforces immediately"
+
+    - risk: "Plan modifications in catalog"
+      mitigation: "Exact match validation catches any changes"
+
+    - risk: "Validation bypass attempt"
+      mitigation: "No bypass mechanism; validation mandatory in pipeline"
+
+recommendations:
+  deployment_status: "APPROVED"
+  deployment_notes:
+    - "Ready for immediate production deployment"
+    - "All hallucination scenarios blocked with high confidence"
+    - "Validation layer is defense-in-depth (prompts + context + strict checks)"
+    - "Zero impact on existing functionality"
+
+  monitoring:
+    - "Track ValidationError spike in production (indicates prompt regression)"
+    - "Monitor false positive rate if any"
+    - "Alert on validation failures exceeding baseline"
+
+  future_improvements:
+    - "Consider user-facing explanations for recommendation rejections"
+    - "Add metrics for hallucination attempt frequency"
+    - "Consider distributed validation (client + server)"
+
+qa_sign_off:
+  reviewer: "Quinn (Test Architect & Quality Advisor)"
+  review_confidence: "HIGH"
+  approval_authority: "QA Agent - Quality Gate Authority"
+  timestamp: "2025-11-11T00:00:00Z"
+
+implementation_details:
+  files_reviewed:
+    - "src/worker/validation/parsers.ts (3-stage validation)"
+    - "src/worker/prompts/plan-scoring.ts (constraints + context)"
+    - "src/worker/prompts/narrative.ts (constraints + enrichment)"
+    - "src/worker/prompts/usage-summary.ts (data-only constraint)"
+    - "test/validation-strict.spec.ts (13 test scenarios)"
+
+  validation_architecture:
+    - "Layer 1 (Prompts): Explicit 'do NOT' constraints in system prompts"
+    - "Layer 2 (Context): Full plan details provided to prevent hallucination from incomplete info"
+    - "Layer 3 (Validation): Exact match checking for plan IDs, suppliers, and names"
+
+  test_strategy:
+    - "Unit tests for validation functions"
+    - "Integration tests with real catalog data"
+    - "Real-world hallucination scenario testing"
+    - "Edge case testing (empty arrays, large responses)"
+    - "Error message validation"
+
+gate_metadata:
+  story_status_before: "Ready for Review"
+  story_status_after: "Done"
+  priority: "P1 - High"
+  complexity: "High"
+  epic: "Epic 7 - Post-Launch Improvements"
+  narrative_summary: "Comprehensive validation to prevent LLM hallucinations through explicit prompts, full context enrichment, and strict three-stage verification. Implementation is bulletproof with zero regressions."

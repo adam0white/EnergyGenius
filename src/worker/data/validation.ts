@@ -25,7 +25,8 @@ export function validateSupplierPlan(plan: any): plan is SupplierPlan {
 		typeof plan.monthlyFee === 'number' &&
 		plan.monthlyFee >= 0 &&
 		typeof plan.contractTermMonths === 'number' &&
-		[3, 6, 12, 24].includes(plan.contractTermMonths) &&
+		plan.contractTermMonths >= 1 &&
+		plan.contractTermMonths <= 60 &&
 		typeof plan.earlyTerminationFee === 'number' &&
 		plan.earlyTerminationFee >= 0 &&
 		typeof plan.renewablePercent === 'number' &&

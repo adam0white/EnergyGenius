@@ -24,7 +24,7 @@ export interface SupplierPlan {
 	/** Monthly service fee in dollars */
 	monthlyFee: number;
 
-	/** Contract term length in months (3, 6, 12, or 24) */
+	/** Contract term length in months (typically 1-60, most common: 3, 6, 12, 24, 36) */
 	contractTermMonths: number;
 
 	/** Early termination fee in dollars (0 for no penalty) */

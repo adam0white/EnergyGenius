@@ -110,7 +110,7 @@ try {
 - **12 total plans** from 12 different suppliers
 - **Base rates:** $0.085 - $0.135 per kWh
 - **Monthly fees:** $0 - $25
-- **Contract terms:** 3, 6, 12, and 24 months
+- **Contract terms:** 3, 6, 12, and 24 months (system supports 1-60 months)
 - **Renewable energy:** 10% - 100%
 - **States covered:** TX, CA, NY, PA, OH, IL, MA, and more
 
@@ -283,7 +283,7 @@ interface SupplierPlan {
 	planName: string;
 	baseRate: number; // $/kWh
 	monthlyFee: number; // $/month
-	contractTermMonths: number; // 3, 6, 12, or 24
+	contractTermMonths: number; // 1-60 months (typically 3, 6, 12, 24, or 36)
 	earlyTerminationFee: number; // $, 0 for no penalty
 	renewablePercent: number; // 0-100
 	ratings: {

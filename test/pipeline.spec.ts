@@ -3,7 +3,7 @@
  * Tests sequential execution, error handling, timeouts, and progress callbacks
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { runPipeline, runUsageSummary, runPlanScoring, runNarrative, StageInput, PipelineResult } from '../src/worker/pipeline';
 import { Env } from '../src/worker/index';
 

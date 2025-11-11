@@ -6,7 +6,7 @@
  * for quick testing with realistic scenarios.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Card } from '../ui/card';
@@ -49,6 +49,21 @@ export function IntakeForm({ onSubmit, isSubmitting = false }: IntakeFormProps) 
 	const [isAutofilled, setIsAutofilled] = useState(false);
 	const [autofillScenarioName, setAutofillScenarioName] = useState<string | null>(null);
 	const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+
+	// Ref for error alert to enable auto-scroll
+	const errorAlertRef = useRef<HTMLDivElement>(null);
+
+	/**
+	 * Auto-scroll to error when formError is set
+	 */
+	useEffect(() => {
+		if (formError && errorAlertRef.current) {
+			errorAlertRef.current.scrollIntoView({
+				behavior: 'smooth',
+				block: 'center',
+			});
+		}
+	}, [formError]);
 
 	/**
 	 * Handle autofill button click
@@ -176,9 +191,9 @@ export function IntakeForm({ onSubmit, isSubmitting = false }: IntakeFormProps) 
 
 					{/* Error Message */}
 					{formError && (
-						<Alert className="bg-red-50 border-red-200">
-							<span className="mr-2">⚠</span>
-							{formError}
+						<Alert ref={errorAlertRef} className="bg-red-50 border-red-200 border-2">
+							<span className="mr-2 text-lg">⚠</span>
+							<span className="font-semibold">{formError}</span>
 						</Alert>
 					)}
 				</div>
@@ -468,9 +483,12 @@ export function IntakeForm({ onSubmit, isSubmitting = false }: IntakeFormProps) 
 								}
 								placeholder="12"
 								min="1"
-								max="24"
+								max="36"
 								className={isAutofilled ? 'bg-blue-50' : ''}
 							/>
+							<p className="text-xs text-gray-500">
+								Choose between 1-36 months. Most plans offer 3, 6, 12, or 24-month contracts.
+							</p>
 						</div>
 
 						{/* Risk Tolerance */}
