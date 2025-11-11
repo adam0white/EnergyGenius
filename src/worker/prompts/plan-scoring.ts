@@ -29,10 +29,12 @@ export function buildPlanScoringPrompt(usageSummary: UsageSummaryOutput, supplie
 		preferRenewable: Boolean(input.preferences?.preferRenewable),
 		acceptVariableRates: Boolean(input.preferences?.acceptVariableRates),
 		maxMonthlyBudget: input.preferences?.maxMonthlyBudget || null,
+		maxContractMonths: input.preferences?.maxContractMonths || 12,
 	};
 
-	// Prepare sanitized plan catalog (limit to first 20 plans)
-	const plansToScore = supplierPlans.slice(0, 20).map((plan) => ({
+	// Filter plans by user's max contract length preference, then prepare sanitized plan catalog (limit to first 20 plans)
+	const filteredPlans = supplierPlans.filter((plan) => plan.contractTermMonths <= preferences.maxContractMonths);
+	const plansToScore = filteredPlans.slice(0, 20).map((plan) => ({
 		planId: String(plan.id),
 		supplier: String(plan.supplier),
 		planName: String(plan.planName),
@@ -46,6 +48,12 @@ export function buildPlanScoringPrompt(usageSummary: UsageSummaryOutput, supplie
 	// Build structured prompt
 	const prompt = `You are an energy plan comparison expert. Score the following supplier plans based on the user's usage pattern and preferences.
 
+CRITICAL CONSTRAINT - READ THIS FIRST:
+You MUST select and score ONLY from the provided list of real plans below.
+Do NOT create, suggest, or recommend plans that are not in this exact list.
+Do NOT modify plan names, suppliers, or any plan properties.
+Every plan you score MUST exactly match a plan from the AVAILABLE PLANS list.
+
 USAGE SUMMARY:
 - Average Monthly Usage: ${usageSummary.averageMonthlyUsage} kWh
 - Peak Usage Month: ${usageSummary.peakUsageMonth}
@@ -57,15 +65,16 @@ USER PREFERENCES:
 - Prioritize Savings: ${preferences.prioritizeSavings ? 'Yes' : 'No'}
 - Prefer Renewable: ${preferences.preferRenewable ? 'Yes' : 'No'}
 - Accept Variable Rates: ${preferences.acceptVariableRates ? 'Yes' : 'No'}
+- Max Contract Length: ${preferences.maxContractMonths} months
 ${preferences.maxMonthlyBudget ? `- Max Monthly Budget: $${preferences.maxMonthlyBudget}` : ''}
 
-AVAILABLE PLANS:
+AVAILABLE PLANS (REAL DATA - DO NOT MODIFY):
 ${JSON.stringify(plansToScore, null, 2)}
 
 TASK:
 Score each plan on a 0-100 scale based on:
 1. Cost savings potential vs. current annual cost
-2. Contract flexibility (shorter = better unless user accepts long terms)
+2. Contract length (all plans shown meet user's max contract length preference)
 3. Renewable energy percentage (if user prefers renewable)
 4. Match with usage pattern
 
@@ -96,9 +105,17 @@ SCORING CRITERIA:
 - Base score: 50 points
 - Add up to +30 for significant savings (>15% savings = +30, 10-15% = +20, 5-10% = +10)
 - Add up to +20 for renewable percentage if user prefers (100% = +20, 50% = +10)
-- Subtract up to -20 for long contracts if user wants flexibility (24mo = -20, 12mo = -10)
+- Add up to +10 for shorter contracts (3mo = +10, 6mo = +7, 12mo = +5)
 - Add up to +10 for low monthly fees
+- Note: All plans shown already meet user's max contract length requirement
 - Minimum 5 plans, maximum 10 plans
+
+VALIDATION REQUIREMENT:
+Each plan you return MUST have:
+- planId that EXACTLY matches one from the AVAILABLE PLANS list
+- supplier that EXACTLY matches the corresponding plan
+- planName that EXACTLY matches the corresponding plan
+DO NOT create variations or modifications of these values.
 
 EXAMPLE OUTPUT (copy this structure exactly):
 [

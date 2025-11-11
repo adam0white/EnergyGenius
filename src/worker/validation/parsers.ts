@@ -8,6 +8,7 @@ import { UsageSummarySchema, PlanScoringSchema, NarrativeSchema } from './schema
 import type { UsageSummaryValidated, PlanScoringValidated, NarrativeValidated } from './schemas';
 import { ParseError, ValidationError } from './errors';
 import { sanitizeAIResponse, sanitizeText, truncateText } from './sanitizers';
+import { supplierCatalog } from '../data/supplier-catalog';
 
 /**
  * Parses and validates Usage Summary response (Stage 1)
@@ -98,13 +99,42 @@ export function parsePlanScoring(rawResponse: string, validPlanIds: string[], st
 		throw error;
 	}
 
-	// Verify plan IDs match catalog
+	// STRICT VALIDATION: Verify plan IDs match catalog
 	const invalidPlanIds = validated.scoredPlans.filter((plan) => !validPlanIds.includes(plan.planId)).map((plan) => plan.planId);
 
 	if (invalidPlanIds.length > 0) {
-		const message = `Plan IDs not found in catalog: ${invalidPlanIds.join(', ')}`;
-		console.warn(`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] ${message}`);
-		// Don't throw, just log warning - AI might use different IDs
+		const message = `Plan IDs not found in catalog: ${invalidPlanIds.join(', ')}. AI generated non-existent plans. All plan IDs must exactly match the catalog.`;
+		console.error(`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] ${message}`);
+		throw new ValidationError(message, stageName, [{ path: ['planId'], message: `Invalid plan IDs: ${invalidPlanIds.join(', ')}` }]);
+	}
+
+	// STRICT VALIDATION: Verify plan names and suppliers match catalog exactly
+	const catalogMap = new Map(Array.from(supplierCatalog).map((p) => [p.id, p]));
+	const mismatchedPlans: string[] = [];
+
+	for (const scoredPlan of validated.scoredPlans) {
+		const catalogPlan = catalogMap.get(scoredPlan.planId);
+		if (!catalogPlan) continue; // Already caught by ID validation above
+
+		// Check if supplier name matches exactly
+		if (scoredPlan.supplier !== catalogPlan.supplier) {
+			mismatchedPlans.push(
+				`${scoredPlan.planId}: supplier mismatch (AI: "${scoredPlan.supplier}", Catalog: "${catalogPlan.supplier}")`,
+			);
+		}
+
+		// Check if plan name matches exactly
+		if (scoredPlan.planName !== catalogPlan.planName) {
+			mismatchedPlans.push(
+				`${scoredPlan.planId}: planName mismatch (AI: "${scoredPlan.planName}", Catalog: "${catalogPlan.planName}")`,
+			);
+		}
+	}
+
+	if (mismatchedPlans.length > 0) {
+		const message = `AI modified plan details. All plan names and suppliers must exactly match catalog. Mismatches: ${mismatchedPlans.join('; ')}`;
+		console.error(`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] ${message}`);
+		throw new ValidationError(message, stageName, [{ path: ['plans'], message: mismatchedPlans.join('; ') }]);
 	}
 
 	// Sort by score descending

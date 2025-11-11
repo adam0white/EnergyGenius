@@ -4,6 +4,8 @@
  */
 
 import type { PlanScoringOutput, UsageSummaryOutput } from '../pipeline';
+import type { SupplierPlan } from '../data/types';
+import { supplierCatalog } from '../data/supplier-catalog';
 
 /**
  * Builds a prompt for generating narrative explanations of top 3 recommendations
@@ -28,18 +30,55 @@ export function buildNarrativePrompt(planScoring: PlanScoringOutput, usageSummar
 		throw new Error('At least 1 scored plan required for narrative');
 	}
 
-	// Sanitize plan data
-	const sanitizedPlans = topPlans.map((plan) => ({
-		planId: String(plan.planId),
-		supplier: String(plan.supplier),
-		planName: String(plan.planName),
-		score: Number(plan.score),
-		estimatedAnnualCost: Math.round(plan.estimatedAnnualCost * 100) / 100,
-		estimatedSavings: Math.round(plan.estimatedSavings * 100) / 100,
-	}));
+	// Enrich scored plans with FULL details from catalog to prevent hallucination
+	const enrichedPlans = topPlans.map((scoredPlan) => {
+		const catalogPlan = Array.from(supplierCatalog).find((p) => p.id === scoredPlan.planId);
+
+		if (!catalogPlan) {
+			// If plan not found in catalog, use scored plan data only (validation will catch this)
+			return {
+				planId: String(scoredPlan.planId),
+				supplier: String(scoredPlan.supplier),
+				planName: String(scoredPlan.planName),
+				score: Number(scoredPlan.score),
+				estimatedAnnualCost: Math.round(scoredPlan.estimatedAnnualCost * 100) / 100,
+				estimatedSavings: Math.round(scoredPlan.estimatedSavings * 100) / 100,
+				// No additional details available
+				baseRate: null,
+				monthlyFee: null,
+				contractTermMonths: null,
+				renewablePercent: null,
+				features: [],
+			};
+		}
+
+		// Return enriched plan with ALL catalog data
+		return {
+			planId: String(catalogPlan.id),
+			supplier: String(catalogPlan.supplier),
+			planName: String(catalogPlan.planName),
+			score: Number(scoredPlan.score),
+			estimatedAnnualCost: Math.round(scoredPlan.estimatedAnnualCost * 100) / 100,
+			estimatedSavings: Math.round(scoredPlan.estimatedSavings * 100) / 100,
+			// Full catalog details
+			baseRate: catalogPlan.baseRate,
+			monthlyFee: catalogPlan.monthlyFee,
+			contractTermMonths: catalogPlan.contractTermMonths,
+			renewablePercent: catalogPlan.renewablePercent,
+			earlyTerminationFee: catalogPlan.earlyTerminationFee,
+			features: catalogPlan.features.slice(0, 5),
+			ratings: catalogPlan.ratings,
+		};
+	});
 
 	// Build structured prompt
 	const prompt = `You are a friendly energy advisor helping a customer understand their plan recommendations. Create clear, approachable explanations for why we're recommending specific energy plans.
+
+CRITICAL CONSTRAINT - READ THIS FIRST:
+You MUST describe ONLY the plans provided below with their EXACT details.
+Do NOT modify plan names, suppliers, rates, or features.
+Do NOT create hypothetical plans or add features not listed.
+Use ONLY the information provided for each plan.
 
 CUSTOMER CONTEXT:
 - Current Annual Cost: $${usageSummary.annualCost.toFixed(2)}
@@ -47,11 +86,11 @@ CUSTOMER CONTEXT:
 - Usage Pattern: ${usageSummary.usagePattern}
 - Peak Usage: ${usageSummary.peakUsageMonth}
 
-TOP RECOMMENDED PLANS:
-${JSON.stringify(sanitizedPlans, null, 2)}
+TOP RECOMMENDED PLANS (REAL DATA - DO NOT MODIFY):
+${JSON.stringify(enrichedPlans, null, 2)}
 
 TASK:
-Write a friendly, easy-to-understand explanation for each of the top ${sanitizedPlans.length} recommended plans. For each plan, explain:
+Write a friendly, easy-to-understand explanation for each of the top ${enrichedPlans.length} recommended plans. For each plan, explain:
 
 1. Why we're recommending it (focus on benefits and savings)
 2. Key advantages specific to their usage pattern
@@ -102,7 +141,11 @@ Estimated Annual Savings: $214.00
 
 ---
 
-Now provide explanations for the ${sanitizedPlans.length} recommended plans:`;
+VALIDATION REQUIREMENT:
+Every plan name, supplier, rate, and feature you mention MUST exactly match the data above.
+Do NOT add, remove, or modify any plan details.
+
+Now provide explanations for the ${enrichedPlans.length} recommended plans:`;
 
 	return prompt;
 }

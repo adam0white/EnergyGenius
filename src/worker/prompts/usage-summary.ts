@@ -36,6 +36,10 @@ export function buildUsageSummaryPrompt(input: StageInput): string {
 	// Build structured prompt
 	const prompt = `You are an energy usage analyst. Analyze the following 12 months of electricity usage data and provide a structured summary.
 
+CRITICAL CONSTRAINT:
+Base your analysis ONLY on the provided usage data below.
+Do NOT make assumptions or add data points not provided.
+
 USAGE DATA:
 ${JSON.stringify(sanitizedMonthlyData, null, 2)}
 
