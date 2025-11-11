@@ -12,6 +12,7 @@
 import React from 'react';
 import { Card } from '../ui/card';
 import { Badge } from '../ui/badge';
+import { parseNarrative, type NarrativeSection } from '../../../worker/lib/narrative-parser';
 
 interface Recommendation {
 	id: string;
@@ -44,6 +45,59 @@ function getSavingsTier(savings: number): 'gold' | 'silver' | 'bronze' {
 	if (savings >= 1000) return 'gold';
 	if (savings >= 500) return 'silver';
 	return 'bronze';
+}
+
+/**
+ * Formatted Narrative Section Renderer
+ * Renders parsed narrative sections with appropriate formatting
+ */
+function NarrativeSectionRenderer({ section }: { section: NarrativeSection }) {
+	if (section.type === 'list') {
+		return (
+			<ul className="space-y-2 my-3" role="list">
+				{(section.content as string[]).map((item, index) => (
+					<li key={index} className="flex items-start text-sm text-gray-700 leading-relaxed">
+						<span className="text-blue-600 font-bold mr-2 mt-0.5" aria-hidden="true">
+							•
+						</span>
+						<span>{item}</span>
+					</li>
+				))}
+			</ul>
+		);
+	}
+
+	if (section.type === 'metric') {
+		return (
+			<div className="my-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+				<p className="text-sm text-gray-800 font-medium leading-relaxed">{section.content as string}</p>
+			</div>
+		);
+	}
+
+	// Paragraph
+	return <p className="text-sm text-gray-700 leading-relaxed my-2">{section.content as string}</p>;
+}
+
+/**
+ * Formatted Narrative Component
+ * Parses and displays narrative text with structure
+ */
+function FormattedNarrative({ text }: { text: string }) {
+	const parsed = parseNarrative(text);
+
+	// Fallback to plain text if parsing fails or returns empty
+	if (!parsed.sections || parsed.sections.length === 0) {
+		return <p className="text-sm text-gray-700 leading-relaxed">{text}</p>;
+	}
+
+	return (
+		<div className="space-y-1">
+			{parsed.sections.map((section, index) => (
+				<NarrativeSectionRenderer key={index} section={section} />
+			))}
+		</div>
+	);
 }
 
 /**
@@ -156,7 +210,7 @@ function RecommendationCard({ recommendation, rank }: { recommendation: Recommen
 			{/* AI Narrative */}
 			<div>
 				<h4 className="text-sm font-semibold text-gray-700 mb-2">Why We Recommend This</h4>
-				<p className="text-sm text-gray-700 leading-relaxed">{recommendation.explanation}</p>
+				<FormattedNarrative text={recommendation.explanation} />
 			</div>
 
 			{/* Best value indicator for top recommendation */}
