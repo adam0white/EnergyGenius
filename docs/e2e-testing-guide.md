@@ -25,13 +25,16 @@ This document provides a comprehensive manual testing checklist for the Energy R
 ## Test Suite 1: Complete Flow Testing
 
 ### Test 1.1: Residential Scenario Flow
+
 **Input Data:**
+
 - Monthly Usage: 800 kWh
 - Utility Type: Electric
 - Location: California
 - Building Type: Single family house
 
 **Steps:**
+
 1. [ ] Open application - verify intake form loads
 2. [ ] Enter residential data in all fields
 3. [ ] Click "Submit" button
@@ -47,6 +50,7 @@ This document provides a comprehensive manual testing checklist for the Energy R
 13. [ ] Verify form resets to intake state
 
 **Expected Results:**
+
 - ✅ All stages progress correctly
 - ✅ 3 recommendations displayed
 - ✅ Savings projections present ($500-1500/year)
@@ -59,13 +63,16 @@ This document provides a comprehensive manual testing checklist for the Energy R
 ---
 
 ### Test 1.2: Business Scenario Flow
+
 **Input Data:**
+
 - Monthly Usage: 5000 kWh
 - Utility Type: Electric + Gas
 - Location: Texas
 - Building Type: Retail storefront
 
 **Steps:**
+
 1. [ ] Ensure form is in intake state
 2. [ ] Enter business data in all fields
 3. [ ] Click "Submit" button
@@ -77,6 +84,7 @@ This document provides a comprehensive manual testing checklist for the Energy R
 9. [ ] Click "Start Over" button
 
 **Expected Results:**
+
 - ✅ All stages complete successfully
 - ✅ 3 business-oriented recommendations
 - ✅ Higher savings projections than residential
@@ -88,13 +96,16 @@ This document provides a comprehensive manual testing checklist for the Energy R
 ---
 
 ### Test 1.3: Seasonal Scenario Flow
+
 **Input Data:**
+
 - Monthly Usage: 1200 kWh (or use seasonal toggle if available)
 - Utility Type: Electric
 - Location: Arizona
 - Pattern: Summer peak (high AC usage)
 
 **Steps:**
+
 1. [ ] Ensure form is in intake state
 2. [ ] Enter seasonal data
 3. [ ] Submit form and observe timeline
@@ -104,6 +115,7 @@ This document provides a comprehensive manual testing checklist for the Energy R
 7. [ ] Click "Start Over"
 
 **Expected Results:**
+
 - ✅ Recommendations mention seasonal patterns
 - ✅ AC/cooling-related suggestions
 - ✅ Seasonal savings breakdown
@@ -117,7 +129,9 @@ This document provides a comprehensive manual testing checklist for the Energy R
 ## Test Suite 2: Form Validation Testing
 
 ### Test 2.1: Empty Form Submission
+
 **Steps:**
+
 1. [ ] Ensure all form fields are empty
 2. [ ] Click "Submit" button
 3. [ ] Verify validation errors appear
@@ -125,6 +139,7 @@ This document provides a comprehensive manual testing checklist for the Energy R
 5. [ ] Verify error messages are clear and visible
 
 **Expected Results:**
+
 - ✅ Validation errors displayed
 - ✅ Form does not submit
 - ✅ Error messages readable
@@ -135,13 +150,16 @@ This document provides a comprehensive manual testing checklist for the Energy R
 ---
 
 ### Test 2.2: Invalid Monthly Usage (Zero)
+
 **Steps:**
+
 1. [ ] Enter 0 in monthly usage field
 2. [ ] Fill other fields with valid data
 3. [ ] Click "Submit"
 4. [ ] Verify validation error on usage field
 
 **Expected Results:**
+
 - ✅ Error: "Monthly usage must be greater than 0"
 - ✅ Form does not submit
 
@@ -151,13 +169,16 @@ This document provides a comprehensive manual testing checklist for the Energy R
 ---
 
 ### Test 2.3: Invalid Monthly Usage (Exceeds Max)
+
 **Steps:**
+
 1. [ ] Enter 50001 in monthly usage field
 2. [ ] Fill other fields with valid data
 3. [ ] Click "Submit"
 4. [ ] Verify validation error
 
 **Expected Results:**
+
 - ✅ Error: "Monthly usage too high" or similar
 - ✅ Form does not submit
 
@@ -167,13 +188,16 @@ This document provides a comprehensive manual testing checklist for the Energy R
 ---
 
 ### Test 2.4: Invalid Zip Code Format (if applicable)
+
 **Steps:**
+
 1. [ ] Enter invalid zip code (e.g., "ABCDE")
 2. [ ] Fill other fields with valid data
 3. [ ] Click "Submit"
 4. [ ] Verify validation error
 
 **Expected Results:**
+
 - ✅ Zip code validation error
 - ✅ Form does not submit
 
@@ -183,7 +207,9 @@ This document provides a comprehensive manual testing checklist for the Energy R
 ---
 
 ### Test 2.5: Tab Order and Focus
+
 **Steps:**
+
 1. [ ] Click on first form field
 2. [ ] Press Tab key repeatedly
 3. [ ] Verify tab order: field 1 → field 2 → field 3 → Submit button
@@ -191,6 +217,7 @@ This document provides a comprehensive manual testing checklist for the Energy R
 5. [ ] Verify reverse tab order works
 
 **Expected Results:**
+
 - ✅ Tab order is logical (top to bottom)
 - ✅ All fields accessible via keyboard
 - ✅ Focus visible on all elements
@@ -203,7 +230,9 @@ This document provides a comprehensive manual testing checklist for the Energy R
 ## Test Suite 3: Error Scenario Testing
 
 ### Test 3.1: API Timeout Simulation
+
 **Steps:**
+
 1. [ ] Open DevTools → Network tab
 2. [ ] Throttle network to "Slow 3G" or offline
 3. [ ] Submit valid form data
@@ -214,6 +243,7 @@ This document provides a comprehensive manual testing checklist for the Energy R
 8. [ ] Verify request retries successfully
 
 **Expected Results:**
+
 - ✅ Timeout error message displayed
 - ✅ Retry button visible
 - ✅ Retry works after network restored
@@ -224,7 +254,9 @@ This document provides a comprehensive manual testing checklist for the Energy R
 ---
 
 ### Test 3.2: Network Error
+
 **Steps:**
+
 1. [ ] Disable network (Offline mode in DevTools)
 2. [ ] Submit form
 3. [ ] Verify network error message
@@ -233,6 +265,7 @@ This document provides a comprehensive manual testing checklist for the Energy R
 6. [ ] Verify successful submission
 
 **Expected Results:**
+
 - ✅ Clear network error message
 - ✅ No app crash
 - ✅ Retry mechanism works
@@ -243,13 +276,16 @@ This document provides a comprehensive manual testing checklist for the Energy R
 ---
 
 ### Test 3.3: Start Over from Error State
+
 **Steps:**
+
 1. [ ] Trigger an error (network offline)
 2. [ ] Verify error state displays
 3. [ ] Click "Start Over" button (if visible in error state)
 4. [ ] Verify form resets to intake
 
 **Expected Results:**
+
 - ✅ "Start Over" accessible from error state
 - ✅ Form resets correctly
 - ✅ Error state cleared
@@ -262,7 +298,9 @@ This document provides a comprehensive manual testing checklist for the Energy R
 ## Test Suite 4: State Machine Verification
 
 ### Test 4.1: State Transitions
+
 **Steps:**
+
 1. [ ] Initial state: verify app loads in Intake state
 2. [ ] Submit form: verify transition to Loading state
 3. [ ] Wait for completion: verify transition to Results state
@@ -270,6 +308,7 @@ This document provides a comprehensive manual testing checklist for the Energy R
 5. [ ] Verify state doesn't persist after page refresh
 
 **Expected Results:**
+
 - ✅ Intake → Loading → Results → Intake cycle works
 - ✅ Page refresh resets to Intake
 - ✅ No localStorage persistence (or intended behavior)
@@ -282,7 +321,9 @@ This document provides a comprehensive manual testing checklist for the Energy R
 ## Test Suite 5: Browser DevTools Validation
 
 ### Test 5.1: Network Tab Inspection
+
 **Steps:**
+
 1. [ ] Open DevTools → Network tab
 2. [ ] Submit form
 3. [ ] Locate POST /api/recommend request
@@ -293,6 +334,7 @@ This document provides a comprehensive manual testing checklist for the Energy R
 8. [ ] Verify no 404 or CORS errors
 
 **Expected Results:**
+
 - ✅ POST request visible
 - ✅ Status: 200 OK
 - ✅ Request payload correct
@@ -305,7 +347,9 @@ This document provides a comprehensive manual testing checklist for the Energy R
 ---
 
 ### Test 5.2: Console Error Check
+
 **Steps:**
+
 1. [ ] Open DevTools → Console tab
 2. [ ] Clear console
 3. [ ] Execute complete flow (intake → loading → results)
@@ -313,6 +357,7 @@ This document provides a comprehensive manual testing checklist for the Energy R
 5. [ ] Verify no warnings (or only expected warnings)
 
 **Expected Results:**
+
 - ✅ No errors in console
 - ✅ No unexpected warnings
 - ✅ Clean console output
@@ -325,36 +370,42 @@ This document provides a comprehensive manual testing checklist for the Energy R
 ## Test Suite 6: Cross-Browser Testing
 
 ### Test 6.1: Chrome
+
 **Steps:**
+
 1. [ ] Execute all tests in Google Chrome
 2. [ ] Document Chrome version
 3. [ ] Note any Chrome-specific issues
 
-**Chrome Version:** _______________
+**Chrome Version:** **\*\***\_\_\_**\*\***
 **Status:** ⬜ PASS / ⬜ FAIL
 **Notes:**
 
 ---
 
 ### Test 6.2: Safari
+
 **Steps:**
+
 1. [ ] Execute core flows in Safari
 2. [ ] Document Safari version
 3. [ ] Note any Safari-specific issues
 
-**Safari Version:** _______________
+**Safari Version:** **\*\***\_\_\_**\*\***
 **Status:** ⬜ PASS / ⬜ FAIL
 **Notes:**
 
 ---
 
 ### Test 6.3: Firefox
+
 **Steps:**
+
 1. [ ] Execute core flows in Firefox
 2. [ ] Document Firefox version
 3. [ ] Note any Firefox-specific issues
 
-**Firefox Version:** _______________
+**Firefox Version:** **\*\***\_\_\_**\*\***
 **Status:** ⬜ PASS / ⬜ FAIL
 **Notes:**
 
@@ -363,16 +414,16 @@ This document provides a comprehensive manual testing checklist for the Energy R
 ## Summary
 
 **Total Tests:** 18
-**Tests Passed:** ___ / 18
-**Tests Failed:** ___ / 18
-**Critical Issues:** ___
-**Non-Critical Issues:** ___
+**Tests Passed:** **\_ / 18
+**Tests Failed:** \_** / 18
+**Critical Issues:** **\_
+**Non-Critical Issues:** \_**
 
 **Overall Status:** ⬜ READY FOR PRODUCTION / ⬜ NEEDS FIXES
 
-**Tested By:** _______________
-**Date:** _______________
-**Environment:** _______________
+**Tested By:** **\*\***\_\_\_**\*\***
+**Date:** **\*\***\_\_\_**\*\***
+**Environment:** **\*\***\_\_\_**\*\***
 
 ---
 

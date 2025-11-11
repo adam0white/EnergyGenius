@@ -38,10 +38,7 @@ const initialState: RecommendationState = {
 /**
  * Reducer function for state updates
  */
-function recommendationReducer(
-	state: RecommendationState,
-	action: RecommendationAction
-): RecommendationState {
+function recommendationReducer(state: RecommendationState, action: RecommendationAction): RecommendationState {
 	switch (action.type) {
 		case 'SET_USER_INTAKE_DATA':
 			return {
@@ -145,26 +142,17 @@ export function RecommendationProvider({ children }: { children: React.ReactNode
 		dispatch({ type: 'SET_USER_INTAKE_DATA', payload: data });
 	}, []);
 
-	const startPipelineStage = useCallback(
-		(stage: keyof RecommendationState['pipelineStages']) => {
-			dispatch({ type: 'START_PIPELINE_STAGE', payload: { stage } });
-		},
-		[]
-	);
+	const startPipelineStage = useCallback((stage: keyof RecommendationState['pipelineStages']) => {
+		dispatch({ type: 'START_PIPELINE_STAGE', payload: { stage } });
+	}, []);
 
-	const updatePipelineStage = useCallback(
-		(stage: keyof RecommendationState['pipelineStages'], output: string) => {
-			dispatch({ type: 'UPDATE_PIPELINE_STAGE', payload: { stage, output } });
-		},
-		[]
-	);
+	const updatePipelineStage = useCallback((stage: keyof RecommendationState['pipelineStages'], output: string) => {
+		dispatch({ type: 'UPDATE_PIPELINE_STAGE', payload: { stage, output } });
+	}, []);
 
-	const completePipelineStage = useCallback(
-		(stage: keyof RecommendationState['pipelineStages']) => {
-			dispatch({ type: 'COMPLETE_PIPELINE_STAGE', payload: { stage } });
-		},
-		[]
-	);
+	const completePipelineStage = useCallback((stage: keyof RecommendationState['pipelineStages']) => {
+		dispatch({ type: 'COMPLETE_PIPELINE_STAGE', payload: { stage } });
+	}, []);
 
 	const setRecommendations = useCallback((recommendations: Recommendation[]) => {
 		dispatch({ type: 'SET_RECOMMENDATIONS', payload: recommendations });
@@ -217,7 +205,7 @@ export function RecommendationProvider({ children }: { children: React.ReactNode
 			resetState,
 			setCurrentStep,
 			setLoading,
-		]
+		],
 	);
 
 	return <RecommendationContext.Provider value={value}>{children}</RecommendationContext.Provider>;

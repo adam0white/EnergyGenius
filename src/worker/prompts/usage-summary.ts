@@ -53,8 +53,13 @@ Analyze this usage data and identify key patterns. Calculate the following metri
 4. Usage pattern classification
 5. Total annual cost
 
-OUTPUT FORMAT:
-Respond with ONLY a valid JSON object in this exact format:
+OUTPUT FORMAT - CRITICAL:
+Return ONLY valid JSON. No markdown code blocks, no comments, no extra text before or after.
+Do NOT wrap in \`\`\`json or \`\`\` markers.
+Do NOT add any text before or after the JSON.
+Start your response with { and end with }
+
+Required JSON format:
 {
   "averageMonthlyUsage": <number>,
   "peakUsageMonth": "<month name>",
@@ -68,7 +73,7 @@ PATTERN DEFINITIONS:
 - "seasonal": Clear summer or winter peaks (>30% above average)
 - "high-variance": Irregular usage with no clear pattern
 
-EXAMPLE OUTPUT:
+EXAMPLE OUTPUT (copy this structure exactly):
 {
   "averageMonthlyUsage": 850,
   "peakUsageMonth": "August",
@@ -77,7 +82,7 @@ EXAMPLE OUTPUT:
   "annualCost": 1428.50
 }
 
-Provide your analysis now:`;
+Provide ONLY the JSON object now:`;
 
 	return prompt;
 }

@@ -22,6 +22,8 @@
  * @see {@link ../../scripts/scrape/README.md} Complete documentation
  */
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import * as fs from 'fs';
 import * as path from 'path';
 import axios from 'axios';
@@ -144,8 +146,7 @@ async function fetchWebsite(url: string): Promise<string> {
 		const response = await axios.get(url, {
 			timeout: CONFIG.TIMEOUT_MS,
 			headers: {
-				'User-Agent':
-					'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+				'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
 			},
 		});
 
@@ -157,9 +158,7 @@ async function fetchWebsite(url: string): Promise<string> {
 	} catch (error) {
 		if (axios.isAxiosError(error)) {
 			if (error.code === 'ECONNABORTED') {
-				throw new Error(
-					`Request timeout after ${CONFIG.TIMEOUT_MS}ms. Try increasing SCRAPE_TIMEOUT_MS.`
-				);
+				throw new Error(`Request timeout after ${CONFIG.TIMEOUT_MS}ms. Try increasing SCRAPE_TIMEOUT_MS.`);
 			}
 			throw new Error(`Network error: ${error.message}`);
 		}
@@ -177,8 +176,8 @@ async function fetchWebsite(url: string): Promise<string> {
  * @returns Array of extracted supplier plans
  */
 function extractPlans(html: string): SupplierPlan[] {
-	const $ = cheerio.load(html);
-	const plans: SupplierPlan[] = [];
+	const _$ = cheerio.load(html);
+	const _plans: SupplierPlan[] = [];
 
 	log('Loaded HTML into Cheerio');
 
@@ -211,9 +210,7 @@ function extractPlans(html: string): SupplierPlan[] {
 
 	// PLACEHOLDER: Return mock data for demonstration
 	// TODO: Implement actual scraping logic based on current website structure
-	console.warn(
-		'⚠️  WARNING: Using mock data. Implement actual scraping logic in extractPlans()'
-	);
+	console.warn('⚠️  WARNING: Using mock data. Implement actual scraping logic in extractPlans()');
 
 	const mockPlans: SupplierPlan[] = [
 		{
@@ -229,12 +226,7 @@ function extractPlans(html: string): SupplierPlan[] {
 				reliabilityScore: 4.5,
 				customerServiceScore: 4.3,
 			},
-			features: [
-				'100% Renewable Energy',
-				'Fixed Rate',
-				'Online Account Management',
-				'Paperless Billing',
-			],
+			features: ['100% Renewable Energy', 'Fixed Rate', 'Online Account Management', 'Paperless Billing'],
 			availableInStates: ['TX'],
 		},
 		{
@@ -250,12 +242,7 @@ function extractPlans(html: string): SupplierPlan[] {
 				reliabilityScore: 4.1,
 				customerServiceScore: 3.8,
 			},
-			features: [
-				'24-Month Fixed Rate',
-				'Low Monthly Fee',
-				'Auto-Pay Discount',
-				'Mobile App',
-			],
+			features: ['24-Month Fixed Rate', 'Low Monthly Fee', 'Auto-Pay Discount', 'Mobile App'],
 			availableInStates: ['TX'],
 		},
 	];
@@ -270,7 +257,7 @@ function extractPlans(html: string): SupplierPlan[] {
  * @param planName - Plan name
  * @returns Unique plan ID (e.g., "plan-green-energy-eco-max")
  */
-function generatePlanId(supplier: string, planName: string): string {
+function _generatePlanId(supplier: string, planName: string): string {
 	const sanitize = (str: string) =>
 		str
 			.toLowerCase()
@@ -291,7 +278,7 @@ function generatePlanId(supplier: string, planName: string): string {
  * @param rateText - Rate text from website
  * @returns Rate as decimal number ($/kWh)
  */
-function parseRate(rateText: string): number {
+function _parseRate(rateText: string): number {
 	// Remove non-numeric characters except decimal point
 	const cleaned = rateText.replace(/[^0-9.]/g, '');
 	const rate = parseFloat(cleaned);
@@ -325,9 +312,7 @@ function validatePlans(plans: SupplierPlan[]): SupplierPlan[] {
 		if (planErrors.length === 0) {
 			validPlans.push(plan);
 		} else {
-			errors.push(
-				`Plan "${plan.supplier} - ${plan.planName}" validation failed:`
-			);
+			errors.push(`Plan "${plan.supplier} - ${plan.planName}" validation failed:`);
 			planErrors.forEach((error) => errors.push(`  - ${error}`));
 		}
 	}
@@ -338,9 +323,7 @@ function validatePlans(plans: SupplierPlan[]): SupplierPlan[] {
 		console.warn('⚠️  Validation warnings:');
 		errors.forEach((error) => console.warn(error));
 		console.warn('');
-		console.warn(
-			`${plans.length - validPlans.length} plans failed validation and were excluded`
-		);
+		console.warn(`${plans.length - validPlans.length} plans failed validation and were excluded`);
 		console.warn('');
 	}
 
@@ -375,50 +358,28 @@ function validatePlan(plan: SupplierPlan): string[] {
 		errors.push(`monthlyFee ${plan.monthlyFee} out of range (expected 0-50)`);
 	}
 	if (![3, 6, 12, 24].includes(plan.contractTermMonths)) {
-		errors.push(
-			`contractTermMonths ${plan.contractTermMonths} invalid (expected 3, 6, 12, or 24)`
-		);
+		errors.push(`contractTermMonths ${plan.contractTermMonths} invalid (expected 3, 6, 12, or 24)`);
 	}
-	if (
-		typeof plan.earlyTerminationFee !== 'number' ||
-		plan.earlyTerminationFee < 0 ||
-		plan.earlyTerminationFee > 500
-	) {
-		errors.push(
-			`earlyTerminationFee ${plan.earlyTerminationFee} out of range (expected 0-500)`
-		);
+	if (typeof plan.earlyTerminationFee !== 'number' || plan.earlyTerminationFee < 0 || plan.earlyTerminationFee > 500) {
+		errors.push(`earlyTerminationFee ${plan.earlyTerminationFee} out of range (expected 0-500)`);
 	}
-	if (
-		typeof plan.renewablePercent !== 'number' ||
-		plan.renewablePercent < 0 ||
-		plan.renewablePercent > 100
-	) {
-		errors.push(
-			`renewablePercent ${plan.renewablePercent} out of range (expected 0-100)`
-		);
+	if (typeof plan.renewablePercent !== 'number' || plan.renewablePercent < 0 || plan.renewablePercent > 100) {
+		errors.push(`renewablePercent ${plan.renewablePercent} out of range (expected 0-100)`);
 	}
 
 	// Ratings validation
 	if (!plan.ratings || typeof plan.ratings !== 'object') {
 		errors.push('ratings object is required');
 	} else {
-		if (
-			typeof plan.ratings.reliabilityScore !== 'number' ||
-			plan.ratings.reliabilityScore < 1 ||
-			plan.ratings.reliabilityScore > 5
-		) {
-			errors.push(
-				`reliabilityScore ${plan.ratings.reliabilityScore} out of range (expected 1-5)`
-			);
+		if (typeof plan.ratings.reliabilityScore !== 'number' || plan.ratings.reliabilityScore < 1 || plan.ratings.reliabilityScore > 5) {
+			errors.push(`reliabilityScore ${plan.ratings.reliabilityScore} out of range (expected 1-5)`);
 		}
 		if (
 			typeof plan.ratings.customerServiceScore !== 'number' ||
 			plan.ratings.customerServiceScore < 1 ||
 			plan.ratings.customerServiceScore > 5
 		) {
-			errors.push(
-				`customerServiceScore ${plan.ratings.customerServiceScore} out of range (expected 1-5)`
-			);
+			errors.push(`customerServiceScore ${plan.ratings.customerServiceScore} out of range (expected 1-5)`);
 		}
 	}
 

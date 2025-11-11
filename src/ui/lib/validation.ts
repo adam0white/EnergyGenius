@@ -120,10 +120,7 @@ export function validateCurrentPlan(plan: {
  * @param preferences - User preferences object
  * @returns Validation result with error message if invalid
  */
-export function validatePreferences(preferences: {
-	maxContractMonths: number;
-	riskTolerance: string;
-}): ValidationResult {
+export function validatePreferences(preferences: { maxContractMonths: number; riskTolerance: string }): ValidationResult {
 	if (preferences.maxContractMonths < 1) {
 		return { isValid: false, error: 'Contract length must be at least 1 month' };
 	}

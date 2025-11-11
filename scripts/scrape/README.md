@@ -9,6 +9,7 @@
 The Power to Choose scraper is a one-off Node.js script designed to refresh the supplier catalog data used in the EnergyGenius MVP. It extracts electricity plan information from the [Power to Choose](https://www.powertochoose.org) website and generates structured JSON data suitable for integration into the application.
 
 **Key Points:**
+
 - **Not part of runtime:** This scraper is for data refresh only and is not included in the production deployment
 - **Manual workflow:** Scraping requires manual review and validation before integrating data into the codebase
 - **Development utility:** Intended for developers maintaining or extending the supplier catalog
@@ -38,6 +39,7 @@ npx tsx scripts/scrape/powertochoose.ts
 ## Prerequisites
 
 ### Node.js Version
+
 - **Node.js 18+** (recommended)
 - **TypeScript 5+** (for type checking)
 - **tsx** (TypeScript execution runtime)
@@ -57,6 +59,7 @@ npm install --save-dev cheerio axios tsx
 ```
 
 ### Important Notes
+
 - These packages are **development dependencies only** and are not included in production bundle
 - The scraper is **separate from runtime dependencies** and does not affect Worker deployment size
 - Scraper execution is **manual and offline** (not automated)
@@ -110,20 +113,20 @@ The scraper produces a JSON file containing an array of supplier plans. Each pla
 
 ```typescript
 interface SupplierPlan {
-  id: string;                    // Unique plan identifier (auto-generated)
-  supplier: string;              // Supplier company name
-  planName: string;              // Descriptive plan name
-  baseRate: number;              // Base rate in $/kWh
-  monthlyFee: number;            // Monthly service fee in $/month
-  contractTermMonths: number;    // Contract term (3, 6, 12, or 24)
-  earlyTerminationFee: number;   // Early termination fee in $ (0 for none)
-  renewablePercent: number;      // Renewable energy % (0-100)
-  ratings: {
-    reliabilityScore: number;          // Reliability score (1-5)
-    customerServiceScore: number;      // Customer service score (1-5)
-  };
-  features: string[];            // Array of plan features
-  availableInStates: string[];   // State abbreviations (e.g., ["TX"])
+	id: string; // Unique plan identifier (auto-generated)
+	supplier: string; // Supplier company name
+	planName: string; // Descriptive plan name
+	baseRate: number; // Base rate in $/kWh
+	monthlyFee: number; // Monthly service fee in $/month
+	contractTermMonths: number; // Contract term (3, 6, 12, or 24)
+	earlyTerminationFee: number; // Early termination fee in $ (0 for none)
+	renewablePercent: number; // Renewable energy % (0-100)
+	ratings: {
+		reliabilityScore: number; // Reliability score (1-5)
+		customerServiceScore: number; // Customer service score (1-5)
+	};
+	features: string[]; // Array of plan features
+	availableInStates: string[]; // State abbreviations (e.g., ["TX"])
 }
 ```
 
@@ -131,67 +134,57 @@ interface SupplierPlan {
 
 ```json
 [
-  {
-    "id": "plan-green-energy-001",
-    "supplier": "Green Energy Co",
-    "planName": "Eco Max 100",
-    "baseRate": 0.119,
-    "monthlyFee": 9.95,
-    "contractTermMonths": 12,
-    "earlyTerminationFee": 0,
-    "renewablePercent": 100,
-    "ratings": {
-      "reliabilityScore": 4.5,
-      "customerServiceScore": 4.3
-    },
-    "features": [
-      "100% Renewable Energy",
-      "Fixed Rate",
-      "Online Account Management",
-      "Paperless Billing"
-    ],
-    "availableInStates": ["TX"]
-  },
-  {
-    "id": "plan-power-plus-002",
-    "supplier": "Power Plus",
-    "planName": "Budget Saver 24",
-    "baseRate": 0.089,
-    "monthlyFee": 4.95,
-    "contractTermMonths": 24,
-    "earlyTerminationFee": 150,
-    "renewablePercent": 12,
-    "ratings": {
-      "reliabilityScore": 4.1,
-      "customerServiceScore": 3.8
-    },
-    "features": [
-      "24-Month Fixed Rate",
-      "Low Monthly Fee",
-      "Auto-Pay Discount",
-      "Mobile App"
-    ],
-    "availableInStates": ["TX"]
-  }
+	{
+		"id": "plan-green-energy-001",
+		"supplier": "Green Energy Co",
+		"planName": "Eco Max 100",
+		"baseRate": 0.119,
+		"monthlyFee": 9.95,
+		"contractTermMonths": 12,
+		"earlyTerminationFee": 0,
+		"renewablePercent": 100,
+		"ratings": {
+			"reliabilityScore": 4.5,
+			"customerServiceScore": 4.3
+		},
+		"features": ["100% Renewable Energy", "Fixed Rate", "Online Account Management", "Paperless Billing"],
+		"availableInStates": ["TX"]
+	},
+	{
+		"id": "plan-power-plus-002",
+		"supplier": "Power Plus",
+		"planName": "Budget Saver 24",
+		"baseRate": 0.089,
+		"monthlyFee": 4.95,
+		"contractTermMonths": 24,
+		"earlyTerminationFee": 150,
+		"renewablePercent": 12,
+		"ratings": {
+			"reliabilityScore": 4.1,
+			"customerServiceScore": 3.8
+		},
+		"features": ["24-Month Fixed Rate", "Low Monthly Fee", "Auto-Pay Discount", "Mobile App"],
+		"availableInStates": ["TX"]
+	}
 ]
 ```
 
 ### Field Descriptions
 
-| Field | Type | Unit | Description |
-|-------|------|------|-------------|
-| `id` | string | - | Unique identifier (auto-generated from supplier + plan name) |
-| `supplier` | string | - | Company name providing the plan |
-| `planName` | string | - | Marketing name of the plan |
-| `baseRate` | number | $/kWh | Base electricity rate (typically 0.08-0.15) |
-| `monthlyFee` | number | $/month | Fixed monthly service charge |
-| `contractTermMonths` | number | months | Contract duration (3, 6, 12, or 24) |
-| `earlyTerminationFee` | number | $ | Penalty for early cancellation (0 if none) |
-| `renewablePercent` | number | % | Percentage of renewable energy (0-100) |
-| `ratings.reliabilityScore` | number | 1-5 scale | Service reliability rating |
-| `ratings.customerServiceScore` | number | 1-5 scale | Customer service quality rating |
-| `features` | string[] | - | Array of plan features and benefits |
-| `availableInStates` | string[] | - | State abbreviations where plan is offered |
+| Field                          | Type     | Unit      | Description                                                  |
+| ------------------------------ | -------- | --------- | ------------------------------------------------------------ |
+| `id`                           | string   | -         | Unique identifier (auto-generated from supplier + plan name) |
+| `supplier`                     | string   | -         | Company name providing the plan                              |
+| `planName`                     | string   | -         | Marketing name of the plan                                   |
+| `baseRate`                     | number   | $/kWh     | Base electricity rate (typically 0.08-0.15)                  |
+| `monthlyFee`                   | number   | $/month   | Fixed monthly service charge                                 |
+| `contractTermMonths`           | number   | months    | Contract duration (3, 6, 12, or 24)                          |
+| `earlyTerminationFee`          | number   | $         | Penalty for early cancellation (0 if none)                   |
+| `renewablePercent`             | number   | %         | Percentage of renewable energy (0-100)                       |
+| `ratings.reliabilityScore`     | number   | 1-5 scale | Service reliability rating                                   |
+| `ratings.customerServiceScore` | number   | 1-5 scale | Customer service quality rating                              |
+| `features`                     | string[] | -         | Array of plan features and benefits                          |
+| `availableInStates`            | string[] | -         | State abbreviations where plan is offered                    |
 
 ### Data Transformations Applied
 
@@ -235,6 +228,7 @@ The scraper performs the following validation checks on extracted data:
 ### Error Handling
 
 **Invalid Data Behavior:**
+
 - **Validation fails:** Invalid plans are **flagged for manual review** (not auto-removed)
 - **Output includes warnings:** Validation warnings are written to console and log file
 - **Manual review required:** Developer must review flagged plans before integration
@@ -299,6 +293,7 @@ npx tsx scripts/scrape/powertochoose.ts
 #### Step 2: Review Output
 
 Open the output file and review:
+
 - Number of plans extracted (should be 20-100 plans)
 - Validation warnings (check console output)
 - Data quality (spot-check 3-5 plans for accuracy)
@@ -323,10 +318,10 @@ import { validateSupplierCatalog } from './src/worker/data/validation';
 import rawData from './scripts/scrape/output/raw-scrape-output.json';
 
 try {
-  validateSupplierCatalog(rawData);
-  console.log('✓ Validation passed');
+	validateSupplierCatalog(rawData);
+	console.log('✓ Validation passed');
 } catch (error) {
-  console.error('✗ Validation failed:', error.message);
+	console.error('✗ Validation failed:', error.message);
 }
 ```
 
@@ -357,13 +352,13 @@ import type { SupplierPlan } from './types';
 
 // Import scraped data and convert to TypeScript
 export const supplierCatalog: readonly SupplierPlan[] = [
-  // Paste scraped plans here (formatted as TypeScript objects)
-  {
-    id: 'plan-green-energy-001',
-    supplier: 'Green Energy Co',
-    // ... etc
-  },
-  // ... more plans
+	// Paste scraped plans here (formatted as TypeScript objects)
+	{
+		id: 'plan-green-energy-001',
+		supplier: 'Green Energy Co',
+		// ... etc
+	},
+	// ... more plans
 ] as const;
 
 export default supplierCatalog;
@@ -457,9 +452,7 @@ Create a conversion script:
 // scripts/convert-json-to-ts.ts
 import * as fs from 'fs';
 
-const rawData = JSON.parse(
-  fs.readFileSync('scripts/scrape/output/raw-scrape-output.json', 'utf-8')
-);
+const rawData = JSON.parse(fs.readFileSync('scripts/scrape/output/raw-scrape-output.json', 'utf-8'));
 
 const tsContent = `import type { SupplierPlan } from './types';
 
@@ -502,6 +495,7 @@ npm run dev
 After updating the catalog, ensure:
 
 1. **No type errors:**
+
    ```bash
    npx tsc --noEmit
    # Should return exit code 0
@@ -521,14 +515,17 @@ After updating the catalog, ensure:
 **Test Plan:**
 
 1. **Start development server:**
+
    ```bash
    npm run dev
    ```
 
 2. **Verify mock data endpoint:**
+
    ```
    GET http://localhost:8787/api/mock-data
    ```
+
    Check response includes new plans
 
 3. **Test intake form:**
@@ -611,6 +608,7 @@ npm run deploy
 #### Error: Network Timeout
 
 **Symptom:**
+
 ```
 Error: connect ETIMEDOUT
 ```
@@ -618,6 +616,7 @@ Error: connect ETIMEDOUT
 **Cause:** Network connection issue or Power to Choose website is down
 
 **Solution:**
+
 1. Verify internet connectivity: `ping powertochoose.org`
 2. Increase timeout in script (default: 30s)
 3. Try again later if website is down
@@ -626,6 +625,7 @@ Error: connect ETIMEDOUT
 #### Error: HTML Parsing Failure
 
 **Symptom:**
+
 ```
 Error: Failed to parse plan data
 TypeError: Cannot read property 'text' of undefined
@@ -634,6 +634,7 @@ TypeError: Cannot read property 'text' of undefined
 **Cause:** Power to Choose website HTML structure changed
 
 **Solution:**
+
 1. Inspect website HTML manually
 2. Update scraper selectors in `powertochoose.ts`
 3. Check if website has changed layout or moved data
@@ -642,6 +643,7 @@ TypeError: Cannot read property 'text' of undefined
 #### Error: Scraper Returns No Data
 
 **Symptom:**
+
 ```
 Warning: No plans extracted
 Output: []
@@ -649,12 +651,12 @@ Output: []
 
 **Causes & Solutions:**
 
-| Cause | Solution |
-|-------|----------|
-| Website structure changed | Update HTML selectors |
-| Rate limiting/blocking | Add delays, change user agent |
-| Invalid URL | Verify Power to Choose URL is correct |
-| Parsing logic error | Debug with console logs |
+| Cause                     | Solution                              |
+| ------------------------- | ------------------------------------- |
+| Website structure changed | Update HTML selectors                 |
+| Rate limiting/blocking    | Add delays, change user agent         |
+| Invalid URL               | Verify Power to Choose URL is correct |
+| Parsing logic error       | Debug with console logs               |
 
 **Debug steps:**
 
@@ -669,11 +671,13 @@ DEBUG=true npx tsx scripts/scrape/powertochoose.ts
 #### Error: Validation Failures
 
 **Symptom:**
+
 ```
 Validation Error: baseRate 1.5 out of range (expected 0.05-0.30)
 ```
 
 **Solution:**
+
 1. Review scraper output for obvious errors
 2. Manually inspect flagged plans
 3. Adjust validation thresholds if legitimate data
@@ -734,7 +738,7 @@ console.log('HTML saved to debug.html');
    - Plans may change or be discontinued
 
 2. **Data freshness:**
-   - Last scraped: *Manual refresh required*
+   - Last scraped: _Manual refresh required_
    - Recommended refresh: Every 3-6 months
    - Check Power to Choose website for current plans
 
@@ -775,31 +779,37 @@ If Power to Choose scraping becomes unreliable:
 ### Future Work
 
 **Automated Scraping:**
+
 - Schedule scraper to run weekly/monthly
 - Store historical data for trend analysis
 - Alert on significant plan changes
 
 **CI/CD Integration:**
+
 - Run scraper in GitHub Actions
 - Auto-create PR with updated data
 - Require manual approval before merge
 
 **Expanded Coverage:**
+
 - Scrape additional comparison websites
 - Cover more states (PA, OH, MA, etc.)
 - Integrate multiple data sources
 
 **Enhanced Validation:**
+
 - Machine learning for anomaly detection
 - Cross-reference with historical data
 - Flag suspicious changes
 
 **API Integration:**
+
 - Replace scraping with official APIs when available
 - Real-time plan updates
 - Live pricing data
 
 **Data Versioning:**
+
 - Track data changes over time
 - Maintain changelog of plan updates
 - Enable rollback to previous versions
@@ -824,6 +834,7 @@ If Power to Choose scraping becomes unreliable:
 ### Story Reference
 
 This documentation is part of:
+
 - **Story 2.4:** Power to Choose Scraper Documentation
 - **Epic 2:** Mock Data Layer
 - **Project:** EnergyGenius - AI Energy Plan Recommendation Agent
@@ -853,17 +864,18 @@ cp src/worker/data/supplier-catalog.ts src/worker/data/supplier-catalog.backup.t
 
 ### Key Files
 
-| File | Purpose |
-|------|---------|
-| `scripts/scrape/powertochoose.ts` | Scraper script (this tool) |
-| `scripts/scrape/output/raw-scrape-output.json` | Scraper output |
-| `src/worker/data/supplier-catalog.ts` | Production data file |
-| `src/worker/data/types.ts` | TypeScript interfaces |
-| `src/worker/data/validation.ts` | Validation functions |
+| File                                           | Purpose                    |
+| ---------------------------------------------- | -------------------------- |
+| `scripts/scrape/powertochoose.ts`              | Scraper script (this tool) |
+| `scripts/scrape/output/raw-scrape-output.json` | Scraper output             |
+| `src/worker/data/supplier-catalog.ts`          | Production data file       |
+| `src/worker/data/types.ts`                     | TypeScript interfaces      |
+| `src/worker/data/validation.ts`                | Validation functions       |
 
 ### Support
 
 For questions or issues:
+
 1. Review this documentation
 2. Check [src/worker/data/README.md](../../src/worker/data/README.md)
 3. Inspect tech spec: [docs/tech-spec.md](../../docs/tech-spec.md)

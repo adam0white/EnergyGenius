@@ -16,9 +16,7 @@ export interface SkeletonLoaderProps {
  */
 export function SkeletonLoader({ lines = 3, variant = 'text', className }: SkeletonLoaderProps) {
 	if (variant === 'avatar') {
-		return (
-			<div className={cn('rounded-full bg-muted animate-pulse', 'w-12 h-12', className)} />
-		);
+		return <div className={cn('rounded-full bg-muted animate-pulse', 'w-12 h-12', className)} />;
 	}
 
 	if (variant === 'card') {

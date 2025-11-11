@@ -17,9 +17,7 @@ export function Header() {
 
 				{/* Navigation placeholder for future enhancement */}
 				<nav className="ml-auto flex items-center gap-4" aria-label="Main navigation">
-					<span className="text-sm text-muted-foreground hidden md:inline">
-						AI-Powered Energy Plan Recommendations
-					</span>
+					<span className="text-sm text-muted-foreground hidden md:inline">AI-Powered Energy Plan Recommendations</span>
 				</nav>
 			</div>
 		</header>

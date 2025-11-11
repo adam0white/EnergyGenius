@@ -49,10 +49,7 @@ describe('useAutofillMockData Hook Logic', () => {
 
 		it('should have valid annual kWh totals', () => {
 			usageScenarios.forEach((scenario) => {
-				const totalKWh = scenario.monthlyUsage.reduce(
-					(sum, month) => sum + month.kWh,
-					0
-				);
+				const totalKWh = scenario.monthlyUsage.reduce((sum, month) => sum + month.kWh, 0);
 				// Allow small floating point differences
 				expect(Math.abs(totalKWh - scenario.annualKWh)).toBeLessThan(1);
 			});
@@ -61,41 +58,31 @@ describe('useAutofillMockData Hook Logic', () => {
 
 	describe('Scenario Types', () => {
 		it('should have residential scenario', () => {
-			const residential = usageScenarios.find(
-				(s) => s.id === 'scenario-avg'
-			);
+			const residential = usageScenarios.find((s) => s.id === 'scenario-avg');
 			expect(residential).toBeDefined();
 			expect(residential?.type).toBe('residential');
 		});
 
 		it('should have high summer usage scenario', () => {
-			const summer = usageScenarios.find(
-				(s) => s.id === 'scenario-summer-high'
-			);
+			const summer = usageScenarios.find((s) => s.id === 'scenario-summer-high');
 			expect(summer).toBeDefined();
 			expect(summer?.type).toBe('seasonal-high');
 		});
 
 		it('should have low usage efficient scenario', () => {
-			const efficient = usageScenarios.find(
-				(s) => s.id === 'scenario-efficient'
-			);
+			const efficient = usageScenarios.find((s) => s.id === 'scenario-efficient');
 			expect(efficient).toBeDefined();
 			expect(efficient?.type).toBe('residential');
 		});
 
 		it('should have small business scenario', () => {
-			const business = usageScenarios.find(
-				(s) => s.id === 'scenario-business'
-			);
+			const business = usageScenarios.find((s) => s.id === 'scenario-business');
 			expect(business).toBeDefined();
 			expect(business?.type).toBe('small-business');
 		});
 
 		it('should have winter-heavy usage scenario', () => {
-			const winter = usageScenarios.find(
-				(s) => s.id === 'scenario-winter-heavy'
-			);
+			const winter = usageScenarios.find((s) => s.id === 'scenario-winter-heavy');
 			expect(winter).toBeDefined();
 			expect(winter?.type).toBe('seasonal-low');
 		});
@@ -127,9 +114,7 @@ describe('useAutofillMockData Hook Logic', () => {
 		it('should have correct average monthly calculations', () => {
 			usageScenarios.forEach((scenario) => {
 				const calculatedAverage = scenario.annualKWh / 12;
-				expect(
-					Math.abs(calculatedAverage - scenario.averageMonthlyKWh)
-				).toBeLessThan(1);
+				expect(Math.abs(calculatedAverage - scenario.averageMonthlyKWh)).toBeLessThan(1);
 			});
 		});
 	});
@@ -150,22 +135,12 @@ describe('useAutofillMockData Hook Logic', () => {
 		});
 
 		it('High Summer Usage should peak in summer months', () => {
-			const scenario = usageScenarios.find(
-				(s) => s.id === 'scenario-summer-high'
-			);
+			const scenario = usageScenarios.find((s) => s.id === 'scenario-summer-high');
 			expect(scenario).toBeDefined();
 
 			// June, July, August (months 6, 7, 8) should be highest
-			const summer = [
-				scenario!.monthlyUsage[5].kWh,
-				scenario!.monthlyUsage[6].kWh,
-				scenario!.monthlyUsage[7].kWh,
-			];
-			const winter = [
-				scenario!.monthlyUsage[0].kWh,
-				scenario!.monthlyUsage[1].kWh,
-				scenario!.monthlyUsage[11].kWh,
-			];
+			const summer = [scenario!.monthlyUsage[5].kWh, scenario!.monthlyUsage[6].kWh, scenario!.monthlyUsage[7].kWh];
+			const winter = [scenario!.monthlyUsage[0].kWh, scenario!.monthlyUsage[1].kWh, scenario!.monthlyUsage[11].kWh];
 
 			const summerAvg = summer.reduce((a, b) => a + b, 0) / summer.length;
 			const winterAvg = winter.reduce((a, b) => a + b, 0) / winter.length;
@@ -174,22 +149,12 @@ describe('useAutofillMockData Hook Logic', () => {
 		});
 
 		it('Winter-Heavy Usage should peak in winter months', () => {
-			const scenario = usageScenarios.find(
-				(s) => s.id === 'scenario-winter-heavy'
-			);
+			const scenario = usageScenarios.find((s) => s.id === 'scenario-winter-heavy');
 			expect(scenario).toBeDefined();
 
 			// December, January, February (months 12, 1, 2) should be highest
-			const winter = [
-				scenario!.monthlyUsage[11].kWh,
-				scenario!.monthlyUsage[0].kWh,
-				scenario!.monthlyUsage[1].kWh,
-			];
-			const summer = [
-				scenario!.monthlyUsage[5].kWh,
-				scenario!.monthlyUsage[6].kWh,
-				scenario!.monthlyUsage[7].kWh,
-			];
+			const winter = [scenario!.monthlyUsage[11].kWh, scenario!.monthlyUsage[0].kWh, scenario!.monthlyUsage[1].kWh];
+			const summer = [scenario!.monthlyUsage[5].kWh, scenario!.monthlyUsage[6].kWh, scenario!.monthlyUsage[7].kWh];
 
 			const winterAvg = winter.reduce((a, b) => a + b, 0) / winter.length;
 			const summerAvg = summer.reduce((a, b) => a + b, 0) / summer.length;
@@ -198,14 +163,10 @@ describe('useAutofillMockData Hook Logic', () => {
 		});
 
 		it('Low Usage Efficient should have lowest annual consumption', () => {
-			const efficient = usageScenarios.find(
-				(s) => s.id === 'scenario-efficient'
-			);
+			const efficient = usageScenarios.find((s) => s.id === 'scenario-efficient');
 			expect(efficient).toBeDefined();
 
-			const otherScenarios = usageScenarios.filter(
-				(s) => s.id !== 'scenario-efficient'
-			);
+			const otherScenarios = usageScenarios.filter((s) => s.id !== 'scenario-efficient');
 
 			otherScenarios.forEach((scenario) => {
 				expect(efficient!.annualKWh).toBeLessThan(scenario.annualKWh);
@@ -213,14 +174,10 @@ describe('useAutofillMockData Hook Logic', () => {
 		});
 
 		it('Small Business should have highest annual consumption', () => {
-			const business = usageScenarios.find(
-				(s) => s.id === 'scenario-business'
-			);
+			const business = usageScenarios.find((s) => s.id === 'scenario-business');
 			expect(business).toBeDefined();
 
-			const otherScenarios = usageScenarios.filter(
-				(s) => s.id !== 'scenario-business'
-			);
+			const otherScenarios = usageScenarios.filter((s) => s.id !== 'scenario-business');
 
 			otherScenarios.forEach((scenario) => {
 				expect(business!.annualKWh).toBeGreaterThan(scenario.annualKWh);

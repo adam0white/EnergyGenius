@@ -106,7 +106,9 @@ function RecommendationCard({ recommendation, rank }: { recommendation: Recommen
 			{/* Header: Supplier name + Badge */}
 			<div className="flex items-start justify-between mb-4">
 				<div>
-					<h3 id={`recommendation-${rank}-title`} className="text-xl font-bold text-gray-900">{supplier}</h3>
+					<h3 id={`recommendation-${rank}-title`} className="text-xl font-bold text-gray-900">
+						{supplier}
+					</h3>
 					<p className="text-base text-gray-600 mt-1">{recommendation.planName}</p>
 				</div>
 				<SavingsBadge savings={savings} />
@@ -134,23 +136,17 @@ function RecommendationCard({ recommendation, rank }: { recommendation: Recommen
 
 				<div className="flex justify-between text-sm">
 					<span className="text-gray-600">Early Termination Fee:</span>
-					<span className="font-medium text-gray-900">
-						{earlyTerminationFee === 0 ? 'None' : `$${earlyTerminationFee}`}
-					</span>
+					<span className="font-medium text-gray-900">{earlyTerminationFee === 0 ? 'None' : `$${earlyTerminationFee}`}</span>
 				</div>
 
 				<div className="flex justify-between text-sm">
 					<span className="text-gray-600">Renewable Energy:</span>
-					<span className="font-medium text-gray-900 flex items-center">
-						🌱 {renewablePercentage}%
-					</span>
+					<span className="font-medium text-gray-900 flex items-center">🌱 {renewablePercentage}%</span>
 				</div>
 
 				<div className="flex justify-between text-sm">
 					<span className="text-gray-600">Monthly Price:</span>
-					<span className="font-medium text-gray-900">
-						${recommendation.monthlyPrice.toFixed(2)}
-					</span>
+					<span className="font-medium text-gray-900">${recommendation.monthlyPrice.toFixed(2)}</span>
 				</div>
 			</div>
 
@@ -189,28 +185,20 @@ export function RecommendationDeck({ recommendations }: RecommendationDeckProps)
 	}
 
 	// Sort by savings (descending) and take top 3
-	const sortedRecommendations = [...recommendations]
-		.sort((a, b) => b.annualSavings - a.annualSavings)
-		.slice(0, 3);
+	const sortedRecommendations = [...recommendations].sort((a, b) => b.annualSavings - a.annualSavings).slice(0, 3);
 
 	return (
 		<div className="w-full max-w-7xl mx-auto px-4 py-8">
 			{/* Header */}
 			<div className="mb-8 text-center">
 				<h2 className="text-3xl font-bold text-gray-900 mb-2">Your Top Recommendations</h2>
-				<p className="text-gray-600">
-					Based on your usage and preferences, here are the best energy plans for you
-				</p>
+				<p className="text-gray-600">Based on your usage and preferences, here are the best energy plans for you</p>
 			</div>
 
 			{/* Recommendation cards */}
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 				{sortedRecommendations.map((recommendation, index) => (
-					<RecommendationCard
-						key={recommendation.id}
-						recommendation={recommendation}
-						rank={index + 1}
-					/>
+					<RecommendationCard key={recommendation.id} recommendation={recommendation} rank={index + 1} />
 				))}
 			</div>
 

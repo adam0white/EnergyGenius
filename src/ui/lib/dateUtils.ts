@@ -110,9 +110,5 @@ export function formatDuration(startDate: Date | string, endDate: Date | string 
 export function isToday(date: Date | string): boolean {
 	const d = typeof date === 'string' ? new Date(date) : date;
 	const today = new Date();
-	return (
-		d.getDate() === today.getDate() &&
-		d.getMonth() === today.getMonth() &&
-		d.getFullYear() === today.getFullYear()
-	);
+	return d.getDate() === today.getDate() && d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
 }

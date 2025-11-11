@@ -23,13 +23,7 @@ const sizeClasses = {
 export function LoadingSpinner({ size = 'md', label, className }: LoadingSpinnerProps) {
 	return (
 		<div className={cn('flex flex-col items-center justify-center gap-3', className)} role="status">
-			<div
-				className={cn(
-					'animate-spin rounded-full border-primary border-t-transparent',
-					sizeClasses[size]
-				)}
-				aria-hidden="true"
-			/>
+			<div className={cn('animate-spin rounded-full border-primary border-t-transparent', sizeClasses[size])} aria-hidden="true" />
 			{label && (
 				<p className="text-sm text-muted-foreground" aria-live="polite">
 					{label}

@@ -93,20 +93,28 @@ export default {
 
 			// Serve static assets via ASSETS binding
 			// This includes all React SPA routes (/, /app/*, etc.)
-			const assetResponse = await env.ASSETS.fetch(request);
+			// In dev mode, env.ASSETS may be undefined
+			if (env.ASSETS) {
+				const assetResponse = await env.ASSETS.fetch(request);
 
-			// Add CORS headers to asset responses
-			const headers = new Headers(assetResponse.headers);
-			headers.set('Access-Control-Allow-Origin', '*');
+				// Add CORS headers to asset responses
+				const headers = new Headers(assetResponse.headers);
+				headers.set('Access-Control-Allow-Origin', '*');
 
-			const response = new Response(assetResponse.body, {
-				status: assetResponse.status,
-				statusText: assetResponse.statusText,
-				headers,
-			});
+				const response = new Response(assetResponse.body, {
+					status: assetResponse.status,
+					statusText: assetResponse.statusText,
+					headers,
+				});
 
-			logRequestEnd(requestId, request.method, pathname, response.status, Date.now() - startTime);
-			return response;
+				logRequestEnd(requestId, request.method, pathname, response.status, Date.now() - startTime);
+				return response;
+			} else {
+				// ASSETS not bound (dev mode) - return 404
+				const response = new Response('Not Found', { status: 404 });
+				logRequestEnd(requestId, request.method, pathname, 404, Date.now() - startTime);
+				return response;
+			}
 		} catch (error) {
 			// Global error handler for uncaught exceptions
 			return handleError(error, requestId, startTime);

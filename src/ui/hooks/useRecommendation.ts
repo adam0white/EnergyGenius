@@ -24,10 +24,7 @@ const STAGE_TIMINGS = {
 } as const;
 
 // Request timeout
-const REQUEST_TIMEOUT = 30000; // 30 seconds
-
-// Max retry attempts
-const MAX_RETRY_ATTEMPTS = 3;
+const REQUEST_TIMEOUT = 60000; // 60 seconds (allows for all 3 pipeline stages + overhead)
 
 /**
  * Interface for the hook's return value
@@ -69,7 +66,7 @@ export function useRecommendation(): UseRecommendationHook {
 
 	// Refs for cleanup
 	const abortControllerRef = useRef<AbortController | null>(null);
-	const timersRef = useRef<NodeJS.Timeout[]>([]);
+	const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 	const retryCountRef = useRef(0);
 
 	/**
@@ -129,14 +126,20 @@ export function useRecommendation(): UseRecommendationHook {
 		}, STAGE_TIMINGS.DATA_INTERPRETATION + STAGE_TIMINGS.PLAN_SCORING);
 
 		// Stage 3: Narrative Generation
-		const timer5 = setTimeout(() => {
-			startPipelineStage('narrativeGeneration');
-			updatePipelineStage('narrativeGeneration', 'Generating recommendations...');
-		}, STAGE_TIMINGS.DATA_INTERPRETATION + STAGE_TIMINGS.PLAN_SCORING + 100);
+		const timer5 = setTimeout(
+			() => {
+				startPipelineStage('narrativeGeneration');
+				updatePipelineStage('narrativeGeneration', 'Generating recommendations...');
+			},
+			STAGE_TIMINGS.DATA_INTERPRETATION + STAGE_TIMINGS.PLAN_SCORING + 100,
+		);
 
-		const timer6 = setTimeout(() => {
-			completePipelineStage('narrativeGeneration');
-		}, STAGE_TIMINGS.DATA_INTERPRETATION + STAGE_TIMINGS.PLAN_SCORING + STAGE_TIMINGS.NARRATIVE_GENERATION);
+		const timer6 = setTimeout(
+			() => {
+				completePipelineStage('narrativeGeneration');
+			},
+			STAGE_TIMINGS.DATA_INTERPRETATION + STAGE_TIMINGS.PLAN_SCORING + STAGE_TIMINGS.NARRATIVE_GENERATION,
+		);
 
 		timersRef.current = [timer1, timer2, timer3, timer4, timer5, timer6];
 	}, [startPipelineStage, updatePipelineStage, completePipelineStage, clearTimers]);
@@ -175,6 +178,30 @@ export function useRecommendation(): UseRecommendationHook {
 			abortControllerRef.current = new AbortController();
 
 			try {
+				// Transform intakeData to match API expectations
+				const apiPayload = {
+					energyUsageData: {
+						monthlyData: intakeData.monthlyUsage.map((entry) => ({
+							month: new Date(2024, entry.month - 1).toLocaleString('default', { month: 'long' }),
+							usage: entry.kWh,
+							cost: entry.kWh * intakeData.currentPlan.currentRate,
+						})),
+					},
+					currentPlan: {
+						supplier: intakeData.currentPlan.supplier,
+						planName: intakeData.currentPlan.planName,
+						rateStructure: 'Fixed', // Default assumption
+						monthlyFee: intakeData.currentPlan.monthlyFee,
+						rate: intakeData.currentPlan.currentRate,
+					},
+					preferences: {
+						prioritizeSavings: intakeData.preferences.prioritizeSavings,
+						preferRenewable: intakeData.preferences.prioritizeRenewable,
+						acceptVariableRates: intakeData.preferences.riskTolerance !== 'low',
+						maxMonthlyBudget: (intakeData.annualConsumption * intakeData.currentPlan.currentRate) / 12,
+					},
+				};
+
 				// Send POST request
 				const response = await Promise.race([
 					fetch(API_ENDPOINT, {
@@ -182,12 +209,10 @@ export function useRecommendation(): UseRecommendationHook {
 						headers: {
 							'Content-Type': 'application/json',
 						},
-						body: JSON.stringify(intakeData),
+						body: JSON.stringify(apiPayload),
 						signal: abortControllerRef.current.signal,
 					}),
-					new Promise<never>((_, reject) =>
-						setTimeout(() => reject(new Error('Request timeout')), REQUEST_TIMEOUT)
-					),
+					new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Request timeout')), REQUEST_TIMEOUT)),
 				]);
 
 				// Check response status
@@ -196,20 +221,34 @@ export function useRecommendation(): UseRecommendationHook {
 				}
 
 				// Parse response
-				const data = await response.json();
+				const apiResponse = await response.json();
 
-				// Validate response structure
-				if (!data.recommendations || !Array.isArray(data.recommendations)) {
-					throw new Error('Invalid response format: missing recommendations array');
+				// Validate response structure (API returns data.recommendations)
+				if (!apiResponse.data || !apiResponse.data.recommendations || !Array.isArray(apiResponse.data.recommendations)) {
+					throw new Error('Invalid response format: missing data.recommendations array');
 				}
 
-				// Sort recommendations by savings (descending)
-				const sortedRecommendations = data.recommendations
+				// Transform API response to frontend format
+				const transformedRecommendations = apiResponse.data.recommendations
 					.slice(0, 3)
+					.map((rec: any, index: number) => ({
+						id: rec.planId,
+						rank: index + 1,
+						planName: rec.planName,
+						monthlyPrice: rec.estimatedAnnualCost / 12,
+						annualSavings: rec.estimatedSavings,
+						explanation: rec.rationale,
+						rationale: {
+							savingsScore: rec.score * 0.8, // Approximate based on score
+							renewableScore: rec.score * 0.5,
+							flexibilityScore: rec.score * 0.6,
+							overallScore: rec.score,
+						},
+					}))
 					.sort((a: Recommendation, b: Recommendation) => b.annualSavings - a.annualSavings);
 
 				// Update state with recommendations
-				setRecommendations(sortedRecommendations);
+				setRecommendations(transformedRecommendations);
 
 				// Reset retry count on success
 				retryCountRef.current = 0;
@@ -255,16 +294,7 @@ export function useRecommendation(): UseRecommendationHook {
 				clearTimers();
 			}
 		},
-		[
-			setUserIntakeData,
-			setLoading,
-			setCurrentStep,
-			setRecommendations,
-			setError,
-			clearErrors,
-			runOptimisticStages,
-			clearTimers,
-		]
+		[setUserIntakeData, setLoading, setCurrentStep, setRecommendations, setError, clearErrors, runOptimisticStages, clearTimers],
 	);
 
 	/**
@@ -295,30 +325,21 @@ export function useRecommendation(): UseRecommendationHook {
 			name: 'Usage Summary',
 			status: state.pipelineStages.dataInterpretation.status,
 			startTime: state.pipelineStages.dataInterpretation.timestamp,
-			endTime:
-				state.pipelineStages.dataInterpretation.status === 'complete'
-					? state.pipelineStages.dataInterpretation.timestamp
-					: null,
+			endTime: state.pipelineStages.dataInterpretation.status === 'complete' ? state.pipelineStages.dataInterpretation.timestamp : null,
 			output: state.pipelineStages.dataInterpretation.output,
 		},
 		{
 			name: 'Plan Scoring',
 			status: state.pipelineStages.planScoring.status,
 			startTime: state.pipelineStages.planScoring.timestamp,
-			endTime:
-				state.pipelineStages.planScoring.status === 'complete'
-					? state.pipelineStages.planScoring.timestamp
-					: null,
+			endTime: state.pipelineStages.planScoring.status === 'complete' ? state.pipelineStages.planScoring.timestamp : null,
 			output: state.pipelineStages.planScoring.output,
 		},
 		{
 			name: 'Narrative Generation',
 			status: state.pipelineStages.narrativeGeneration.status,
 			startTime: state.pipelineStages.narrativeGeneration.timestamp,
-			endTime:
-				state.pipelineStages.narrativeGeneration.status === 'complete'
-					? state.pipelineStages.narrativeGeneration.timestamp
-					: null,
+			endTime: state.pipelineStages.narrativeGeneration.status === 'complete' ? state.pipelineStages.narrativeGeneration.timestamp : null,
 			output: state.pipelineStages.narrativeGeneration.output,
 		},
 	];

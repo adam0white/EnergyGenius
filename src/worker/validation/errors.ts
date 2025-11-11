@@ -9,7 +9,7 @@ export class ResponseError extends Error {
 	constructor(
 		message: string,
 		public stage: string,
-		public code: string
+		public code: string,
 	) {
 		super(message);
 		this.name = 'ResponseError';
@@ -23,7 +23,7 @@ export class ParseError extends ResponseError {
 	constructor(
 		message: string,
 		public stage: string,
-		public rawResponse: string
+		public rawResponse: string,
 	) {
 		super(message, stage, 'PARSE_ERROR');
 		this.name = 'ParseError';
@@ -37,7 +37,7 @@ export class ValidationError extends ResponseError {
 	constructor(
 		message: string,
 		public stage: string,
-		public errors: any[]
+		public errors: any[],
 	) {
 		super(message, stage, 'VALIDATION_ERROR');
 		this.name = 'ValidationError';
@@ -51,7 +51,7 @@ export class MismatchError extends ResponseError {
 	constructor(
 		message: string,
 		public stage: string,
-		public invalidPlanIds: string[]
+		public invalidPlanIds: string[],
 	) {
 		super(message, stage, 'MISMATCH_ERROR');
 		this.name = 'MismatchError';
@@ -65,7 +65,7 @@ export class MappingError extends ResponseError {
 	constructor(
 		message: string,
 		public stage: string,
-		public details: string
+		public details: string,
 	) {
 		super(message, stage, 'MAPPING_ERROR');
 		this.name = 'MappingError';

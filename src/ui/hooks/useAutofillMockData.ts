@@ -210,7 +210,5 @@ function generatePreferences(scenario: UsageScenario) {
 		},
 	};
 
-	return (
-		preferenceProfiles[scenario.type] || preferenceProfiles['residential']
-	);
+	return preferenceProfiles[scenario.type] || preferenceProfiles['residential'];
 }

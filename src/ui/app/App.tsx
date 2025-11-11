@@ -62,11 +62,11 @@ function AppContent() {
 				<div className="w-full max-w-2xl mx-auto px-4 py-12">
 					<Alert className="bg-red-50 border-red-200 p-6 mb-6" role="alert" aria-live="assertive">
 						<div className="flex items-start gap-3">
-							<span className="text-2xl" aria-hidden="true">⚠️</span>
+							<span className="text-2xl" aria-hidden="true">
+								⚠️
+							</span>
 							<div className="flex-1">
-								<h3 className="text-lg font-semibold text-red-900 mb-2">
-									Error Processing Request
-								</h3>
+								<h3 className="text-lg font-semibold text-red-900 mb-2">Error Processing Request</h3>
 								<p className="text-red-800 mb-4">{error}</p>
 								<div className="flex gap-3">
 									<Button onClick={handleRetry} variant="default" size="sm" aria-label="Retry processing request">

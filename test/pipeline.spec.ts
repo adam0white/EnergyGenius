@@ -4,14 +4,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import {
-	runPipeline,
-	runUsageSummary,
-	runPlanScoring,
-	runNarrative,
-	StageInput,
-	PipelineResult,
-} from '../src/worker/pipeline';
+import { runPipeline, runUsageSummary, runPlanScoring, runNarrative, StageInput, PipelineResult } from '../src/worker/pipeline';
 import { Env } from '../src/worker/index';
 
 // ===========================
@@ -109,7 +102,7 @@ describe('Pipeline Stage Functions', () => {
 				expect.objectContaining({
 					prompt: expect.stringContaining('Analyze this energy usage data'),
 					max_tokens: 512,
-				})
+				}),
 			);
 		});
 	});
@@ -408,7 +401,7 @@ describe('Timeout Handling', () => {
 				new Promise((resolve) => {
 					// Never resolve (simulates timeout)
 					setTimeout(resolve, 60000);
-				})
+				}),
 		);
 
 		const result = await runPipeline(env, input);
@@ -426,7 +419,7 @@ describe('Timeout Handling', () => {
 			() =>
 				new Promise((resolve) => {
 					setTimeout(resolve, 60000);
-				})
+				}),
 		);
 
 		const result = await runPipeline(env, input);
@@ -455,6 +448,162 @@ describe('Timeout Handling', () => {
 		expect(result.usageSummary).toBeUndefined();
 		expect(result.errors.some((e) => e.message.includes('timeout'))).toBe(true);
 	}, 35000);
+
+	// ===========================
+	// Regression Tests for bug-timeout-race-condition.md
+	// ===========================
+
+	describe('Timeout Race Condition (Bug Fix)', () => {
+		it('should clear timeout when stage completes successfully within timeout window', async () => {
+			const env = createMockEnv();
+			const input = createMockInput();
+
+			// Mock fast completion (1.1 seconds, well under 30s timeout)
+			env.AI.run = vi.fn().mockImplementation(
+				() =>
+					new Promise((resolve) => {
+						setTimeout(() => resolve({ response: 'Mock' }), 1100);
+					}),
+			);
+
+			const result = await runPipeline(env, input);
+
+			// Stage should complete successfully
+			expect(result.usageSummary).toBeDefined();
+			expect(result.planScoring).toBeDefined();
+			expect(result.narrative).toBeDefined();
+
+			// Should have no timeout errors
+			expect(result.errors.length).toBe(0);
+			expect(result.errors.some((e) => e.message.includes('timeout'))).toBe(false);
+
+			// Wait additional time to ensure timeout doesn't fire after completion
+			await new Promise((resolve) => setTimeout(resolve, 2000));
+
+			// Still should have no errors after waiting
+			expect(result.errors.length).toBe(0);
+		}, 10000);
+
+		it('should not trigger spurious retry after successful completion at 28.9s', async () => {
+			const env = createMockEnv();
+			const input = createMockInput();
+
+			// Mock completion just under 30s timeout (28.9s)
+			let callCount = 0;
+			env.AI.run = vi.fn().mockImplementation(() => {
+				callCount++;
+				if (callCount === 1) {
+					// First stage completes at 28.9s
+					return new Promise((resolve) => {
+						setTimeout(() => resolve({ response: 'Mock' }), 28900);
+					});
+				}
+				// Other stages complete quickly
+				return Promise.resolve({ response: 'Mock' });
+			});
+
+			const result = await runPipeline(env, input);
+
+			// All stages should complete successfully
+			expect(result.usageSummary).toBeDefined();
+			expect(result.planScoring).toBeDefined();
+			expect(result.narrative).toBeDefined();
+
+			// Should have zero errors (no timeout triggered)
+			expect(result.errors.length).toBe(0);
+
+			// Verify exactly 3 AI calls (no retries)
+			expect(callCount).toBe(3);
+		}, 35000);
+
+		it('should not trigger spurious retry after successful completion at 29.9s', async () => {
+			const env = createMockEnv();
+			const input = createMockInput();
+
+			// Mock completion very close to 30s timeout (29.9s)
+			let callCount = 0;
+			env.AI.run = vi.fn().mockImplementation(() => {
+				callCount++;
+				if (callCount === 1) {
+					// First stage completes at 29.9s
+					return new Promise((resolve) => {
+						setTimeout(() => resolve({ response: 'Mock' }), 29900);
+					});
+				}
+				// Other stages complete quickly
+				return Promise.resolve({ response: 'Mock' });
+			});
+
+			const result = await runPipeline(env, input);
+
+			// All stages should complete successfully
+			expect(result.usageSummary).toBeDefined();
+			expect(result.planScoring).toBeDefined();
+			expect(result.narrative).toBeDefined();
+
+			// Should have zero errors (no timeout triggered)
+			expect(result.errors.length).toBe(0);
+
+			// Verify exactly 3 AI calls (no retries)
+			expect(callCount).toBe(3);
+		}, 35000);
+
+		it('should properly timeout when stage exceeds 30.1s', async () => {
+			const env = createMockEnv();
+			const input = createMockInput();
+
+			// Mock completion just over 30s timeout (30.1s)
+			env.AI.run = vi.fn().mockImplementation(
+				() =>
+					new Promise((resolve) => {
+						setTimeout(() => resolve({ response: 'Mock' }), 30100);
+					}),
+			);
+
+			const result = await runPipeline(env, input);
+
+			// Stage should timeout and fail
+			expect(result.usageSummary).toBeUndefined();
+
+			// Should have timeout error
+			expect(result.errors.length).toBeGreaterThan(0);
+			expect(result.errors[0].message).toContain('timeout');
+			expect(result.errors[0].message).toContain('30s');
+		}, 35000);
+
+		it('should handle race between completion and timeout correctly', async () => {
+			const env = createMockEnv();
+			const input = createMockInput();
+
+			// Track completion status
+			const completionLog: string[] = [];
+
+			// Mock stage that completes just before timeout
+			env.AI.run = vi.fn().mockImplementation(() => {
+				return new Promise((resolve) => {
+					setTimeout(() => {
+						completionLog.push('stage-completed');
+						resolve({ response: 'Mock' });
+					}, 29500);
+				});
+			});
+
+			const result = await runPipeline(env, input);
+
+			// Wait a bit to ensure no delayed timeout fires
+			await new Promise((resolve) => setTimeout(resolve, 2000));
+
+			// Stage should complete successfully
+			expect(result.usageSummary).toBeDefined();
+			expect(result.errors.length).toBe(0);
+
+			// Verify completion was logged
+			expect(completionLog.length).toBeGreaterThan(0);
+
+			// No timeout errors should be present
+			expect(result.errors.some((e) => e.message.includes('timeout'))).toBe(false);
+		}, 35000);
+	});
 });
 
 // ===========================

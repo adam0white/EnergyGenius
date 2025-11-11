@@ -132,9 +132,7 @@ function StageCard({ stage, isLast }: { stage: Stage; isLast: boolean }) {
 			</div>
 
 			{/* Stage card */}
-			<Card
-				className={`flex-1 p-5 border border-gray-200 rounded-lg shadow-sm transition-all hover:shadow-md ${getCardBackground()}`}
-			>
+			<Card className={`flex-1 p-5 border border-gray-200 rounded-lg shadow-sm transition-all hover:shadow-md ${getCardBackground()}`}>
 				{/* Header with title and badge */}
 				<div className="flex items-start justify-between mb-3">
 					<h3 className="text-lg font-semibold text-gray-900">{stage.name}</h3>
@@ -142,9 +140,7 @@ function StageCard({ stage, isLast }: { stage: Stage; isLast: boolean }) {
 				</div>
 
 				{/* Output/Description */}
-				{stage.output && (
-					<p className="text-sm text-gray-600 mb-3 leading-relaxed">{stage.output}</p>
-				)}
+				{stage.output && <p className="text-sm text-gray-600 mb-3 leading-relaxed">{stage.output}</p>}
 
 				{/* Metadata: timestamps and duration */}
 				{stage.startTime && (
@@ -159,8 +155,7 @@ function StageCard({ stage, isLast }: { stage: Stage; isLast: boolean }) {
 						)}
 						{normalizedStatus === 'complete' && stage.endTime && (
 							<div>
-								<span className="font-medium">Duration:</span>{' '}
-								{formatDuration(stage.startTime, stage.endTime)}
+								<span className="font-medium">Duration:</span> {formatDuration(stage.startTime, stage.endTime)}
 							</div>
 						)}
 					</div>
@@ -183,9 +178,7 @@ export function ProgressTimeline({ stages }: ProgressTimelineProps) {
 			{/* Header */}
 			<div className="mb-8 text-center">
 				<h2 className="text-2xl font-bold text-gray-900 mb-2">Processing Your Recommendations</h2>
-				<p className="text-gray-600">
-					Our AI is analyzing your data and finding the best energy plans for you
-				</p>
+				<p className="text-gray-600">Our AI is analyzing your data and finding the best energy plans for you</p>
 			</div>
 
 			{/* Screen reader announcement for current stage */}
@@ -195,7 +188,14 @@ export function ProgressTimeline({ stages }: ProgressTimelineProps) {
 			</div>
 
 			{/* Timeline stages */}
-			<div className="space-y-0" role="progressbar" aria-label="Processing progress" aria-valuenow={completedCount} aria-valuemin={0} aria-valuemax={stages.length}>
+			<div
+				className="space-y-0"
+				role="progressbar"
+				aria-label="Processing progress"
+				aria-valuenow={completedCount}
+				aria-valuemin={0}
+				aria-valuemax={stages.length}
+			>
 				{stages.map((stage, index) => (
 					<StageCard key={stage.name} stage={stage} isLast={index === stages.length - 1} />
 				))}
@@ -203,9 +203,7 @@ export function ProgressTimeline({ stages }: ProgressTimelineProps) {
 
 			{/* Bottom message */}
 			<div className="mt-8 text-center">
-				<p className="text-sm text-gray-500">
-					This typically takes 8-10 seconds. Please wait while we process your request.
-				</p>
+				<p className="text-sm text-gray-500">This typically takes 8-10 seconds. Please wait while we process your request.</p>
 			</div>
 		</div>
 	);

@@ -126,10 +126,7 @@ describe('buildUsageSummaryPrompt', () => {
 		const inputWithPrecision = {
 			...validInput,
 			energyUsageData: {
-				monthlyData: [
-					...validInput.energyUsageData.monthlyData.slice(0, 11),
-					{ month: 'Dec', usage: 850.123456789, cost: 128.987654321 },
-				],
+				monthlyData: [...validInput.energyUsageData.monthlyData.slice(0, 11), { month: 'Dec', usage: 850.123456789, cost: 128.987654321 }],
 			},
 		};
 

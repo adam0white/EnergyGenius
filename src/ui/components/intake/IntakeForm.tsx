@@ -12,10 +12,7 @@ import { Input } from '../ui/input';
 import { Card } from '../ui/card';
 import { Alert } from '../ui/alert';
 import { Badge } from '../ui/badge';
-import {
-	useAutofillMockData,
-	type FormData,
-} from '../../hooks/useAutofillMockData';
+import { useAutofillMockData, type FormData } from '../../hooks/useAutofillMockData';
 
 interface IntakeFormProps {
 	onSubmit?: (data: FormData) => void;
@@ -23,14 +20,7 @@ interface IntakeFormProps {
 }
 
 export function IntakeForm({ onSubmit, isSubmitting = false }: IntakeFormProps) {
-	const {
-		getRandomScenario,
-		mapScenarioToFormData,
-		isLoading,
-		setIsLoading,
-		formError,
-		setFormError,
-	} = useAutofillMockData();
+	const { getRandomScenario, mapScenarioToFormData, isLoading, setIsLoading, formError, setFormError } = useAutofillMockData();
 
 	// Form state
 	const [formData, setFormData] = useState<FormData>({
@@ -57,9 +47,7 @@ export function IntakeForm({ onSubmit, isSubmitting = false }: IntakeFormProps) 
 	});
 
 	const [isAutofilled, setIsAutofilled] = useState(false);
-	const [autofillScenarioName, setAutofillScenarioName] = useState<
-		string | null
-	>(null);
+	const [autofillScenarioName, setAutofillScenarioName] = useState<string | null>(null);
 	const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
 	/**
@@ -118,9 +106,7 @@ export function IntakeForm({ onSubmit, isSubmitting = false }: IntakeFormProps) 
 	const updateMonthlyUsage = (month: number, kWh: number) => {
 		setFormData((prev) => ({
 			...prev,
-			monthlyUsage: prev.monthlyUsage.map((usage) =>
-				usage.month === month ? { ...usage, kWh } : usage
-			),
+			monthlyUsage: prev.monthlyUsage.map((usage) => (usage.month === month ? { ...usage, kWh } : usage)),
 		}));
 	};
 
@@ -157,10 +143,7 @@ export function IntakeForm({ onSubmit, isSubmitting = false }: IntakeFormProps) 
 			{/* Header */}
 			<div className="space-y-2">
 				<h1 className="text-3xl font-bold">Energy Usage Intake</h1>
-				<p className="text-muted-foreground">
-					Enter your energy usage information to get personalized plan
-					recommendations
-				</p>
+				<p className="text-muted-foreground">Enter your energy usage information to get personalized plan recommendations</p>
 			</div>
 
 			{/* Autofill Button */}
@@ -169,16 +152,9 @@ export function IntakeForm({ onSubmit, isSubmitting = false }: IntakeFormProps) 
 					<div className="flex items-center justify-between">
 						<div>
 							<h3 className="font-semibold">Quick Test</h3>
-							<p className="text-sm text-muted-foreground">
-								Generate realistic mock data for testing
-							</p>
+							<p className="text-sm text-muted-foreground">Generate realistic mock data for testing</p>
 						</div>
-						<Button
-							onClick={handleAutofill}
-							disabled={isLoading}
-							variant="default"
-							aria-label="Generate mock data for form autofill"
-						>
+						<Button onClick={handleAutofill} disabled={isLoading} variant="default" aria-label="Generate mock data for form autofill">
 							{isLoading ? (
 								<>
 									<span className="animate-spin mr-2">⏳</span>
@@ -214,14 +190,8 @@ export function IntakeForm({ onSubmit, isSubmitting = false }: IntakeFormProps) 
 					<Badge variant="outline" className="bg-blue-100">
 						Generated from mock data
 					</Badge>
-					<span className="text-sm text-muted-foreground flex-1">
-						Scenario: {autofillScenarioName}
-					</span>
-					<button
-						onClick={clearMockIndicator}
-						className="text-sm text-blue-600 hover:underline"
-						aria-label="Clear mock data indicator"
-					>
+					<span className="text-sm text-muted-foreground flex-1">Scenario: {autofillScenarioName}</span>
+					<button onClick={clearMockIndicator} className="text-sm text-blue-600 hover:underline" aria-label="Clear mock data indicator">
 						Dismiss
 					</button>
 				</div>
@@ -235,28 +205,18 @@ export function IntakeForm({ onSubmit, isSubmitting = false }: IntakeFormProps) 
 					<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
 						{formData.monthlyUsage.map((usage) => (
 							<div key={usage.month} className="space-y-2">
-								<label
-									htmlFor={`month-${usage.month}`}
-									className="text-sm font-medium"
-								>
+								<label htmlFor={`month-${usage.month}`} className="text-sm font-medium">
 									Month {usage.month}
 								</label>
 								<Input
 									id={`month-${usage.month}`}
 									type="number"
 									value={usage.kWh || ''}
-									onChange={(e) =>
-										updateMonthlyUsage(
-											usage.month,
-											parseFloat(e.target.value) || 0
-										)
-									}
+									onChange={(e) => updateMonthlyUsage(usage.month, parseFloat(e.target.value) || 0)}
 									placeholder="kWh"
 									min="0"
 									step="0.1"
-									className={
-										isAutofilled && usage.kWh > 0 ? 'bg-blue-50' : ''
-									}
+									className={isAutofilled && usage.kWh > 0 ? 'bg-blue-50' : ''}
 								/>
 							</div>
 						))}
@@ -265,9 +225,7 @@ export function IntakeForm({ onSubmit, isSubmitting = false }: IntakeFormProps) 
 					{/* Annual Consumption Display */}
 					<div className="mt-4 p-3 bg-gray-50 rounded">
 						<span className="text-sm font-medium">Annual Consumption: </span>
-						<span className="text-lg font-bold">
-							{formData.annualConsumption.toLocaleString()} kWh
-						</span>
+						<span className="text-lg font-bold">{formData.annualConsumption.toLocaleString()} kWh</span>
 					</div>
 				</Card>
 
@@ -404,10 +362,7 @@ export function IntakeForm({ onSubmit, isSubmitting = false }: IntakeFormProps) 
 						</div>
 
 						<div className="space-y-2 md:col-span-2">
-							<label
-								htmlFor="earlyTerminationFee"
-								className="text-sm font-medium"
-							>
+							<label htmlFor="earlyTerminationFee" className="text-sm font-medium">
 								Early Termination Fee ($)
 							</label>
 							<Input
@@ -453,9 +408,7 @@ export function IntakeForm({ onSubmit, isSubmitting = false }: IntakeFormProps) 
 									}
 									className="w-4 h-4"
 								/>
-								<span className="text-sm font-medium">
-									Prioritize Cost Savings
-								</span>
+								<span className="text-sm font-medium">Prioritize Cost Savings</span>
 							</label>
 
 							<label className="flex items-center gap-2">
@@ -473,9 +426,7 @@ export function IntakeForm({ onSubmit, isSubmitting = false }: IntakeFormProps) 
 									}
 									className="w-4 h-4"
 								/>
-								<span className="text-sm font-medium">
-									Prioritize Renewable Energy
-								</span>
+								<span className="text-sm font-medium">Prioritize Renewable Energy</span>
 							</label>
 
 							<label className="flex items-center gap-2">
@@ -493,18 +444,13 @@ export function IntakeForm({ onSubmit, isSubmitting = false }: IntakeFormProps) 
 									}
 									className="w-4 h-4"
 								/>
-								<span className="text-sm font-medium">
-									Prioritize Contract Flexibility
-								</span>
+								<span className="text-sm font-medium">Prioritize Contract Flexibility</span>
 							</label>
 						</div>
 
 						{/* Max Contract Months */}
 						<div className="space-y-2">
-							<label
-								htmlFor="maxContractMonths"
-								className="text-sm font-medium"
-							>
+							<label htmlFor="maxContractMonths" className="text-sm font-medium">
 								Maximum Contract Length (months)
 							</label>
 							<Input
@@ -547,12 +493,8 @@ export function IntakeForm({ onSubmit, isSubmitting = false }: IntakeFormProps) 
 								className={`w-full px-3 py-2 border rounded-md ${isAutofilled ? 'bg-blue-50' : ''}`}
 							>
 								<option value="low">Low - Prefer stable, predictable rates</option>
-								<option value="medium">
-									Medium - Balance stability and savings
-								</option>
-								<option value="high">
-									High - Willing to accept rate variability for potential savings
-								</option>
+								<option value="medium">Medium - Balance stability and savings</option>
+								<option value="high">High - Willing to accept rate variability for potential savings</option>
 							</select>
 						</div>
 					</div>

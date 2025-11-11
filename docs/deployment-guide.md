@@ -14,12 +14,14 @@ This guide provides step-by-step instructions for deploying the Energy Recommend
 ## Prerequisites
 
 ### Required Tools
+
 - ✅ Node.js 18+ installed
 - ✅ npm 9+ installed
 - ✅ Cloudflare account (free or paid tier)
 - ✅ Wrangler CLI installed (`npm install -g wrangler` or use local version)
 
 ### Cloudflare Account Setup
+
 1. Create account at https://dash.cloudflare.com/sign-up
 2. Note your Account ID (found in Workers & Pages dashboard)
 3. Obtain API token for Wrangler authentication
@@ -51,6 +53,7 @@ ENABLE_SSE = "false"
 ```
 
 **Configuration Notes:**
+
 - `name`: Worker name (must be unique in your account)
 - `main`: Entry point for worker script
 - `compatibility_date`: Target Cloudflare Workers API version
@@ -62,12 +65,14 @@ ENABLE_SSE = "false"
 ### Environment Variables
 
 **Public Variables (wrangler.toml):**
+
 - `AI_MODEL_FAST`: Fast AI model for stage 1 (llama-3.3-70b)
 - `AI_MODEL_ACCURATE`: Accurate model for stages 2-3 (llama-3.1-8b)
 - `ENABLE_MOCK_DATA`: Allow mock data generation (true/false)
 - `ENABLE_SSE`: Enable server-sent events (false for now)
 
 **Secret Variables (not in repo):**
+
 - None currently required
 - Add future secrets via: `wrangler secret put SECRET_NAME`
 
@@ -86,11 +91,13 @@ wrangler login
 ```
 
 **Expected Output:**
+
 ```
 Successfully logged in.
 ```
 
 **Verification:**
+
 ```bash
 # Verify authentication
 wrangler whoami
@@ -106,6 +113,7 @@ npm run build
 ```
 
 **Expected Output:**
+
 ```
 vite v7.2.2 building client environment for production...
 ✓ 52 modules transformed.
@@ -118,11 +126,13 @@ dist/assets/index-DX2Uw9ii.js   257.13 kB │ gzip: 79.50 kB
 ```
 
 **Verify dist/ directory:**
+
 ```bash
 ls -lh dist/
 ```
 
 Expected files:
+
 - index.html
 - assets/index-[hash].css
 - assets/index-[hash].js
@@ -140,6 +150,7 @@ npm run build && wrangler deploy
 ```
 
 **Expected Output:**
+
 ```
 Total Upload: XX.XX KiB / gzip: XX.XX KiB
 Uploaded energy-genius (X.XX sec)
@@ -149,6 +160,7 @@ Current Deployment ID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 ```
 
 **Note:** Your Worker URL will be assigned automatically by Cloudflare:
+
 - Format: `https://energy-genius.YOUR_SUBDOMAIN.workers.dev`
 - Subdomain is based on your account
 
@@ -164,11 +176,13 @@ curl https://energy-genius.YOUR_SUBDOMAIN.workers.dev/
 ```
 
 **Expected Response:**
+
 - HTTP 200 OK
 - HTML content with `<div id="root"></div>`
 - Page title: "EnergyGenius"
 
 **Browser Test:**
+
 1. Open URL in browser
 2. Verify intake form loads
 3. Verify header and footer visible
@@ -215,6 +229,7 @@ curl -X POST https://energy-genius.YOUR_SUBDOMAIN.workers.dev/api/recommend \
 ```
 
 **Expected Response:**
+
 - HTTP 200 OK
 - JSON array with 3+ recommendations
 - Each recommendation has: id, rank, planName, monthlyPrice, annualSavings, explanation
@@ -229,6 +244,7 @@ wrangler tail
 ```
 
 **Expected Log Output:**
+
 ```
 [INFO] GET / - serving SPA
 [INFO] POST /api/recommend - processing request
@@ -239,6 +255,7 @@ wrangler tail
 ```
 
 **Stop Logs:**
+
 - Press `Ctrl+C` to stop streaming
 
 ---
@@ -246,6 +263,7 @@ wrangler tail
 ## Deployment Verification Checklist
 
 ### Frontend (SPA) Verification
+
 - [x] GET / returns HTML (200 OK)
 - [x] Browser loads SPA without errors
 - [x] Page title visible: "EnergyGenius"
@@ -256,6 +274,7 @@ wrangler tail
 - [x] JavaScript executed and interactive
 
 ### API Verification
+
 - [x] POST /api/recommend endpoint accessible
 - [x] API accepts valid request payload
 - [x] API returns recommendations array (3+ items)
@@ -266,6 +285,7 @@ wrangler tail
 - [x] Response payload valid JSON
 
 ### End-to-End Testing
+
 - [x] Submit form with residential scenario
 - [x] Submit form with business scenario
 - [x] Submit form with seasonal scenario
@@ -285,6 +305,7 @@ wrangler tail
 **Access:** https://dash.cloudflare.com/
 
 **Metrics Available:**
+
 - Requests per second
 - CPU time used
 - Errors (4xx, 5xx)
@@ -294,16 +315,19 @@ wrangler tail
 ### Wrangler CLI Monitoring
 
 **Stream Logs:**
+
 ```bash
 wrangler tail
 ```
 
 **View Deployments:**
+
 ```bash
 wrangler deployments list
 ```
 
 **Check Worker Status:**
+
 ```bash
 wrangler dev  # Test locally before deploying
 ```
@@ -315,6 +339,7 @@ wrangler dev  # Test locally before deploying
 ### Step 1: Identify Issue
 
 **Symptoms:**
+
 - 5xx errors in logs
 - Application not loading
 - API returning errors
@@ -323,6 +348,7 @@ wrangler dev  # Test locally before deploying
 ### Step 2: Rollback to Previous Version
 
 **Option A: Deploy Previous Git Commit**
+
 ```bash
 # Revert to previous commit
 git checkout <previous-commit-hash>
@@ -332,6 +358,7 @@ npm run deploy
 ```
 
 **Option B: Cloudflare Dashboard**
+
 1. Go to https://dash.cloudflare.com/
 2. Navigate to Workers & Pages → energy-genius
 3. Click "Deployments" tab
@@ -345,16 +372,19 @@ npm run deploy
 ## Performance & Security
 
 ### HTTPS & SSL
+
 - ✅ HTTPS enforced (Cloudflare default)
 - ✅ SSL certificate valid (Cloudflare manages)
 - ✅ No mixed HTTP/HTTPS content
 
 ### Security Headers
+
 - ✅ CORS configured (allow all origins for public API)
 - ✅ Content-Type headers sent correctly
 - ✅ No sensitive information in URLs or logs
 
 ### Performance
+
 - ✅ Gzip compression enabled (Cloudflare default)
 - ✅ HTTP/2 and HTTP/3 supported
 - ✅ Global CDN distribution (ultra-low latency)
@@ -379,6 +409,7 @@ wrangler publish --routes "energygenius.com/*"
 ```
 
 **OR** via wrangler.toml:
+
 ```toml
 routes = [
   { pattern = "energygenius.com/*", zone_name = "energygenius.com" }
@@ -388,12 +419,14 @@ routes = [
 ### Step 3: Configure DNS
 
 **A Record:**
+
 - Type: A
 - Name: @ (root domain)
 - Value: 192.0.2.1 (Cloudflare proxy)
 - Proxy: Enabled (orange cloud)
 
 **CNAME Record (www):**
+
 - Type: CNAME
 - Name: www
 - Value: energygenius.com
@@ -408,6 +441,7 @@ routes = [
 **Error:** `Authentication error`
 
 **Solution:**
+
 ```bash
 wrangler logout
 wrangler login
@@ -420,6 +454,7 @@ wrangler login
 **Error:** `GET /assets/index-[hash].js 404`
 
 **Solution:**
+
 - Verify `dist/` directory exists
 - Rebuild: `npm run build`
 - Verify wrangler.toml `[assets]` section points to `./dist`
@@ -431,6 +466,7 @@ wrangler login
 **Error:** `POST /api/recommend 500 Internal Server Error`
 
 **Solution:**
+
 1. Check logs: `wrangler tail`
 2. Verify AI binding is active: `wrangler ai binding list`
 3. Test locally: `npm run dev` and submit form
@@ -442,6 +478,7 @@ wrangler login
 **Error:** `CORS policy: No 'Access-Control-Allow-Origin' header`
 
 **Solution:**
+
 - Verify worker returns proper CORS headers:
   ```typescript
   headers: {
@@ -476,6 +513,7 @@ wrangler login
 **Global Availability:** Immediate (edge deployment)
 
 **Commands Reference:**
+
 ```bash
 # Full deployment workflow
 npm run verify      # Run tests, linting, type-check

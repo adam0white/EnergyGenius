@@ -13,11 +13,7 @@ import type { SupplierPlan } from '../data/types';
  * @param input - Original stage input with preferences
  * @returns Formatted prompt string ready for AI model
  */
-export function buildPlanScoringPrompt(
-	usageSummary: UsageSummaryOutput,
-	supplierPlans: SupplierPlan[],
-	input: StageInput
-): string {
+export function buildPlanScoringPrompt(usageSummary: UsageSummaryOutput, supplierPlans: SupplierPlan[], input: StageInput): string {
 	// Validate inputs
 	if (!usageSummary) {
 		throw new Error('Usage summary is required for plan scoring');
@@ -77,8 +73,13 @@ For each plan, calculate:
 - Estimated annual cost = (baseRate * totalAnnualUsage) + (monthlyFee * 12)
 - Estimated savings = currentAnnualCost - estimatedAnnualCost
 
-OUTPUT FORMAT:
-Respond with ONLY a valid JSON array of scored plans (top 10 maximum), sorted by score descending:
+OUTPUT FORMAT - CRITICAL:
+Return ONLY valid JSON. No markdown code blocks, no comments, no extra text before or after.
+Do NOT wrap in \`\`\`json or \`\`\` markers.
+Do NOT add any text before or after the JSON.
+Start your response with [ and end with ]
+
+Required JSON array format (top 10 maximum), sorted by score descending:
 [
   {
     "planId": "<plan ID>",
@@ -99,7 +100,7 @@ SCORING CRITERIA:
 - Add up to +10 for low monthly fees
 - Minimum 5 plans, maximum 10 plans
 
-EXAMPLE OUTPUT:
+EXAMPLE OUTPUT (copy this structure exactly):
 [
   {
     "planId": "plan-001",
@@ -112,7 +113,7 @@ EXAMPLE OUTPUT:
   }
 ]
 
-Provide your scored plans now:`;
+Provide ONLY the JSON array now:`;
 
 	return prompt;
 }

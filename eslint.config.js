@@ -7,15 +7,37 @@ import globals from 'globals';
 
 export default [
 	js.configs.recommended,
-	// Node.js scripts configuration
+	// Node.js scripts configuration (JavaScript)
 	{
-		files: ['scripts/**/*.js', '*.config.js', '*.config.ts'],
+		files: ['scripts/**/*.js', '*.config.js'],
 		languageOptions: {
 			globals: {
 				...globals.node,
 			},
 		},
 		rules: {
+			'no-console': 'off',
+		},
+	},
+	// Node.js scripts configuration (TypeScript)
+	{
+		files: ['scripts/**/*.ts', '*.config.ts'],
+		languageOptions: {
+			parser: tsParser,
+			parserOptions: {
+				ecmaVersion: 2022,
+				sourceType: 'module',
+			},
+			globals: {
+				...globals.node,
+			},
+		},
+		plugins: {
+			'@typescript-eslint': tsPlugin,
+		},
+		rules: {
+			...tsPlugin.configs.recommended.rules,
+			'@typescript-eslint/no-explicit-any': 'off',
 			'no-console': 'off',
 		},
 	},

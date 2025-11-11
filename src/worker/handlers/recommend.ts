@@ -89,17 +89,33 @@ export async function handleRecommend(request: Request, env: Env, requestId: str
 		return createErrorResponse(400, 'Invalid request: missing or malformed JSON body', 'INVALID_JSON');
 	}
 
-	// Validate required fields
+	// Validate required fields with detailed error messages
 	const intakeData = body as IntakeFormData;
 
-	if (!intakeData.energyUsageData || !intakeData.preferences || !intakeData.currentPlan) {
-		return createErrorResponse(400, 'Missing required fields: energyUsageData, preferences, currentPlan', 'MISSING_FIELDS');
+	// Check which fields are missing
+	const missingFields: string[] = [];
+	if (!intakeData.energyUsageData) missingFields.push('energyUsageData');
+	if (!intakeData.preferences) missingFields.push('preferences');
+	if (!intakeData.currentPlan) missingFields.push('currentPlan');
+
+	if (missingFields.length > 0) {
+		console.error(`[${requestId}] Validation failed - missing fields:`, missingFields);
+		console.error(`[${requestId}] Received body keys:`, Object.keys(body));
+		return createErrorResponse(
+			400,
+			`Missing required fields: ${missingFields.join(', ')}. Received: ${Object.keys(body).join(', ')}`,
+			'MISSING_FIELDS',
+		);
 	}
 
 	// Validate energyUsageData structure
 	if (!intakeData.energyUsageData.monthlyData || !Array.isArray(intakeData.energyUsageData.monthlyData)) {
+		console.error(`[${requestId}] Invalid energyUsageData structure:`, intakeData.energyUsageData);
 		return createErrorResponse(400, 'Invalid energyUsageData: monthlyData array required', 'INVALID_USAGE_DATA');
 	}
+
+	// Log successful validation
+	console.log(`[${requestId}] Validation passed - processing ${intakeData.energyUsageData.monthlyData.length} months of data`);
 
 	// Build pipeline input
 	const pipelineInput: StageInput = {

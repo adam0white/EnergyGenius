@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev": "concurrently \"npm run dev:ui\" \"npm run dev:worker\" --kill-others",
 		"dev:ui": "vite build --watch --mode development",
-		"dev:worker": "wrangler dev --port 8787",
+		"dev:worker": "wrangler dev",
 		"build": "vite build --mode production",
 		"deploy": "npm run build && npm run deploy:worker",
 		"deploy:worker": "wrangler deploy && npm run verify:deployment",

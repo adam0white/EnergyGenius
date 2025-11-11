@@ -122,12 +122,13 @@ export async function runUsageSummary(env: Env, input: StageInput): Promise<Usag
 	// Build optimized prompt using prompt builder
 	const prompt = buildUsageSummaryPrompt(input);
 
-	// Call Workers AI
+	// Call Workers AI with JSON mode enabled
 	const modelId = env.AI_MODEL_FAST || '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 
 	const aiResponse = await env.AI.run(modelId, {
 		prompt,
 		max_tokens: 512,
+		response_format: { type: 'json_object' },
 	});
 
 	// Extract response text
@@ -149,23 +150,20 @@ export async function runUsageSummary(env: Env, input: StageInput): Promise<Usag
  * @param input - Original stage input payload
  * @returns Plan scoring output
  */
-export async function runPlanScoring(
-	env: Env,
-	usageSummary: UsageSummaryOutput,
-	input: StageInput
-): Promise<PlanScoringOutput> {
+export async function runPlanScoring(env: Env, usageSummary: UsageSummaryOutput, input: StageInput): Promise<PlanScoringOutput> {
 	const startTime = Date.now();
 	logStageStart('plan-scoring', { usageSummary, preferences: input.preferences });
 
 	// Build optimized prompt using prompt builder with real supplier catalog
 	const prompt = buildPlanScoringPrompt(usageSummary, Array.from(supplierCatalog), input);
 
-	// Call Workers AI
+	// Call Workers AI with JSON mode enabled
 	const modelId = env.AI_MODEL_FAST || '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 
 	const aiResponse = await env.AI.run(modelId, {
 		prompt,
 		max_tokens: 1024,
+		response_format: { type: 'json_object' },
 	});
 
 	// Extract response text
@@ -189,23 +187,20 @@ export async function runPlanScoring(
  * @param planScoring - Output from Stage 2
  * @returns Narrative output
  */
-export async function runNarrative(
-	env: Env,
-	planScoring: PlanScoringOutput,
-	usageSummary: UsageSummaryOutput
-): Promise<NarrativeOutput> {
+export async function runNarrative(env: Env, planScoring: PlanScoringOutput, usageSummary: UsageSummaryOutput): Promise<NarrativeOutput> {
 	const startTime = Date.now();
 	logStageStart('narrative', planScoring);
 
 	// Build optimized prompt using prompt builder
 	const prompt = buildNarrativePrompt(planScoring, usageSummary);
 
-	// Call Workers AI
+	// Call Workers AI with JSON mode enabled
 	const modelId = env.AI_MODEL_FAST || '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 
 	const aiResponse = await env.AI.run(modelId, {
 		prompt,
 		max_tokens: 1024,
+		response_format: { type: 'json_object' },
 	});
 
 	// Extract response text
@@ -234,11 +229,7 @@ export async function runNarrative(
  * @param progressCallback - Optional callback for progress updates (SSE support)
  * @returns Pipeline result with all stage outputs and errors
  */
-export async function runPipeline(
-	env: Env,
-	input: StageInput,
-	progressCallback?: ProgressCallback
-): Promise<PipelineResult> {
+export async function runPipeline(env: Env, input: StageInput, progressCallback?: ProgressCallback): Promise<PipelineResult> {
 	const startTime = Date.now();
 	const errors: PipelineError[] = [];
 
@@ -255,10 +246,11 @@ export async function runPipeline(
 		safeCallback(progressCallback, 'usage-summary', 'running', null);
 
 		// Wrap with retry logic
-		usageSummary = await withRetry(
-			() => withTimeout(runUsageSummary(env, input), 30000, 'usage-summary'),
-			{ maxAttempts: 2, backoffMs: 100, stageName: 'usage-summary' }
-		);
+		usageSummary = await withRetry(() => withTimeout(runUsageSummary(env, input), 40000, 'usage-summary'), {
+			maxAttempts: 2,
+			backoffMs: 100,
+			stageName: 'usage-summary',
+		});
 
 		safeCallback(progressCallback, 'usage-summary', 'complete', usageSummary);
 	} catch (error) {
@@ -284,10 +276,11 @@ export async function runPipeline(
 			safeCallback(progressCallback, 'plan-scoring', 'running', null);
 
 			// Wrap with retry logic
-			planScoring = await withRetry(
-				() => withTimeout(runPlanScoring(env, usageSummary, input), 30000, 'plan-scoring'),
-				{ maxAttempts: 2, backoffMs: 100, stageName: 'plan-scoring' }
-			);
+			planScoring = await withRetry(() => withTimeout(runPlanScoring(env, usageSummary, input), 40000, 'plan-scoring'), {
+				maxAttempts: 2,
+				backoffMs: 100,
+				stageName: 'plan-scoring',
+			});
 
 			safeCallback(progressCallback, 'plan-scoring', 'complete', planScoring);
 		} catch (error) {
@@ -318,10 +311,11 @@ export async function runPipeline(
 			safeCallback(progressCallback, 'narrative', 'running', null);
 
 			// Wrap with retry logic
-			narrative = await withRetry(
-				() => withTimeout(runNarrative(env, planScoring, usageSummary!), 30000, 'narrative'),
-				{ maxAttempts: 2, backoffMs: 100, stageName: 'narrative' }
-			);
+			narrative = await withRetry(() => withTimeout(runNarrative(env, planScoring, usageSummary!), 40000, 'narrative'), {
+				maxAttempts: 2,
+				backoffMs: 100,
+				stageName: 'narrative',
+			});
 
 			safeCallback(progressCallback, 'narrative', 'complete', narrative);
 		} catch (error) {
@@ -371,14 +365,37 @@ export async function runPipeline(
  * @param timeoutMs - Timeout in milliseconds
  * @param stageName - Stage name for error message
  * @returns Promise that rejects if timeout is exceeded
+ *
+ * CRITICAL: This function properly clears the timeout when the promise completes
+ * to prevent race conditions where the timeout fires after successful completion.
+ * See bug-timeout-race-condition.md for details.
  */
 async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, stageName: string): Promise<T> {
-	return Promise.race([
-		promise,
-		new Promise<T>((_, reject) =>
-			setTimeout(() => reject(new Error(`Stage ${stageName} exceeded ${timeoutMs / 1000}s timeout`)), timeoutMs)
-		),
-	]);
+	let timeoutId: NodeJS.Timeout | null = null;
+
+	const timeoutPromise = new Promise<T>((_, reject) => {
+		timeoutId = setTimeout(() => {
+			reject(new Error(`Stage ${stageName} exceeded ${timeoutMs / 1000}s timeout`));
+		}, timeoutMs);
+	});
+
+	try {
+		// Race between promise completion and timeout
+		const result = await Promise.race([promise, timeoutPromise]);
+
+		// Clear timeout immediately on successful completion
+		if (timeoutId !== null) {
+			clearTimeout(timeoutId);
+		}
+
+		return result;
+	} catch (error) {
+		// Clear timeout on error as well
+		if (timeoutId !== null) {
+			clearTimeout(timeoutId);
+		}
+		throw error;
+	}
 }
 
 /**
@@ -392,7 +409,7 @@ function safeCallback(
 	callback: ProgressCallback | undefined,
 	stageName: string,
 	status: 'running' | 'complete' | 'error',
-	output: any
+	output: any,
 ): void {
 	if (!callback) return;
 
@@ -423,6 +440,6 @@ function logStageStart(stageName: string, input: any): void {
 function logStageComplete(stageName: string, duration: number, output: any): void {
 	const outputSize = JSON.stringify(output).length;
 	console.log(
-		`[${new Date().toISOString()}] [${stageName.toUpperCase()}] [COMPLETE] Duration: ${duration}ms, Output size: ${outputSize} bytes`
+		`[${new Date().toISOString()}] [${stageName.toUpperCase()}] [COMPLETE] Duration: ${duration}ms, Output size: ${outputSize} bytes`,
 	);
 }

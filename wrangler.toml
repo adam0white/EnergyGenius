@@ -1,6 +1,6 @@
 name = "energy-genius"
 main = "src/worker/index.ts"
-compatibility_date = "2025-01-01"
+compatibility_date = "2025-11-11"
 account_id = "21785aeab46b7c081cae0be3a4313dbd"
 
 [assets]

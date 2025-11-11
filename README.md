@@ -13,6 +13,7 @@ In deregulated energy markets, consumers face hundreds of plan options with comp
 ### Solution
 
 A single-page application (SPA) built on Cloudflare Workers that:
+
 1. Collects user energy usage data and preferences via an intuitive form
 2. Processes data through a multi-stage AI pipeline
 3. Generates personalized plan recommendations with detailed explanations
@@ -31,11 +32,13 @@ A single-page application (SPA) built on Cloudflare Workers that:
 ## Documentation
 
 ### Core Documentation
+
 - [Technical Specification](./docs/tech-spec.md) - Complete technical architecture and design
 - [Project Overview](./docs/project-overview.md) - High-level project summary
 - [AI Pipeline Overview](./docs/pipeline-overview.md) - AI recommendation pipeline architecture
 
 ### Development Documentation
+
 - [E2E Testing Guide](./docs/e2e-testing-guide.md) - Manual testing checklist
 - [Responsive Design Verification](./docs/responsive-design-verification.md) - Mobile/tablet/desktop testing
 - [Accessibility Audit](./docs/accessibility-audit.md) - WCAG 2.1 Level AA compliance report
@@ -107,91 +110,91 @@ Generate personalized energy plan recommendations based on usage data and prefer
 
 ```json
 {
-  "monthlyUsage": [
-    { "month": 1, "kWh": 800 },
-    { "month": 2, "kWh": 820 },
-    // ... 12 months total
-  ],
-  "annualConsumption": 9800,
-  "currentPlan": {
-    "supplier": "Current Energy Co",
-    "planName": "Fixed Rate 12",
-    "currentRate": 0.12,
-    "monthlyFee": 9.95,
-    "monthsRemaining": 6,
-    "earlyTerminationFee": 150
-  },
-  "preferences": {
-    "prioritizeSavings": true,
-    "prioritizeRenewable": false,
-    "prioritizeFlexibility": false,
-    "maxContractMonths": 12,
-    "riskTolerance": "medium"
-  }
+	"monthlyUsage": [
+		{ "month": 1, "kWh": 800 },
+		{ "month": 2, "kWh": 820 }
+		// ... 12 months total
+	],
+	"annualConsumption": 9800,
+	"currentPlan": {
+		"supplier": "Current Energy Co",
+		"planName": "Fixed Rate 12",
+		"currentRate": 0.12,
+		"monthlyFee": 9.95,
+		"monthsRemaining": 6,
+		"earlyTerminationFee": 150
+	},
+	"preferences": {
+		"prioritizeSavings": true,
+		"prioritizeRenewable": false,
+		"prioritizeFlexibility": false,
+		"maxContractMonths": 12,
+		"riskTolerance": "medium"
+	}
 }
 ```
 
 **Field Constraints:**
 
-| Field | Type | Required | Constraints |
-|-------|------|----------|-------------|
-| monthlyUsage | array | Yes | 12 objects with month (1-12) and kWh (> 0) |
-| annualConsumption | number | Yes | Sum of monthly usage |
-| currentPlan.supplier | string | Yes | Min 1 character |
-| currentPlan.currentRate | number | Yes | > 0 ($/kWh) |
-| preferences.maxContractMonths | number | Yes | 1-24 months |
-| preferences.riskTolerance | string | Yes | "low", "medium", or "high" |
+| Field                         | Type   | Required | Constraints                                |
+| ----------------------------- | ------ | -------- | ------------------------------------------ |
+| monthlyUsage                  | array  | Yes      | 12 objects with month (1-12) and kWh (> 0) |
+| annualConsumption             | number | Yes      | Sum of monthly usage                       |
+| currentPlan.supplier          | string | Yes      | Min 1 character                            |
+| currentPlan.currentRate       | number | Yes      | > 0 ($/kWh)                                |
+| preferences.maxContractMonths | number | Yes      | 1-24 months                                |
+| preferences.riskTolerance     | string | Yes      | "low", "medium", or "high"                 |
 
 **Response (200 OK):**
 
 ```json
 [
-  {
-    "id": "rec_1",
-    "rank": 1,
-    "planName": "Green Energy Saver 12",
-    "monthlyPrice": 95.50,
-    "annualSavings": 450.00,
-    "explanation": "This plan offers excellent savings with 50% renewable energy...",
-    "supplier": "GreenPower Inc",
-    "contractLength": 12,
-    "earlyTerminationFee": 0,
-    "renewablePercentage": 50,
-    "rationale": {
-      "savingsScore": 85,
-      "renewableScore": 75,
-      "flexibilityScore": 90,
-      "overallScore": 83
-    }
-  },
-  {
-    "id": "rec_2",
-    "rank": 2,
-    "planName": "Fixed Rate Pro",
-    "monthlyPrice": 98.25,
-    "annualSavings": 420.00,
-    "explanation": "Stable pricing with no surprises...",
-    // ... similar structure
-  },
-  {
-    "id": "rec_3",
-    "rank": 3,
-    "planName": "Flex Energy 6",
-    "monthlyPrice": 100.00,
-    "annualSavings": 380.00,
-    "explanation": "Short-term contract with maximum flexibility...",
-    // ... similar structure
-  }
+	{
+		"id": "rec_1",
+		"rank": 1,
+		"planName": "Green Energy Saver 12",
+		"monthlyPrice": 95.5,
+		"annualSavings": 450.0,
+		"explanation": "This plan offers excellent savings with 50% renewable energy...",
+		"supplier": "GreenPower Inc",
+		"contractLength": 12,
+		"earlyTerminationFee": 0,
+		"renewablePercentage": 50,
+		"rationale": {
+			"savingsScore": 85,
+			"renewableScore": 75,
+			"flexibilityScore": 90,
+			"overallScore": 83
+		}
+	},
+	{
+		"id": "rec_2",
+		"rank": 2,
+		"planName": "Fixed Rate Pro",
+		"monthlyPrice": 98.25,
+		"annualSavings": 420.0,
+		"explanation": "Stable pricing with no surprises..."
+		// ... similar structure
+	},
+	{
+		"id": "rec_3",
+		"rank": 3,
+		"planName": "Flex Energy 6",
+		"monthlyPrice": 100.0,
+		"annualSavings": 380.0,
+		"explanation": "Short-term contract with maximum flexibility..."
+		// ... similar structure
+	}
 ]
 ```
 
 **Error Codes:**
 
-| Code | Description |
-|------|-------------|
-| 400 | Bad Request - Invalid input (missing fields, invalid values) |
-| 500 | Internal Server Error - AI processing failed |
-| 503 | Service Unavailable - AI service temporarily unavailable |
+| Code | Description                                                  |
+| ---- | ------------------------------------------------------------ |
+| 400  | Bad Request - Invalid input (missing fields, invalid values) |
+| 500  | Internal Server Error - AI processing failed                 |
+| 503  | Service Unavailable - AI service temporarily unavailable     |
 
 **Example curl Request:**
 
@@ -747,6 +750,7 @@ Configuration files:
 ### Bug Reports
 
 To report bugs, please provide:
+
 1. **Description:** Clear description of the issue
 2. **Steps to Reproduce:** Exact steps to reproduce the bug
 3. **Expected Behavior:** What you expected to happen
@@ -757,6 +761,7 @@ To report bugs, please provide:
 ### Feature Requests
 
 For feature requests, please describe:
+
 1. **Use Case:** What problem does this feature solve?
 2. **Proposed Solution:** How should it work?
 3. **Alternatives Considered:** Other approaches you've considered
@@ -765,17 +770,20 @@ For feature requests, please describe:
 ### Code Contributions
 
 **Branch Naming:**
+
 - `feature/description` - New features
 - `fix/description` - Bug fixes
 - `docs/description` - Documentation updates
 - `refactor/description` - Code refactoring
 
 **Commit Messages:**
+
 - Use clear, descriptive commit messages
 - Follow conventional commits format when possible
 - Example: "feat: add seasonal usage pattern detection"
 
 **Pull Request Process:**
+
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes with tests
@@ -786,6 +794,7 @@ For feature requests, please describe:
 ### Testing Requirements
 
 Before submitting a pull request:
+
 - ✅ Run `npm run type-check` - No TypeScript errors
 - ✅ Run `npm run lint` - No linting errors
 - ✅ Run `npm run format:check` - Code properly formatted
@@ -796,6 +805,7 @@ Before submitting a pull request:
 ### Code Review Process
 
 All pull requests require:
+
 1. Passing CI checks
 2. Code review approval
 3. No merge conflicts
@@ -836,6 +846,7 @@ SOFTWARE.
 This project uses the following open-source libraries:
 
 **Frontend:**
+
 - [React](https://react.dev/) - MIT License
 - [Radix UI](https://www.radix-ui.com/) - MIT License
 - [Tailwind CSS](https://tailwindcss.com/) - MIT License
@@ -843,11 +854,13 @@ This project uses the following open-source libraries:
 - [shadcn/ui](https://ui.shadcn.com/) - MIT License
 
 **Backend:**
+
 - [Cloudflare Workers](https://workers.cloudflare.com/) - Proprietary (Cloudflare)
 - [Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/) - Proprietary (Cloudflare)
 - [Meta Llama 3](https://llama.meta.com/) - Meta License
 
 **Development:**
+
 - [TypeScript](https://www.typescriptlang.org/) - Apache 2.0 License
 - [ESLint](https://eslint.org/) - MIT License
 - [Prettier](https://prettier.io/) - MIT License
@@ -856,10 +869,12 @@ This project uses the following open-source libraries:
 ### AI Model Attribution
 
 This application uses **Cloudflare Workers AI** with the following models:
+
 - **Meta Llama 3.3 70B Instruct** - Fast inference for data normalization
 - **Meta Llama 3.1 8B Instruct** - Accurate inference for recommendation generation
 
 AI-generated recommendations are clearly labeled with:
+
 > Powered by Cloudflare Workers + AI
 
 ### Acknowledgments

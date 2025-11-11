@@ -76,7 +76,7 @@ export async function withRetry<T>(fn: () => Promise<T>, options: RetryOptions =
 
 			// Log attempt
 			console.log(
-				`[${new Date().toISOString()}] [RETRY] [${stageName.toUpperCase()}] Attempt ${attempt}/${maxAttempts} failed: ${lastError.message} (retriable: ${retriable})`
+				`[${new Date().toISOString()}] [RETRY] [${stageName.toUpperCase()}] Attempt ${attempt}/${maxAttempts} failed: ${lastError.message} (retriable: ${retriable})`,
 			);
 
 			// If not retriable, throw immediately

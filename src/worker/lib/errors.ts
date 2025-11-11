@@ -80,7 +80,7 @@ export async function parseJsonBody(request: Request): Promise<any | null> {
 			return null;
 		}
 		return JSON.parse(text);
-	} catch (_error) {
+	} catch {
 		return null;
 	}
 }

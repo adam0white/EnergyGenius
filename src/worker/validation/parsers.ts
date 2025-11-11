@@ -18,7 +18,9 @@ import { sanitizeAIResponse, sanitizeText, truncateText } from './sanitizers';
  */
 export function parseUsageSummary(rawResponse: string, stageName: string = 'usage-summary'): UsageSummaryValidated {
 	// Log raw response (truncated)
-	console.log(`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Raw response (first 500 chars): ${rawResponse.substring(0, 500)}`);
+	console.log(
+		`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Raw response (first 500 chars): ${rawResponse.substring(0, 500)}`,
+	);
 
 	// Sanitize response
 	const sanitized = sanitizeAIResponse(rawResponse);
@@ -56,13 +58,11 @@ export function parseUsageSummary(rawResponse: string, stageName: string = 'usag
  * @returns Validated plan scoring output
  * @throws ParseError, ValidationError, MismatchError
  */
-export function parsePlanScoring(
-	rawResponse: string,
-	validPlanIds: string[],
-	stageName: string = 'plan-scoring'
-): PlanScoringValidated {
+export function parsePlanScoring(rawResponse: string, validPlanIds: string[], stageName: string = 'plan-scoring'): PlanScoringValidated {
 	// Log raw response (truncated)
-	console.log(`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Raw response (first 500 chars): ${rawResponse.substring(0, 500)}`);
+	console.log(
+		`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Raw response (first 500 chars): ${rawResponse.substring(0, 500)}`,
+	);
 
 	// Sanitize response
 	const sanitized = sanitizeAIResponse(rawResponse);
@@ -117,7 +117,9 @@ export function parsePlanScoring(
 		// Don't throw, continue with what we have
 	}
 
-	console.log(`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Validation successful: ${validated.scoredPlans.length} plans`);
+	console.log(
+		`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Validation successful: ${validated.scoredPlans.length} plans`,
+	);
 	return validated;
 }
 
@@ -131,7 +133,9 @@ export function parsePlanScoring(
  */
 export function parseNarrative(rawResponse: string, topPlanIds: string[], stageName: string = 'narrative'): NarrativeValidated {
 	// Log raw response (truncated)
-	console.log(`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Raw response (first 500 chars): ${rawResponse.substring(0, 500)}`);
+	console.log(
+		`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Raw response (first 500 chars): ${rawResponse.substring(0, 500)}`,
+	);
 
 	// Sanitize response
 	const sanitized = sanitizeText(rawResponse);
@@ -144,7 +148,9 @@ export function parseNarrative(rawResponse: string, topPlanIds: string[], stageN
 	}
 
 	if (sanitized.length > 5000) {
-		console.warn(`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Response too long (${sanitized.length} chars), truncating to 5000`);
+		console.warn(
+			`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Response too long (${sanitized.length} chars), truncating to 5000`,
+		);
 	}
 
 	// Split response by plan sections (look for plan ID patterns or separators)

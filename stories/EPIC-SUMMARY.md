@@ -12,6 +12,7 @@
 The EnergyGenius project is structured into **6 implementation epics** spanning project setup, mock data layer, AI backend, React UI, user-facing features, and deployment/polish. All epics have been planned with stories ready for development.
 
 **Project Completion Status:**
+
 - Epic 1: Project Setup ✓ Complete
 - Epic 2: Mock Data Layer ✓ Complete
 - Epic 3: AI Pipeline ✓ Complete

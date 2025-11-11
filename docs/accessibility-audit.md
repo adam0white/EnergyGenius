@@ -14,6 +14,7 @@ This document verifies WCAG 2.1 Level AA compliance for the Energy Recommendatio
 ## 1. Keyboard Navigation (WCAG 2.1.1, 2.4.7)
 
 ### Tab Navigation
+
 - ✅ Tab key navigates through all interactive elements in logical order
 - ✅ Tab order: skip link → form inputs → submit button → recommendations (if present)
 - ✅ Shift+Tab navigates backwards correctly
@@ -21,12 +22,14 @@ This document verifies WCAG 2.1 Level AA compliance for the Energy Recommendatio
 - ✅ All interactive elements accessible via keyboard
 
 ### Focus Visible (WCAG 2.4.7)
+
 - ✅ Focus visible on all interactive elements (buttons, inputs, links)
 - ✅ Focus indicator clearly visible: `focus-visible:ring-1 focus-visible:ring-ring`
 - ✅ Focus indicator color contrasts with background (minimum 4.5:1 ratio)
 - ✅ Focus indicator minimum 2px visible outline (Tailwind default ring-1)
 
 ### Interactive Elements
+
 - ✅ "Start Over" button accessible via keyboard
 - ✅ "Retry" button accessible via keyboard
 - ✅ "Get Recommendations" button accessible via keyboard
@@ -38,18 +41,21 @@ This document verifies WCAG 2.1 Level AA compliance for the Energy Recommendatio
 ## 2. Screen Reader Support (WCAG 1.3.1, 3.3.1, 4.1.2)
 
 ### Form Labels (WCAG 1.3.1)
+
 - ✅ IntakeForm has proper labels linked to inputs (htmlFor attribute)
 - ✅ All form inputs have associated `<label>` elements
 - ✅ Labels visible and positioned next to inputs
 - ✅ Labels announced when input receives focus
 
 ### Error Messages (WCAG 3.3.1)
+
 - ✅ Error messages announced to screen reader (role="alert", aria-live="assertive")
 - ✅ Form validation errors displayed visually and announced
 - ✅ Error messages linked to specific fields where applicable
 - ✅ Clear error messaging (not color-only)
 
 ### ARIA Live Regions (WCAG 4.1.3)
+
 - ✅ ProgressTimeline announces stage updates:
   - `aria-live="polite"` region for current stage
   - Screen reader announces: "Stage X is currently running. N of 3 stages completed."
@@ -57,6 +63,7 @@ This document verifies WCAG 2.1 Level AA compliance for the Energy Recommendatio
 - ✅ Status changes announced without page refresh
 
 ### Component Announcements
+
 - ✅ RecommendationDeck titles announced for each recommendation
 - ✅ Recommendation cards use `role="article"` with `aria-labelledby`
 - ✅ Descriptions fully readable via screen reader
@@ -68,6 +75,7 @@ This document verifies WCAG 2.1 Level AA compliance for the Energy Recommendatio
 ## 3. Semantic HTML & ARIA (WCAG 1.3.1, 4.1.2)
 
 ### Semantic HTML Elements
+
 - ✅ Form uses `<form>` element with proper `<label>` elements
 - ✅ Buttons use native `<button>` elements (not `<div>` with click handlers)
 - ✅ Form inputs use correct `<input type="...">` attributes
@@ -78,6 +86,7 @@ This document verifies WCAG 2.1 Level AA compliance for the Energy Recommendatio
 - ✅ Navigation wrapped in `<nav>` element with aria-label
 
 ### ARIA Attributes
+
 - ✅ ARIA live regions for dynamic updates (`aria-live="polite"`, `aria-live="assertive"`)
 - ✅ Error region with `role="alert"` and `aria-live="assertive"`
 - ✅ Progress timeline with `role="progressbar"` and aria-valuenow/valuemin/valuemax
@@ -86,6 +95,7 @@ This document verifies WCAG 2.1 Level AA compliance for the Energy Recommendatio
 - ✅ No div-based button implementations (all native `<button>` elements)
 
 ### Heading Hierarchy
+
 - ✅ One `<h1>` per page: "Energy Usage Intake" or "EnergyGenius"
 - ✅ `<h2>` for major sections: "Processing Your Recommendations", "Your Top Recommendations"
 - ✅ `<h3>` for subsections: recommendation supplier names, stage names
@@ -97,6 +107,7 @@ This document verifies WCAG 2.1 Level AA compliance for the Energy Recommendatio
 ## 4. Color Contrast (WCAG 1.4.3)
 
 ### Text Contrast Ratios
+
 - ✅ Body text: 4.5:1 minimum contrast ratio (normal text)
   - Gray-900 on white: ~16:1 (excellent)
   - Gray-600 on white: ~7:1 (excellent)
@@ -108,33 +119,37 @@ This document verifies WCAG 2.1 Level AA compliance for the Energy Recommendatio
 - ✅ Form labels: 4.5:1 minimum (gray-900 or gray-700 on white)
 
 ### Non-Text Contrast
+
 - ✅ Error messages: red text paired with icon (⚠️) - not color-only
 - ✅ Success messages: green color paired with checkmark (✓) - not color-only
 - ✅ Link text: proper contrast (primary color on background)
 - ✅ Focus indicators: visible contrast (ring color vs. background)
 
 ### Color Combinations Verified
-| Element | Foreground | Background | Ratio | Status |
-|---------|------------|------------|-------|--------|
-| Body text | Gray-900 | White | ~16:1 | ✅ Pass |
-| Muted text | Gray-600 | White | ~7:1 | ✅ Pass |
-| Button (primary) | White | Primary | ~14:1 | ✅ Pass |
-| Button (outline) | Gray-900 | White | ~16:1 | ✅ Pass |
-| Error text | Red-800 | Red-50 | ~8:1 | ✅ Pass |
-| Success text | Green-700 | Green-50 | ~7:1 | ✅ Pass |
-| Form labels | Gray-900 | White | ~16:1 | ✅ Pass |
+
+| Element          | Foreground | Background | Ratio | Status  |
+| ---------------- | ---------- | ---------- | ----- | ------- |
+| Body text        | Gray-900   | White      | ~16:1 | ✅ Pass |
+| Muted text       | Gray-600   | White      | ~7:1  | ✅ Pass |
+| Button (primary) | White      | Primary    | ~14:1 | ✅ Pass |
+| Button (outline) | Gray-900   | White      | ~16:1 | ✅ Pass |
+| Error text       | Red-800    | Red-50     | ~8:1  | ✅ Pass |
+| Success text     | Green-700  | Green-50   | ~7:1  | ✅ Pass |
+| Form labels      | Gray-900   | White      | ~16:1 | ✅ Pass |
 
 ---
 
 ## 5. Form Accessibility (WCAG 1.3.1, 3.3.1, 3.3.2, 4.1.2)
 
 ### Form Labels & Association
+
 - ✅ All form fields have associated `<label>` elements with htmlFor
 - ✅ Labels visible and positioned next to inputs (not hidden)
 - ✅ Placeholders NOT used as labels (placeholders are supplementary)
 - ✅ Form submit button clearly labeled ("Get Recommendations")
 
 ### Form Validation
+
 - ✅ Validation errors linked to specific fields
 - ✅ Required fields marked (validation logic in place)
 - ✅ Error messages descriptive and actionable
@@ -142,6 +157,7 @@ This document verifies WCAG 2.1 Level AA compliance for the Energy Recommendatio
 - ✅ Tab order within form is logical (top to bottom, left to right)
 
 ### Form Field Properties
+
 - ✅ Input fields have proper type attributes (number, text, date, etc.)
 - ✅ Number inputs have min/max/step attributes
 - ✅ Select dropdowns use native `<select>` element
@@ -153,6 +169,7 @@ This document verifies WCAG 2.1 Level AA compliance for the Energy Recommendatio
 ## 6. Focus Management (WCAG 2.4.3, 2.4.7, 3.2.1)
 
 ### Focus Visibility
+
 - ✅ Initial page load: focus on skip link (keyboard users)
 - ✅ Skip link visible on focus: navigates to #main-content
 - ✅ Form submission: focus remains on form or moves to loading state
@@ -161,6 +178,7 @@ This document verifies WCAG 2.1 Level AA compliance for the Energy Recommendatio
 - ✅ "Start Over" click: form resets and focus returns to first input
 
 ### Focus Indicators
+
 - ✅ Focus visible outline at least 2px: Tailwind `ring-1` provides visible outline
 - ✅ Focus color contrasts with background: `ring` color has sufficient contrast
 - ✅ No focus jumps or unexpected focus loss
@@ -171,6 +189,7 @@ This document verifies WCAG 2.1 Level AA compliance for the Energy Recommendatio
 ## 7. Component-Level Accessibility
 
 ### IntakeForm
+
 - ✅ All inputs have labels with htmlFor
 - ✅ Validation errors announced
 - ✅ Tab order logical (month 1 → month 2 → ... → submit)
@@ -178,6 +197,7 @@ This document verifies WCAG 2.1 Level AA compliance for the Energy Recommendatio
 - ✅ Mock data button has clear label and purpose
 
 ### ProgressTimeline
+
 - ✅ Stage status announced with ARIA live regions (`aria-live="polite"`)
 - ✅ Progress indicator: `role="progressbar"` with aria-valuenow
 - ✅ Current stage identified via screen reader announcement
@@ -185,6 +205,7 @@ This document verifies WCAG 2.1 Level AA compliance for the Energy Recommendatio
 - ✅ Stage cards semantically valid (Card component with proper markup)
 
 ### RecommendationDeck
+
 - ✅ Each card has proper heading (h3) with unique id
 - ✅ Cards use `role="article"` with `aria-labelledby`
 - ✅ Recommendation details fully readable
@@ -196,6 +217,7 @@ This document verifies WCAG 2.1 Level AA compliance for the Energy Recommendatio
 ## 8. Screen Reader Testing
 
 ### VoiceOver (macOS) / NVDA (Windows)
+
 - ✅ Page title announced correctly on load: "EnergyGenius"
 - ✅ Main heading announced: "Energy Usage Intake"
 - ✅ Form labels announced when focused: "Month 1", "Supplier", etc.
@@ -210,6 +232,7 @@ This document verifies WCAG 2.1 Level AA compliance for the Energy Recommendatio
 ## 9. Page Structure & Landmarks (WCAG 1.3.1, 2.4.1)
 
 ### Semantic Landmarks
+
 - ✅ `<header>` element for page header
 - ✅ `<main>` element for main content (id="main-content")
 - ✅ `<footer>` element for page footer
@@ -217,6 +240,7 @@ This document verifies WCAG 2.1 Level AA compliance for the Energy Recommendatio
 - ✅ Skip link for keyboard users: "Skip to main content"
 
 ### Heading Structure
+
 - ✅ Heading hierarchy: h1 (page title), h2 (major sections), h3 (subsections), h4 (minor)
 - ✅ At least one h1 per page: "EnergyGenius" in header
 - ✅ No skipped heading levels (h1 → h2 → h3)
@@ -227,6 +251,7 @@ This document verifies WCAG 2.1 Level AA compliance for the Energy Recommendatio
 ## 10. Non-Text Content (WCAG 1.1.1)
 
 ### Icons & Emojis
+
 - ✅ Loading spinner: text alternative via button label ("Processing...")
 - ✅ Icons accompanied by text or aria-label:
   - ⚡ in header: `aria-hidden="true"`
@@ -236,6 +261,7 @@ This document verifies WCAG 2.1 Level AA compliance for the Energy Recommendatio
 - ✅ Meaningful images: would have descriptive alt text (none currently)
 
 ### Color-Coded Information
+
 - ✅ Error states: red color + ⚠️ icon + text description
 - ✅ Success states: green color + ✓ icon + text description
 - ✅ Status badges: colored + text label ("Queued", "Running", "Complete")
@@ -246,12 +272,14 @@ This document verifies WCAG 2.1 Level AA compliance for the Energy Recommendatio
 ## 11. Motion & Animation (WCAG 2.2.2, 2.3.1)
 
 ### Reduced Motion
+
 - ✅ Animations respect `prefers-reduced-motion` (Tailwind default behavior)
 - ✅ Critical animations can be disabled if user prefers
 - ✅ No autoplay video or animation longer than 3 seconds
 - ✅ No flashing or blinking content (especially 3+ times per second)
 
 ### Safe Animations
+
 - ✅ Loading spinner: slow rotation, no flashing
 - ✅ Button hover: smooth color transition
 - ✅ Focus: smooth ring appearance (transition-colors)
@@ -262,6 +290,7 @@ This document verifies WCAG 2.1 Level AA compliance for the Energy Recommendatio
 ## 12. Additional Accessibility Features
 
 ### Skip Link
+
 - ✅ Skip link implemented: "Skip to main content"
 - ✅ Visually hidden by default (sr-only)
 - ✅ Visible on keyboard focus (focus:not-sr-only)
@@ -269,12 +298,14 @@ This document verifies WCAG 2.1 Level AA compliance for the Energy Recommendatio
 - ✅ Styled prominently on focus (bg-primary, px-4, py-2, shadow-lg)
 
 ### Error Handling
+
 - ✅ Errors announced immediately (aria-live="assertive")
 - ✅ Error messages descriptive (not just "Error")
 - ✅ Retry mechanism accessible via keyboard
 - ✅ Error doesn't block other functionality
 
 ### Form Accessibility Enhancements
+
 - ✅ Large touch targets: 44px minimum (h-11 inputs, h-11/h-12 buttons)
 - ✅ Clear focus indicators on all inputs
 - ✅ Logical tab order through form fields
@@ -289,21 +320,21 @@ This document verifies WCAG 2.1 Level AA compliance for the Energy Recommendatio
 
 ### WCAG 2.1 Level AA Compliance
 
-| Success Criterion | Level | Status |
-|-------------------|-------|--------|
-| 1.1.1 Non-text Content | A | ✅ Pass |
-| 1.3.1 Info and Relationships | A | ✅ Pass |
-| 1.4.3 Contrast (Minimum) | AA | ✅ Pass |
-| 2.1.1 Keyboard | A | ✅ Pass |
-| 2.1.2 No Keyboard Trap | A | ✅ Pass |
-| 2.4.1 Bypass Blocks | A | ✅ Pass (skip link) |
-| 2.4.3 Focus Order | A | ✅ Pass |
-| 2.4.7 Focus Visible | AA | ✅ Pass |
-| 3.2.1 On Focus | A | ✅ Pass |
-| 3.3.1 Error Identification | A | ✅ Pass |
-| 3.3.2 Labels or Instructions | A | ✅ Pass |
-| 4.1.2 Name, Role, Value | A | ✅ Pass |
-| 4.1.3 Status Messages | AA | ✅ Pass |
+| Success Criterion            | Level | Status              |
+| ---------------------------- | ----- | ------------------- |
+| 1.1.1 Non-text Content       | A     | ✅ Pass             |
+| 1.3.1 Info and Relationships | A     | ✅ Pass             |
+| 1.4.3 Contrast (Minimum)     | AA    | ✅ Pass             |
+| 2.1.1 Keyboard               | A     | ✅ Pass             |
+| 2.1.2 No Keyboard Trap       | A     | ✅ Pass             |
+| 2.4.1 Bypass Blocks          | A     | ✅ Pass (skip link) |
+| 2.4.3 Focus Order            | A     | ✅ Pass             |
+| 2.4.7 Focus Visible          | AA    | ✅ Pass             |
+| 3.2.1 On Focus               | A     | ✅ Pass             |
+| 3.3.1 Error Identification   | A     | ✅ Pass             |
+| 3.3.2 Labels or Instructions | A     | ✅ Pass             |
+| 4.1.2 Name, Role, Value      | A     | ✅ Pass             |
+| 4.1.3 Status Messages        | AA    | ✅ Pass             |
 
 ### Key Implementations
 
@@ -341,6 +372,7 @@ This document verifies WCAG 2.1 Level AA compliance for the Energy Recommendatio
 **Expected Score:** 95-100/100
 
 **Lighthouse Checks:**
+
 - ✅ [aria-hidden-focus] ARIA hidden elements do not contain focusable elements
 - ✅ [button-name] Buttons have accessible names
 - ✅ [color-contrast] Background and foreground colors have sufficient contrast ratio

@@ -382,11 +382,13 @@ npm run dev
 ### Data Freshness
 
 **Current Data:**
+
 - **Last updated:** 2025-11-10 (manually curated)
 - **Source:** Initial seed data for MVP
 - **Coverage:** 12 plans from Texas market
 
 **Future Updates:**
+
 - Use the scraper utility to refresh from Power to Choose
 - Manually add plans from other states as needed
 - Review and validate all scraped data before integration
