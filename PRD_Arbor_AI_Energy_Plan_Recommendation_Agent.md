@@ -25,17 +25,18 @@ Customers in deregulated energy markets are overwhelmed by the multitude of ener
 ## 4. Target Users & Personas
 
 ### Primary Users
+
 - **Residential Energy Consumers**: Individuals in deregulated energy markets looking to optimize their energy costs and preferences.
   - **Pain Points**: Difficulty understanding complex plans, fear of overpaying, and confusion over renewable options.
 
 ### Secondary Users
+
 - **Small Business Owners**: Seeking cost-effective and sustainable energy solutions.
   - **Pain Points**: Need for predictable energy costs, sustainability goals.
 
 ## 5. User Stories
 
 1. **As a residential energy consumer**, I want to receive personalized energy plan recommendations so that I can choose the most cost-effective and suitable option for my household.
-   
 2. **As a small business owner**, I want to understand the trade-offs between cost and renewable energy options so that I can align my energy plan with my sustainability goals.
 
 3. **As a customer with high summer usage**, I want to know how different plans accommodate seasonal variations so that I can avoid unexpected costs.
@@ -43,12 +44,12 @@ Customers in deregulated energy markets are overwhelmed by the multitude of ener
 ## 6. Functional Requirements
 
 ### P0: Must-have (Critical)
+
 - **Data Processing**:
   - Accept 12 months of customer usage data (kWh).
   - Ingest current plan details (rate, contract end date, early termination fee).
   - Capture customer preferences (cost savings, flexibility, renewable energy, supplier ratings).
   - Import a supplier plan catalog with various attributes.
-  
 - **Recommendation Logic**:
   - Generate top 3 plan recommendations.
   - Calculate projected annual savings.
@@ -56,12 +57,14 @@ Customers in deregulated energy markets are overwhelmed by the multitude of ener
   - Consider contract timing and switching costs.
 
 ### P1: Should-have (Important)
+
 - **Basic Risk Awareness**:
   - Flag potential issues with recommendations.
   - Indicate when switching might not be beneficial.
   - Highlight uncertainty with insufficient data.
 
 ### P2: Nice-to-have (Optional)
+
 - **User Feedback Loop**:
   - Allow users to rate recommendations which can be used for iterative improvements.
 

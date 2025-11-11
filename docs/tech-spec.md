@@ -107,44 +107,44 @@ Build a Cloudflare Workers + Workers AI powered demo application with a UI-first
 ```typescript
 // src/worker/handlers/recommend.ts
 export async function handleRecommend(request: Request, env: Env) {
-  const intake = await request.json();
-  
-  // Run complete pipeline
-  const summary = await runUsageSummary(env, intake);
-  const scores = await runPlanScoring(env, summary, intake);
-  const narrative = await runNarrative(env, scores);
-  
-  return Response.json({
-    recommendations: buildRecommendations(scores, narrative),
-    metadata: { stages: ['complete', 'complete', 'complete'] }
-  });
+	const intake = await request.json();
+
+	// Run complete pipeline
+	const summary = await runUsageSummary(env, intake);
+	const scores = await runPlanScoring(env, summary, intake);
+	const narrative = await runNarrative(env, scores);
+
+	return Response.json({
+		recommendations: buildRecommendations(scores, narrative),
+		metadata: { stages: ['complete', 'complete', 'complete'] },
+	});
 }
 ```
 
 ```typescript
 // src/ui/hooks/useRecommendation.ts (Phase 1)
 export function useRecommendation() {
-  const [stages, setStages] = useState(['pending', 'pending', 'pending']);
-  const [result, setResult] = useState(null);
-  
-  const submit = async (intake) => {
-    // Optimistic UI: simulate progress
-    setStages(['running', 'pending', 'pending']);
-    setTimeout(() => setStages(['complete', 'running', 'pending']), 6000);
-    setTimeout(() => setStages(['complete', 'complete', 'running']), 12000);
-    
-    // Actual API call
-    const res = await fetch('/api/recommend', {
-      method: 'POST',
-      body: JSON.stringify(intake)
-    });
-    const data = await res.json();
-    
-    setStages(['complete', 'complete', 'complete']);
-    setResult(data);
-  };
-  
-  return { stages, result, submit };
+	const [stages, setStages] = useState(['pending', 'pending', 'pending']);
+	const [result, setResult] = useState(null);
+
+	const submit = async (intake) => {
+		// Optimistic UI: simulate progress
+		setStages(['running', 'pending', 'pending']);
+		setTimeout(() => setStages(['complete', 'running', 'pending']), 6000);
+		setTimeout(() => setStages(['complete', 'complete', 'running']), 12000);
+
+		// Actual API call
+		const res = await fetch('/api/recommend', {
+			method: 'POST',
+			body: JSON.stringify(intake),
+		});
+		const data = await res.json();
+
+		setStages(['complete', 'complete', 'complete']);
+		setResult(data);
+	};
+
+	return { stages, result, submit };
 }
 ```
 
@@ -153,56 +153,54 @@ export function useRecommendation() {
 ```typescript
 // src/worker/handlers/recommend.ts (enhanced)
 export async function handleRecommend(request: Request, env: Env) {
-  const intake = await request.json();
-  const acceptHeader = request.headers.get('Accept');
-  const enableSSE = env.ENABLE_SSE === 'true' && acceptHeader?.includes('text/event-stream');
-  
-  if (!enableSSE) {
-    // Fall back to Phase 1 behavior
-    return handleStandardRequest(intake, env);
-  }
-  
-  // SSE mode
-  const { readable, writable } = new TransformStream();
-  const writer = writable.getWriter();
-  const encoder = new TextEncoder();
-  
-  const sendEvent = async (event: string, data: any) => {
-    await writer.write(encoder.encode(
-      `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`
-    ));
-  };
-  
-  // Run pipeline with progress callbacks
-  (async () => {
-    try {
-      await sendEvent('stage', { name: 'usage_summary', status: 'running' });
-      const summary = await runUsageSummary(env, intake);
-      await sendEvent('stage', { name: 'usage_summary', status: 'complete' });
-      
-      await sendEvent('stage', { name: 'plan_scoring', status: 'running' });
-      const scores = await runPlanScoring(env, summary, intake);
-      await sendEvent('stage', { name: 'plan_scoring', status: 'complete' });
-      
-      await sendEvent('stage', { name: 'narrative', status: 'running' });
-      const narrative = await runNarrative(env, scores);
-      await sendEvent('stage', { name: 'narrative', status: 'complete' });
-      
-      await sendEvent('complete', buildRecommendations(scores, narrative));
-      await writer.close();
-    } catch (error) {
-      await sendEvent('error', { message: error.message });
-      await writer.close();
-    }
-  })();
-  
-  return new Response(readable, {
-    headers: {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
-    }
-  });
+	const intake = await request.json();
+	const acceptHeader = request.headers.get('Accept');
+	const enableSSE = env.ENABLE_SSE === 'true' && acceptHeader?.includes('text/event-stream');
+
+	if (!enableSSE) {
+		// Fall back to Phase 1 behavior
+		return handleStandardRequest(intake, env);
+	}
+
+	// SSE mode
+	const { readable, writable } = new TransformStream();
+	const writer = writable.getWriter();
+	const encoder = new TextEncoder();
+
+	const sendEvent = async (event: string, data: any) => {
+		await writer.write(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
+	};
+
+	// Run pipeline with progress callbacks
+	(async () => {
+		try {
+			await sendEvent('stage', { name: 'usage_summary', status: 'running' });
+			const summary = await runUsageSummary(env, intake);
+			await sendEvent('stage', { name: 'usage_summary', status: 'complete' });
+
+			await sendEvent('stage', { name: 'plan_scoring', status: 'running' });
+			const scores = await runPlanScoring(env, summary, intake);
+			await sendEvent('stage', { name: 'plan_scoring', status: 'complete' });
+
+			await sendEvent('stage', { name: 'narrative', status: 'running' });
+			const narrative = await runNarrative(env, scores);
+			await sendEvent('stage', { name: 'narrative', status: 'complete' });
+
+			await sendEvent('complete', buildRecommendations(scores, narrative));
+			await writer.close();
+		} catch (error) {
+			await sendEvent('error', { message: error.message });
+			await writer.close();
+		}
+	})();
+
+	return new Response(readable, {
+		headers: {
+			'Content-Type': 'text/event-stream',
+			'Cache-Control': 'no-cache',
+			Connection: 'keep-alive',
+		},
+	});
 }
 ```
 
@@ -211,31 +209,31 @@ export async function handleRecommend(request: Request, env: Env) {
 export function useRecommendation() {
   const [stages, setStages] = useState([...]);
   const [result, setResult] = useState(null);
-  
+
   const submit = async (intake) => {
     const response = await fetch('/api/recommend', {
       method: 'POST',
-      headers: { 
+      headers: {
         'Content-Type': 'application/json',
         'Accept': 'text/event-stream'  // Signal we want streaming
       },
       body: JSON.stringify(intake)
     });
-    
+
     // Check if server sent streaming response
     const contentType = response.headers.get('Content-Type');
     if (contentType?.includes('text/event-stream')) {
       // Parse SSE stream
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-      
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        
+
         const chunk = decoder.decode(value);
         const events = parseSSE(chunk);  // Parse "event: X\ndata: {...}\n\n"
-        
+
         events.forEach(({ event, data }) => {
           if (event === 'stage') updateStageState(data);
           if (event === 'complete') setResult(data);
@@ -248,7 +246,7 @@ export function useRecommendation() {
       setStages(['complete', 'complete', 'complete']);
     }
   };
-  
+
   return { stages, result, submit };
 }
 ```
@@ -256,6 +254,7 @@ export function useRecommendation() {
 ### Existing Patterns to Follow
 
 Greenfield build — establish conventions up front:
+
 - Co-locate React components and styling using shadcn conventions under `src/ui/components`.
 - Use functional React components with hooks; keep state localized per section and share through top-level context if needed.
 - Leverage TypeScript throughout (Worker logic and UI) with explicit interfaces for AI stage payloads.
@@ -296,6 +295,7 @@ None initially; all modules will be introduced inside this repo.
 ### Configuration Changes
 
 **wrangler.toml:**
+
 ```toml
 name = "energy-genius"
 main = "src/worker/index.ts"
@@ -315,26 +315,28 @@ ENABLE_SSE = "false"  # Set to "true" to enable streaming progress
 ```
 
 **package.json scripts:**
+
 ```json
 {
-  "scripts": {
-    "dev": "npm run dev:ui & npm run dev:worker",
-    "dev:ui": "vite build --watch",
-    "dev:worker": "wrangler dev",
-    "build": "vite build",
-    "deploy": "npm run build && wrangler deploy"
-  }
+	"scripts": {
+		"dev": "npm run dev:ui & npm run dev:worker",
+		"dev:ui": "vite build --watch",
+		"dev:worker": "wrangler dev",
+		"build": "vite build",
+		"deploy": "npm run build && wrangler deploy"
+	}
 }
 ```
 
 **vite.config.ts:**
+
 ```typescript
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
-  plugins: [react()],
-  build: { outDir: 'dist' },
+	plugins: [react()],
+	build: { outDir: 'dist' },
 });
 ```
 
@@ -362,7 +364,7 @@ Greenfield project — establishing new conventions per modern best practices.
 ## Technical Details
 
 - Intake workflow: React form collects manual input; "Generate Mock Data" button pre-fills form from embedded mock data module.
-- Submission flow: 
+- Submission flow:
   - **Phase 1 (Default):** Form submits to `POST /api/recommend`, Worker runs complete pipeline (~15-20s), returns JSON with final recommendations. UI shows animated progress stages based on typical timing.
   - **Phase 2 (SSE):** If `ENABLE_SSE=true` and client sends `Accept: text/event-stream` header, Worker returns streaming response with progress events. Client uses `fetch` + ReadableStream to parse SSE events in real-time.
 - Stage orchestration (both modes):
@@ -399,6 +401,7 @@ Greenfield project — establishing new conventions per modern best practices.
 ### Setup Steps
 
 **Phase 1: MVP with Optimistic UI**
+
 1. Initialize project with modern Workers + Vite setup per Development Setup steps.
 2. Implement AI pipeline module: 3 sequential async functions (summary, scoring, narrative).
 3. Build `/api/recommend` POST endpoint: runs full pipeline, returns complete recommendations.
@@ -409,13 +412,7 @@ Greenfield project — establishing new conventions per modern best practices.
 8. Add basic error handling (try/catch per stage, return error response, show retry button).
 9. Manual QA with multiple scenarios; verify end-to-end flow works.
 
-**Phase 2: Add SSE Enhancement (Optional)**
-10. Add SSE support to `/api/recommend`: detect `Accept: text/event-stream`, stream progress if enabled.
-11. Update AI pipeline to accept optional progress callback, emit events during execution.
-12. Enhance `useRecommendation` hook: feature-detect SSE support, use EventSource if available.
-13. Update ProgressTimeline to consume real SSE events when available, fall back to optimistic UI.
-14. Add `ENABLE_SSE` environment variable for gradual rollout.
-15. QA both modes (standard + SSE) to ensure fallback works seamlessly.
+**Phase 2: Add SSE Enhancement (Optional)** 10. Add SSE support to `/api/recommend`: detect `Accept: text/event-stream`, stream progress if enabled. 11. Update AI pipeline to accept optional progress callback, emit events during execution. 12. Enhance `useRecommendation` hook: feature-detect SSE support, use EventSource if available. 13. Update ProgressTimeline to consume real SSE events when available, fall back to optimistic UI. 14. Add `ENABLE_SSE` environment variable for gradual rollout. 15. QA both modes (standard + SSE) to ensure fallback works seamlessly.
 
 ### Implementation Steps
 
@@ -432,6 +429,7 @@ Outlined above in setup steps.
 ### Acceptance Criteria
 
 **Phase 1 (MVP Baseline):**
+
 1. Intake form supports manual entry and one-click mock data (embedded in bundle).
 2. AI pipeline completes in ~15-20s and returns three recommended plans with explanations.
 3. UI shows staged progress animation (optimistic updates) and displays final recommendations without page reload.
@@ -439,11 +437,7 @@ Outlined above in setup steps.
 5. Error states show user-friendly messages with retry button.
 6. Deployment via `npm run deploy` succeeds; app loads and functions from Cloudflare Workers URL.
 
-**Phase 2 (SSE Enhancement):**
-7. When `ENABLE_SSE=true`, UI connects via EventSource and receives real-time progress events.
-8. ProgressTimeline updates immediately as each stage completes (no simulated timing).
-9. Graceful degradation: if SSE fails or is disabled, falls back to Phase 1 behavior automatically.
-10. Performance: Total pipeline <20s in both modes (note: PRD <2s target is infeasible; progress feedback improves perceived performance).
+**Phase 2 (SSE Enhancement):** 7. When `ENABLE_SSE=true`, UI connects via EventSource and receives real-time progress events. 8. ProgressTimeline updates immediately as each stage completes (no simulated timing). 9. Graceful degradation: if SSE fails or is disabled, falls back to Phase 1 behavior automatically. 10. Performance: Total pipeline <20s in both modes (note: PRD <2s target is infeasible; progress feedback improves perceived performance).
 
 ---
 
@@ -548,4 +542,3 @@ Outlined above in setup steps.
 - Note recurring errors and adjust prompts or mock data accordingly.
 
 ---
-

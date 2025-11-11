@@ -22,8 +22,10 @@ Complete end-to-end integration testing, responsive design validation, accessibi
 ## Stories
 
 ### 6.1 End-to-End Integration Testing
+
 **Status:** Pending
 **Acceptance Criteria:**
+
 - [ ] Complete flow testing: intake → pipeline → results (all mock scenarios)
 - [ ] Test 3 scenario types: residential, business, seasonal
 - [ ] Verify all UI components render correctly
@@ -35,8 +37,10 @@ Complete end-to-end integration testing, responsive design validation, accessibi
 - [ ] Results persist until new submission
 
 ### 6.2 Responsive Design & Mobile Optimization
+
 **Status:** Pending
 **Acceptance Criteria:**
+
 - [ ] Mobile layout validated on 375px (iPhone SE)
 - [ ] Tablet layout validated on 768px (iPad)
 - [ ] Desktop layout validated on 1920px
@@ -48,8 +52,10 @@ Complete end-to-end integration testing, responsive design validation, accessibi
 - [ ] No layout shift during loading states
 
 ### 6.3 Accessibility Compliance & Testing
+
 **Status:** Pending
 **Acceptance Criteria:**
+
 - [ ] Keyboard navigation: Tab through all interactive elements
 - [ ] Focus indicators visible on all buttons/inputs
 - [ ] Form labels linked to inputs (ARIA labels, htmlFor)
@@ -61,8 +67,10 @@ Complete end-to-end integration testing, responsive design validation, accessibi
 - [ ] Screen reader tested (VoiceOver on macOS)
 
 ### 6.4 Performance Optimization
+
 **Status:** Pending
 **Acceptance Criteria:**
+
 - [ ] Bundle size < 100KB (gzipped JS)
 - [ ] CSS bundled efficiently via Tailwind
 - [ ] Images optimized (if any added)
@@ -72,8 +80,10 @@ Complete end-to-end integration testing, responsive design validation, accessibi
 - [ ] Lighthouse score reviewed (mobile/desktop)
 
 ### 6.5 Deployment & Monitoring Setup
+
 **Status:** Pending
 **Acceptance Criteria:**
+
 - [ ] Wrangler deployment succeeds without errors
 - [ ] Worker URL responds to GET (SPA loads)
 - [ ] POST /api/recommend works from deployed URL
@@ -84,8 +94,10 @@ Complete end-to-end integration testing, responsive design validation, accessibi
 - [ ] Deployment documented in README
 
 ### 6.6 Documentation & Deployment Guide
+
 **Status:** Pending
 **Acceptance Criteria:**
+
 - [ ] `README.md` updated with project overview
 - [ ] Setup instructions: clone, npm install, wrangler auth
 - [ ] Local dev instructions: `npm run dev`
@@ -96,8 +108,10 @@ Complete end-to-end integration testing, responsive design validation, accessibi
 - [ ] `docs/testing-notes.md` records QA scenarios and results
 
 ### 6.7 Demo Scenario Validation & Polishing
+
 **Status:** Pending
 **Acceptance Criteria:**
+
 - [ ] 3 polished demo scenarios created:
   - [ ] Residential (average usage, cost-focused)
   - [ ] Small business (high usage, sustainability)

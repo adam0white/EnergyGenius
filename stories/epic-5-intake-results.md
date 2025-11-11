@@ -21,8 +21,10 @@ Implement user-facing components for data intake, AI progress visualization, and
 ## Stories
 
 ### 5.1 Intake Form Component
+
 **Status:** Pending
 **Acceptance Criteria:**
+
 - [ ] `src/ui/components/intake/IntakeForm.tsx` created with sections:
   - [ ] Usage data section (12-month kWh input, file upload placeholder)
   - [ ] Current plan section (supplier, rate, contract end date)
@@ -35,8 +37,10 @@ Implement user-facing components for data intake, AI progress visualization, and
 - [ ] Reset button clears all fields
 
 ### 5.2 Progress Timeline Component
+
 **Status:** Pending
 **Acceptance Criteria:**
+
 - [ ] `src/ui/components/pipeline/ProgressTimeline.tsx` created
 - [ ] Vertical stepper showing 3 AI stages:
   - [ ] 1. Usage Summary
@@ -50,8 +54,10 @@ Implement user-facing components for data intake, AI progress visualization, and
 - [ ] Smooth transitions and animations
 
 ### 5.3 Recommendation Cards Component
+
 **Status:** Pending
 **Acceptance Criteria:**
+
 - [ ] `src/ui/components/results/RecommendationDeck.tsx` created
 - [ ] Displays top 3 plan recommendations as cards
 - [ ] Each card includes:
@@ -67,8 +73,10 @@ Implement user-facing components for data intake, AI progress visualization, and
 - [ ] Hover state shows additional details
 
 ### 5.4 API Integration Hook
+
 **Status:** Pending
 **Acceptance Criteria:**
+
 - [ ] `src/ui/hooks/useRecommendation.ts` custom hook
 - [ ] Exports: submit(intake), result, stages, loading, error
 - [ ] POST request to /api/recommend with intake data
@@ -79,8 +87,10 @@ Implement user-facing components for data intake, AI progress visualization, and
 - [ ] Phase 2 ready: SSE feature detection (no implementation required)
 
 ### 5.5 Form Submission & Result Flow
+
 **Status:** Pending
 **Acceptance Criteria:**
+
 - [ ] IntakeForm submits via useRecommendation hook
 - [ ] App state transitions: intake → loading → results
 - [ ] ProgressTimeline displays during loading

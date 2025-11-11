@@ -70,7 +70,7 @@ export interface RecommendationResponse {
  * @returns Recommendation response or error
  */
 export async function handleRecommend(request: Request, env: Env, requestId: string): Promise<Response> {
-	const startTime = Date.now();
+	// const startTime = Date.now(); // Unused for now
 
 	// Validate request method
 	if (request.method !== 'POST') {

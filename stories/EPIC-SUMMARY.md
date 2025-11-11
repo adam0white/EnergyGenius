@@ -15,11 +15,13 @@ The EnergyGenius project is structured into **6 implementation epics** spanning 
 ## Epic Structure
 
 ### Epic 1: Project Setup & Infrastructure ✓
+
 **Status:** Active | **Priority:** P0 - Critical Path
 
 Establish the foundational Cloudflare Workers + React project scaffolding, TypeScript configuration, build tooling, and deployment infrastructure.
 
 **Stories:**
+
 - 1.1: Project Scaffold & Toolchain Setup → **READY FOR DEVELOPMENT**
 - 1.2: shadcn/ui Component Library Setup
 - 1.3: Worker Mock Data Module Structure
@@ -31,11 +33,13 @@ Establish the foundational Cloudflare Workers + React project scaffolding, TypeS
 ---
 
 ### Epic 2: Mock Data Layer ✓
+
 **Status:** Active | **Priority:** P0 - Critical Path
 
 Implement comprehensive mock data structures representing supplier catalog, usage scenarios, and plan details for deterministic demos without live APIs.
 
 **Stories:**
+
 - 2.1: Supplier Catalog Data Structure & Seeding
 - 2.2: Usage Scenario Profiles
 - 2.3: Mock Data Integration & Autofill
@@ -46,11 +50,13 @@ Implement comprehensive mock data structures representing supplier catalog, usag
 ---
 
 ### Epic 3: AI Pipeline & Worker Backend ✓
+
 **Status:** Active | **Priority:** P0 - Critical Path
 
 Implement the core AI recommendation engine orchestrated through Cloudflare Workers AI. Three sequential stages (usage summary, plan scoring, narrative) execute independently, enabling future SSE enhancement.
 
 **Stories:**
+
 - 3.1: AI Pipeline Module & Orchestration
 - 3.2: Prompt Builder Functions
 - 3.3: Recommendation Handler & POST Endpoint
@@ -62,11 +68,13 @@ Implement the core AI recommendation engine orchestrated through Cloudflare Work
 ---
 
 ### Epic 4: React UI Foundation ✓
+
 **Status:** Active | **Priority:** P0 - Critical Path
 
 Establish React application structure, component hierarchy, and styling foundation using shadcn/ui and Tailwind CSS.
 
 **Stories:**
+
 - 4.1: React App Structure & Entry Point
 - 4.2: Tailwind CSS & Component Styling Setup
 - 4.3: Layout Component & Page Structure
@@ -78,11 +86,13 @@ Establish React application structure, component hierarchy, and styling foundati
 ---
 
 ### Epic 5: Intake & Results UI ✓
+
 **Status:** Active | **Priority:** P0 - Core Feature
 
 Implement user-facing components for data intake, AI progress visualization, and recommendation presentation.
 
 **Stories:**
+
 - 5.1: Intake Form Component
 - 5.2: Progress Timeline Component
 - 5.3: Recommendation Cards Component
@@ -94,11 +104,13 @@ Implement user-facing components for data intake, AI progress visualization, and
 ---
 
 ### Epic 6: Integration & Polish ✓
+
 **Status:** Active | **Priority:** P1 - Completion & Quality
 
 Complete end-to-end integration testing, responsive design validation, accessibility compliance, and deployment readiness.
 
 **Stories:**
+
 - 6.1: End-to-End Integration Testing
 - 6.2: Responsive Design & Mobile Optimization
 - 6.3: Accessibility Compliance & Testing
@@ -120,6 +132,7 @@ Complete end-to-end integration testing, responsive design validation, accessibi
 **Status:** Ready for Development ✓
 
 **Scope:**
+
 - Initialize Cloudflare Workers + React project via npm scaffolder
 - Configure TypeScript with dual configs (Worker + React)
 - Set up Vite bundler with React plugin
@@ -130,6 +143,7 @@ Complete end-to-end integration testing, responsive design validation, accessibi
 - Verify local development environment works at http://localhost:8787
 
 **Acceptance Criteria:** 18 major checkpoints including:
+
 - Project initialization without errors
 - React + TypeScript dependencies installed
 - Build scripts functional (dev, build, deploy)
@@ -140,6 +154,7 @@ Complete end-to-end integration testing, responsive design validation, accessibi
 **Estimated Effort:** Medium (~4-6 hours)
 
 **Key Files Created:**
+
 - `wrangler.toml` – Wrangler configuration
 - `vite.config.ts` – Vite bundler config
 - `tsconfig.json`, `tsconfig.worker.json`, `tsconfig.ui.json` – TypeScript configs
@@ -149,6 +164,7 @@ Complete end-to-end integration testing, responsive design validation, accessibi
 - `README.md` – Project documentation
 
 **Technical Approach:**
+
 1. Use `npm create cloudflare@latest` official scaffolder
 2. Add React and Vite separately for explicit control
 3. Configure dual TypeScript configs (no DOM libs in Worker, DOM in UI)
@@ -156,6 +172,7 @@ Complete end-to-end integration testing, responsive design validation, accessibi
 5. Verify end-to-end: npm run dev → http://localhost:8787 loads React app
 
 **Handoff Notes:**
+
 - All scaffolding is type-safe with TypeScript strict mode
 - Development environment validated and ready for next features
 - Wrangler credentials required for deploy testing
@@ -166,19 +183,16 @@ Complete end-to-end integration testing, responsive design validation, accessibi
 ## Development Sequence Recommendation
 
 **Phase 1: Foundation (Epics 1-2)**
+
 1. Story 1.1: Project Scaffold → **START HERE**
 2. Story 1.2-1.5: Complete infrastructure
 3. Story 2.1-2.4: Mock data layer
 
-**Phase 2: Backend (Epic 3)**
-4. Story 3.1-3.5: AI pipeline and recommendation handler
+**Phase 2: Backend (Epic 3)** 4. Story 3.1-3.5: AI pipeline and recommendation handler
 
-**Phase 3: Frontend (Epics 4-5)**
-5. Story 4.1-4.5: UI foundation and layout
-6. Story 5.1-5.5: Intake form, timeline, results
+**Phase 3: Frontend (Epics 4-5)** 5. Story 4.1-4.5: UI foundation and layout 6. Story 5.1-5.5: Intake form, timeline, results
 
-**Phase 4: Testing & Deployment (Epic 6)**
-7. Story 6.1-6.7: QA, performance, deployment
+**Phase 4: Testing & Deployment (Epic 6)** 7. Story 6.1-6.7: QA, performance, deployment
 
 ---
 

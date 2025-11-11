@@ -21,8 +21,10 @@ Establish React application structure, component hierarchy, and styling foundati
 ## Stories
 
 ### 4.1 React App Structure & Entry Point
+
 **Status:** Pending
 **Acceptance Criteria:**
+
 - [ ] `src/ui/main.tsx` mounts React app into DOM
 - [ ] `src/ui/app/App.tsx` defines top-level layout and routing
 - [ ] App context provider wraps children (RecommendationContext or similar)
@@ -31,8 +33,10 @@ Establish React application structure, component hierarchy, and styling foundati
 - [ ] App loads without console errors in `npm run dev`
 
 ### 4.2 Tailwind CSS & Component Styling Setup
+
 **Status:** Pending
 **Acceptance Criteria:**
+
 - [ ] Tailwind CSS configured in vite.config.ts
 - [ ] tailwind.config.ts defines color palette, spacing, typography
 - [ ] shadcn/ui components generate with Tailwind utilities
@@ -41,8 +45,10 @@ Establish React application structure, component hierarchy, and styling foundati
 - [ ] Dark mode setup available (optional for MVP)
 
 ### 4.3 Layout Component & Page Structure
+
 **Status:** Pending
 **Acceptance Criteria:**
+
 - [ ] `src/ui/components/layout/Layout.tsx` provides header/footer/main sections
 - [ ] Header displays app title and basic navigation
 - [ ] Footer includes deployment info and links
@@ -51,8 +57,10 @@ Establish React application structure, component hierarchy, and styling foundati
 - [ ] Vertical stacking on mobile (< 768px)
 
 ### 4.4 Global State Management Setup
+
 **Status:** Pending
 **Acceptance Criteria:**
+
 - [ ] RecommendationContext created for shared pipeline state
 - [ ] Context provider wraps App
 - [ ] State includes: recommendations, pipeline stages, user intake data, errors
@@ -61,8 +69,10 @@ Establish React application structure, component hierarchy, and styling foundati
 - [ ] No external state management library required (Context API sufficient)
 
 ### 4.5 Loading & Error Utilities
+
 **Status:** Pending
 **Acceptance Criteria:**
+
 - [ ] Loading spinner component using shadcn
 - [ ] Error alert component with retry capability
 - [ ] Empty state component for initial load

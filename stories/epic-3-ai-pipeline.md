@@ -21,8 +21,10 @@ Implement the core AI recommendation engine orchestrated through Cloudflare Work
 ## Stories
 
 ### 3.1 AI Pipeline Module & Orchestration
+
 **Status:** Pending
 **Acceptance Criteria:**
+
 - [ ] `src/worker/pipeline.ts` exports orchestration function
 - [ ] Three async functions: `runUsageSummary()`, `runPlanScoring()`, `runNarrative()`
 - [ ] Sequential execution with typed payloads between stages
@@ -33,8 +35,10 @@ Implement the core AI recommendation engine orchestrated through Cloudflare Work
 - [ ] TypeScript interfaces for StageInput, StageOutput, PipelineResult
 
 ### 3.2 Prompt Builder Functions
+
 **Status:** Pending
 **Acceptance Criteria:**
+
 - [ ] `src/worker/prompts/usage-summary.ts` exports prompt builder function
 - [ ] `src/worker/prompts/plan-scoring.ts` exports prompt builder function
 - [ ] `src/worker/prompts/narrative.ts` exports prompt builder function
@@ -44,8 +48,10 @@ Implement the core AI recommendation engine orchestrated through Cloudflare Work
 - [ ] Prompts include clear output format expectations (JSON, structured text)
 
 ### 3.3 Recommendation Handler & POST Endpoint
+
 **Status:** Pending
 **Acceptance Criteria:**
+
 - [ ] `src/worker/handlers/recommend.ts` exports handler function
 - [ ] Validates incoming JSON (usage data, current plan, preferences)
 - [ ] Calls pipeline orchestration
@@ -55,8 +61,10 @@ Implement the core AI recommendation engine orchestrated through Cloudflare Work
 - [ ] Handler integrated into `src/worker/index.ts` route
 
 ### 3.4 Integration into Worker Entry Point
+
 **Status:** Pending
 **Acceptance Criteria:**
+
 - [ ] `src/worker/index.ts` routes POST /api/recommend to handler
 - [ ] All other routes fallback to static asset serving
 - [ ] Error middleware wraps handler
@@ -65,8 +73,10 @@ Implement the core AI recommendation engine orchestrated through Cloudflare Work
 - [ ] Graceful 404 for undefined routes
 
 ### 3.5 Error Handling & Fallback Logic
+
 **Status:** Pending
 **Acceptance Criteria:**
+
 - [ ] Try/catch blocks per pipeline stage
 - [ ] Structured error responses with user-friendly messages
 - [ ] Fallback plan recommendations if AI fails
@@ -89,6 +99,6 @@ Implement the core AI recommendation engine orchestrated through Cloudflare Work
 
 ## Notes
 
-Reference: Tech Spec § "Implementation Details" (pipeline.ts, prompts/*, handlers/recommend.ts)
+Reference: Tech Spec § "Implementation Details" (pipeline.ts, prompts/\*, handlers/recommend.ts)
 Reference: Tech Spec § "Implementation Pattern: Progressive Enhancement" (Phase 1 architecture)
 Reference: PRD § "Recommendation Logic" (top 3 plans, savings calculation, explanations)

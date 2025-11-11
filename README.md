@@ -87,8 +87,40 @@ Run `npm run help` to see all available scripts. Key scripts:
 
 #### Testing Scripts
 
-- `npm test` - **Run Vitest test suite**
+- `npm test` - **Run Vitest in watch mode**
   - Executes all unit and integration tests
+  - Watches for changes and reruns tests
+
+- `npm run test:run` - **Run tests once (CI mode)**
+  - Executes all tests once without watching
+  - Useful for CI/CD pipelines
+
+- `npm run test:ui` - **Open Vitest UI**
+  - Launches interactive test UI in browser
+  - Provides detailed test insights and debugging
+
+#### Code Quality Scripts
+
+- `npm run type-check` - **Run TypeScript type checking**
+  - Validates types without emitting build output
+  - Useful for CI/CD pipelines
+
+- `npm run lint` - **Run ESLint**
+  - Checks code for linting errors
+  - Reports issues in TypeScript and React files
+
+- `npm run lint:fix` - **Auto-fix linting errors**
+  - Automatically fixes fixable ESLint issues
+
+- `npm run format` - **Format code with Prettier**
+  - Formats all TypeScript, JavaScript, JSON, and Markdown files
+
+- `npm run format:check` - **Check code formatting**
+  - Verifies code is properly formatted without making changes
+
+- `npm run verify` - **Run all quality checks**
+  - Runs type-check, lint, format:check, and test:run
+  - Useful pre-commit validation
 
 #### Utility Scripts
 
@@ -97,6 +129,32 @@ Run `npm run help` to see all available scripts. Key scripts:
 
 - `npm run cf-typegen` - **Generate Cloudflare Worker types**
   - Updates TypeScript types from `wrangler.toml`
+  - Generates `worker-configuration.d.ts`
+  - **Note:** This project uses `wrangler types` instead of `@cloudflare/workers-types`
+
+### TypeScript Configuration
+
+This project uses TypeScript with strict mode enabled and separate configurations for different parts of the codebase:
+
+- `tsconfig.json` - Root configuration with project references
+- `tsconfig.ui.json` - UI-specific configuration (React, DOM types)
+- `tsconfig.worker.json` - Worker-specific configuration (Workers runtime types)
+
+**Cloudflare Workers Types:**
+
+The project uses `wrangler types` to generate TypeScript types from `wrangler.toml` instead of the deprecated `@cloudflare/workers-types` package. Types are auto-generated in `worker-configuration.d.ts`.
+
+To regenerate types after updating `wrangler.toml`:
+
+```bash
+npm run cf-typegen
+```
+
+**Code Quality Tools:**
+
+- **ESLint** - Lints TypeScript and React code with separate configs for UI and Worker
+- **Prettier** - Enforces consistent code formatting across the project
+- **Vitest** - Unit and integration testing with Cloudflare Workers runtime
 
 ### Local Development Workflow
 
@@ -213,6 +271,7 @@ npm run verify:deployment
 **Deployment Verification:**
 
 After deployment, the script automatically:
+
 - Checks Worker is accessible at deployed URL
 - Verifies `/health` endpoint returns 200 status
 - Confirms response contains `status: 'ok'`
@@ -249,11 +308,11 @@ ENABLE_SSE = "false"
 ```typescript
 // In Worker code
 export default {
-  async fetch(request: Request, env: Env) {
-    const model = env.AI_MODEL_FAST;
-    const mockEnabled = env.ENABLE_MOCK_DATA === 'true';
-    // ...
-  }
+	async fetch(request: Request, env: Env) {
+		const model = env.AI_MODEL_FAST;
+		const mockEnabled = env.ENABLE_MOCK_DATA === 'true';
+		// ...
+	},
 };
 ```
 
@@ -281,6 +340,7 @@ wrangler secret delete API_KEY
 **Problem**: `npm run dev` fails to start both servers
 
 **Solutions**:
+
 - Check Node.js version: `node --version` (must be >= 18.x)
 - Check npm version: `npm --version` (must be >= 8.x)
 - Kill existing processes: `killall node` (macOS/Linux)
@@ -290,6 +350,7 @@ wrangler secret delete API_KEY
 **Problem**: Port 8787 already in use
 
 **Solutions**:
+
 - Find process: `lsof -i :8787` (macOS/Linux)
 - Kill process: `kill -9 <PID>`
 - Change port in `package.json`: `wrangler dev --port 8788`
@@ -297,6 +358,7 @@ wrangler secret delete API_KEY
 **Problem**: Changes not reloading
 
 **Solutions**:
+
 - Verify Vite watch is running (check terminal output)
 - Check file is in `src/ui/` (not outside watched directories)
 - Try hard refresh: Cmd+Shift+R (macOS) or Ctrl+Shift+R (Windows/Linux)
@@ -307,6 +369,7 @@ wrangler secret delete API_KEY
 **Problem**: Build fails with TypeScript errors
 
 **Solutions**:
+
 - Run type check: `npm run type-check`
 - Fix reported TypeScript errors
 - Ensure `tsconfig.json` is valid
@@ -315,6 +378,7 @@ wrangler secret delete API_KEY
 **Problem**: Build output too large
 
 **Solutions**:
+
 - Check for accidentally imported large dependencies
 - Verify tree-shaking is enabled in `vite.config.ts`
 - Use dynamic imports for code splitting
@@ -323,6 +387,7 @@ wrangler secret delete API_KEY
 **Problem**: Build succeeds but app doesn't work
 
 **Solutions**:
+
 - Test with `npm run preview` before deploying
 - Check browser console for errors
 - Verify source maps are generated: `ls dist/assets/*.map`
@@ -333,6 +398,7 @@ wrangler secret delete API_KEY
 **Problem**: Deployment fails with authentication error
 
 **Solutions**:
+
 - Login to Wrangler: `wrangler login`
 - Check account ID in `wrangler.toml` matches your account
 - Verify you have permission to deploy Workers
@@ -340,6 +406,7 @@ wrangler secret delete API_KEY
 **Problem**: Deployment succeeds but health check fails
 
 **Solutions**:
+
 - Check Worker URL is correct: `wrangler deployments list`
 - Verify `/health` endpoint exists in Worker
 - Test manually: `curl https://YOUR_WORKER.workers.dev/health`
@@ -349,6 +416,7 @@ wrangler secret delete API_KEY
 **Problem**: Deployment takes too long
 
 **Solutions**:
+
 - Check internet connection
 - Verify `dist/` size is reasonable (<5MB)
 - Try deploying again (may be temporary Cloudflare issue)
@@ -358,6 +426,7 @@ wrangler secret delete API_KEY
 **Problem**: Processes don't stop with Ctrl+C
 
 **Solutions**:
+
 - Use `killall node` (macOS/Linux) or Task Manager (Windows)
 - Check for zombie processes: `ps aux | grep node`
 - Restart terminal
@@ -365,6 +434,7 @@ wrangler secret delete API_KEY
 **Problem**: "Address already in use" errors persist
 
 **Solutions**:
+
 - List all Node processes: `ps aux | grep node`
 - Kill all: `killall node`
 - Check `.wrangler/` for lock files: `rm -rf .wrangler/`
@@ -438,20 +508,20 @@ The following shadcn/ui components are installed and ready to use:
 Import components using the `@/` path alias:
 
 ```tsx
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 function MyComponent() {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Example Card</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Button>Click Me</Button>
-      </CardContent>
-    </Card>
-  );
+	return (
+		<Card>
+			<CardHeader>
+				<CardTitle>Example Card</CardTitle>
+			</CardHeader>
+			<CardContent>
+				<Button>Click Me</Button>
+			</CardContent>
+		</Card>
+	);
 }
 ```
 
@@ -470,12 +540,14 @@ See the [shadcn/ui documentation](https://ui.shadcn.com/docs/components) for all
 ### Tailwind Configuration
 
 Tailwind CSS is configured with:
+
 - Custom color variables for theming (light/dark mode support)
 - Path aliases for component imports
 - `tailwindcss-animate` plugin for animations
 - Content paths covering all UI files
 
 Configuration files:
+
 - `tailwind.config.ts` - Tailwind theme and plugin configuration
 - `postcss.config.js` - PostCSS configuration with Tailwind
 - `src/ui/globals.css` - Global styles and CSS variables

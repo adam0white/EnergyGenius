@@ -19,8 +19,10 @@ Implement comprehensive mock data structures representing supplier catalog, usag
 ## Stories
 
 ### 2.1 Supplier Catalog Data Structure & Seeding
+
 **Status:** Pending
 **Acceptance Criteria:**
+
 - [ ] `src/worker/data/supplier-catalog.ts` defines full supplier schema
 - [ ] 8-12 realistic suppliers with varied plan types (fixed rate, variable, renewable)
 - [ ] Plan attributes: name, rate, contract_length, renewable_percentage, early_termination_fee
@@ -29,8 +31,10 @@ Implement comprehensive mock data structures representing supplier catalog, usag
 - [ ] Catalog exports as const array and validates on module load
 
 ### 2.2 Usage Scenario Profiles
+
 **Status:** Pending
 **Acceptance Criteria:**
+
 - [ ] `src/worker/data/usage-scenarios.ts` contains 5-6 distinct usage profiles
 - [ ] Profiles represent: residential_average, residential_high_summer, residential_high_winter, small_business, etc.
 - [ ] Each profile includes 12 months of hourly/daily usage data (kWh)
@@ -39,8 +43,10 @@ Implement comprehensive mock data structures representing supplier catalog, usag
 - [ ] TypeScript interfaces for UsageData, MonthlyUsage, UserPreferences
 
 ### 2.3 Mock Data Integration & Autofill
+
 **Status:** Pending
 **Acceptance Criteria:**
+
 - [ ] Intake form can select and auto-populate from scenarios
 - [ ] "Generate Mock Data" button randomly selects scenario
 - [ ] Form fields pre-filled with realistic values
@@ -48,8 +54,10 @@ Implement comprehensive mock data structures representing supplier catalog, usag
 - [ ] No validation errors when submitting mock data
 
 ### 2.4 Mock Data Scraping Utility (Optional Documentation)
+
 **Status:** Pending
 **Acceptance Criteria:**
+
 - [ ] `scripts/scrape/powertochoose.ts` documented (no implementation required for MVP)
 - [ ] Instructions in `docs/mock-data-playbook.md` for future scraping
 - [ ] Example JSON structure for supplier import

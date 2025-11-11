@@ -7,6 +7,10 @@
  */
 
 import { Env } from './index';
+import { buildUsageSummaryPrompt, buildPlanScoringPrompt, buildNarrativePrompt } from './prompts';
+import { supplierCatalog } from './data/supplier-catalog';
+import { withRetry, generateUsageFallback, generatePlanScoringFallback, generateNarrativeFallback } from './lib/retry';
+import { parseUsageSummary, parsePlanScoring, parseNarrative } from './validation';
 
 // ===========================
 // TypeScript Interfaces
@@ -115,35 +119,22 @@ export async function runUsageSummary(env: Env, input: StageInput): Promise<Usag
 	const startTime = Date.now();
 	logStageStart('usage-summary', input);
 
-	// Prepare prompt (placeholder for now, Story 3.2 will add proper prompts)
-	const prompt = `Analyze this energy usage data and provide summary metrics:
-${JSON.stringify(input.energyUsageData, null, 2)}
-
-Current plan: ${JSON.stringify(input.currentPlan, null, 2)}
-
-Provide a structured response with:
-- Average monthly usage (kWh)
-- Peak usage month
-- Total annual usage
-- Usage pattern (consistent/seasonal/high-variance)
-- Annual cost`;
+	// Build optimized prompt using prompt builder
+	const prompt = buildUsageSummaryPrompt(input);
 
 	// Call Workers AI
 	const modelId = env.AI_MODEL_FAST || '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 
-	await env.AI.run(modelId, {
+	const aiResponse = await env.AI.run(modelId, {
 		prompt,
 		max_tokens: 512,
 	});
 
-	// Parse AI response (placeholder parsing, will improve in Story 3.2)
-	const result: UsageSummaryOutput = {
-		averageMonthlyUsage: input.energyUsageData.monthlyData.reduce((sum, m) => sum + m.usage, 0) / 12,
-		peakUsageMonth: input.energyUsageData.monthlyData.reduce((prev, curr) => (curr.usage > prev.usage ? curr : prev)).month,
-		totalAnnualUsage: input.energyUsageData.monthlyData.reduce((sum, m) => sum + m.usage, 0),
-		usagePattern: 'consistent', // Simplified for MVP
-		annualCost: input.energyUsageData.monthlyData.reduce((sum, m) => sum + m.cost, 0),
-	};
+	// Extract response text
+	const responseText = (aiResponse as any)?.response || JSON.stringify(aiResponse);
+
+	// Parse and validate AI response
+	const result: UsageSummaryOutput = parseUsageSummary(responseText, 'usage-summary');
 
 	const duration = Date.now() - startTime;
 	logStageComplete('usage-summary', duration, result);
@@ -166,52 +157,25 @@ export async function runPlanScoring(
 	const startTime = Date.now();
 	logStageStart('plan-scoring', { usageSummary, preferences: input.preferences });
 
-	// Prepare prompt (placeholder)
-	const prompt = `Score energy supplier plans based on this usage summary:
-${JSON.stringify(usageSummary, null, 2)}
-
-User preferences: ${JSON.stringify(input.preferences, null, 2)}
-
-Rank the top 5 plans with estimated annual costs and savings compared to current plan (${usageSummary.annualCost}).`;
+	// Build optimized prompt using prompt builder with real supplier catalog
+	const prompt = buildPlanScoringPrompt(usageSummary, Array.from(supplierCatalog), input);
 
 	// Call Workers AI
 	const modelId = env.AI_MODEL_FAST || '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 
-	await env.AI.run(modelId, {
+	const aiResponse = await env.AI.run(modelId, {
 		prompt,
 		max_tokens: 1024,
 	});
 
-	// Placeholder scoring (will improve in Story 3.2 with real catalog)
-	const result: PlanScoringOutput = {
-		scoredPlans: [
-			{
-				planId: 'plan-001',
-				supplier: 'Green Energy Co',
-				planName: 'EcoSaver 12',
-				score: 95,
-				estimatedAnnualCost: usageSummary.annualCost * 0.85,
-				estimatedSavings: usageSummary.annualCost * 0.15,
-			},
-			{
-				planId: 'plan-002',
-				supplier: 'PowerChoice',
-				planName: 'Fixed Rate Plus',
-				score: 88,
-				estimatedAnnualCost: usageSummary.annualCost * 0.9,
-				estimatedSavings: usageSummary.annualCost * 0.1,
-			},
-			{
-				planId: 'plan-003',
-				supplier: 'TexEnergy',
-				planName: 'Value Saver',
-				score: 82,
-				estimatedAnnualCost: usageSummary.annualCost * 0.92,
-				estimatedSavings: usageSummary.annualCost * 0.08,
-			},
-		],
-		totalPlansScored: 3,
-	};
+	// Extract response text
+	const responseText = (aiResponse as any)?.response || JSON.stringify(aiResponse);
+
+	// Get valid plan IDs from catalog
+	const validPlanIds = Array.from(supplierCatalog).map((plan) => plan.id);
+
+	// Parse and validate AI response
+	const result: PlanScoringOutput = parsePlanScoring(responseText, validPlanIds, 'plan-scoring');
 
 	const duration = Date.now() - startTime;
 	logStageComplete('plan-scoring', duration, result);
@@ -225,33 +189,33 @@ Rank the top 5 plans with estimated annual costs and savings compared to current
  * @param planScoring - Output from Stage 2
  * @returns Narrative output
  */
-export async function runNarrative(env: Env, planScoring: PlanScoringOutput): Promise<NarrativeOutput> {
+export async function runNarrative(
+	env: Env,
+	planScoring: PlanScoringOutput,
+	usageSummary: UsageSummaryOutput
+): Promise<NarrativeOutput> {
 	const startTime = Date.now();
 	logStageStart('narrative', planScoring);
 
-	// Prepare prompt (placeholder)
-	const topPlans = planScoring.scoredPlans.slice(0, 3);
-	const prompt = `Explain why these are the top 3 energy plan recommendations:
-${JSON.stringify(topPlans, null, 2)}
-
-Provide a clear, user-friendly explanation highlighting savings and key benefits for each plan.`;
+	// Build optimized prompt using prompt builder
+	const prompt = buildNarrativePrompt(planScoring, usageSummary);
 
 	// Call Workers AI
 	const modelId = env.AI_MODEL_FAST || '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 
-	await env.AI.run(modelId, {
+	const aiResponse = await env.AI.run(modelId, {
 		prompt,
 		max_tokens: 1024,
 	});
 
-	// Placeholder narrative (will improve in Story 3.2)
-	const result: NarrativeOutput = {
-		explanation: `Based on your usage pattern and preferences, we've identified three excellent plan options that could save you money compared to your current plan.`,
-		topRecommendations: topPlans.map((plan) => ({
-			planId: plan.planId,
-			rationale: `${plan.planName} from ${plan.supplier} scores ${plan.score}/100 and could save you approximately $${plan.estimatedSavings.toFixed(2)} annually.`,
-		})),
-	};
+	// Extract response text
+	const responseText = (aiResponse as any)?.response || String(aiResponse);
+
+	// Get top plan IDs
+	const topPlanIds = planScoring.scoredPlans.slice(0, 3).map((plan) => plan.planId);
+
+	// Parse and validate AI response
+	const result: NarrativeOutput = parseNarrative(responseText, topPlanIds, 'narrative');
 
 	const duration = Date.now() - startTime;
 	logStageComplete('narrative', duration, result);
@@ -290,7 +254,11 @@ export async function runPipeline(
 	try {
 		safeCallback(progressCallback, 'usage-summary', 'running', null);
 
-		usageSummary = await withTimeout(runUsageSummary(env, input), 30000, 'usage-summary');
+		// Wrap with retry logic
+		usageSummary = await withRetry(
+			() => withTimeout(runUsageSummary(env, input), 30000, 'usage-summary'),
+			{ maxAttempts: 2, backoffMs: 100, stageName: 'usage-summary' }
+		);
 
 		safeCallback(progressCallback, 'usage-summary', 'complete', usageSummary);
 	} catch (error) {
@@ -301,6 +269,10 @@ export async function runPipeline(
 			timestamp: new Date().toISOString(),
 		});
 		console.error(`[${new Date().toISOString()}] [USAGE_SUMMARY] [ERROR] ${errorMessage}`);
+
+		// Use fallback data
+		usageSummary = generateUsageFallback(input.energyUsageData.monthlyData);
+
 		safeCallback(progressCallback, 'usage-summary', 'error', null);
 	}
 
@@ -311,7 +283,11 @@ export async function runPipeline(
 		try {
 			safeCallback(progressCallback, 'plan-scoring', 'running', null);
 
-			planScoring = await withTimeout(runPlanScoring(env, usageSummary, input), 30000, 'plan-scoring');
+			// Wrap with retry logic
+			planScoring = await withRetry(
+				() => withTimeout(runPlanScoring(env, usageSummary, input), 30000, 'plan-scoring'),
+				{ maxAttempts: 2, backoffMs: 100, stageName: 'plan-scoring' }
+			);
 
 			safeCallback(progressCallback, 'plan-scoring', 'complete', planScoring);
 		} catch (error) {
@@ -322,15 +298,16 @@ export async function runPipeline(
 				timestamp: new Date().toISOString(),
 			});
 			console.error(`[${new Date().toISOString()}] [PLAN_SCORING] [ERROR] ${errorMessage}`);
+
+			// Use fallback data
+			planScoring = generatePlanScoringFallback(Array.from(supplierCatalog));
+
 			safeCallback(progressCallback, 'plan-scoring', 'error', null);
 		}
 	} else {
-		// Skip stage 2 if stage 1 failed
-		errors.push({
-			stage: 'plan-scoring',
-			message: 'Skipped due to previous stage failure',
-			timestamp: new Date().toISOString(),
-		});
+		// Use fallback even if stage 1 failed
+		console.log(`[${new Date().toISOString()}] [PLAN_SCORING] Stage 1 failed, using fallback plan scoring`);
+		planScoring = generatePlanScoringFallback(Array.from(supplierCatalog));
 	}
 
 	// ===========================
@@ -340,7 +317,11 @@ export async function runPipeline(
 		try {
 			safeCallback(progressCallback, 'narrative', 'running', null);
 
-			narrative = await withTimeout(runNarrative(env, planScoring), 30000, 'narrative');
+			// Wrap with retry logic
+			narrative = await withRetry(
+				() => withTimeout(runNarrative(env, planScoring, usageSummary!), 30000, 'narrative'),
+				{ maxAttempts: 2, backoffMs: 100, stageName: 'narrative' }
+			);
 
 			safeCallback(progressCallback, 'narrative', 'complete', narrative);
 		} catch (error) {
@@ -351,15 +332,16 @@ export async function runPipeline(
 				timestamp: new Date().toISOString(),
 			});
 			console.error(`[${new Date().toISOString()}] [NARRATIVE] [ERROR] ${errorMessage}`);
+
+			// Use fallback data
+			narrative = generateNarrativeFallback(planScoring.scoredPlans);
+
 			safeCallback(progressCallback, 'narrative', 'error', null);
 		}
 	} else {
-		// Skip stage 3 if stage 2 failed
-		errors.push({
-			stage: 'narrative',
-			message: 'Skipped due to previous stage failure',
-			timestamp: new Date().toISOString(),
-		});
+		// Should not reach here with fallback logic above, but handle gracefully
+		console.log(`[${new Date().toISOString()}] [NARRATIVE] No plan scoring available, using generic fallback`);
+		narrative = generateNarrativeFallback([]);
 	}
 
 	// ===========================
