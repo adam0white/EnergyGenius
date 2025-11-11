@@ -6,10 +6,200 @@ AI-powered energy plan recommendation engine built on Cloudflare Workers and Wor
 
 EnergyGenius helps electricity subscribers in deregulated markets find the best energy plans by analyzing usage patterns, preferences, and supplier catalogs using AI-powered recommendations.
 
+### Problem Statement
+
+In deregulated energy markets, consumers face hundreds of plan options with complex pricing structures, making it difficult to identify the optimal plan for their specific usage patterns and preferences. EnergyGenius solves this by leveraging AI to analyze usage data and recommend the top 3 most suitable energy plans.
+
+### Solution
+
+A single-page application (SPA) built on Cloudflare Workers that:
+1. Collects user energy usage data and preferences via an intuitive form
+2. Processes data through a multi-stage AI pipeline
+3. Generates personalized plan recommendations with detailed explanations
+4. Presents results in an easy-to-understand visual format
+
+### Key Features
+
+- **AI-Powered Recommendations:** Multi-stage pipeline using Cloudflare Workers AI
+- **Personalized Analysis:** Considers usage patterns, preferences, and risk tolerance
+- **Detailed Explanations:** Each recommendation includes AI-generated rationale
+- **Responsive Design:** Works seamlessly on mobile, tablet, and desktop
+- **Accessible:** WCAG 2.1 Level AA compliant for inclusive user experience
+- **Fast Performance:** < 100KB bundle size, optimized for speed
+- **Mock Data Generator:** Quick testing with realistic scenarios
+
 ## Documentation
 
-- [Technical Specification](./docs/tech-spec.md)
-- [Project Overview](./docs/project-overview.md)
+### Core Documentation
+- [Technical Specification](./docs/tech-spec.md) - Complete technical architecture and design
+- [Project Overview](./docs/project-overview.md) - High-level project summary
+- [AI Pipeline Overview](./docs/pipeline-overview.md) - AI recommendation pipeline architecture
+
+### Development Documentation
+- [E2E Testing Guide](./docs/e2e-testing-guide.md) - Manual testing checklist
+- [Responsive Design Verification](./docs/responsive-design-verification.md) - Mobile/tablet/desktop testing
+- [Accessibility Audit](./docs/accessibility-audit.md) - WCAG 2.1 Level AA compliance report
+- [Performance Optimization](./docs/performance-optimization-report.md) - Bundle size and performance metrics
+- [Deployment Guide](./docs/deployment-guide.md) - Step-by-step production deployment
+
+## Architecture
+
+### High-Level Overview
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Cloudflare Workers Edge                  │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌─────────────────┐         ┌─────────────────────────┐  │
+│  │   React SPA     │◄───────►│   Worker API            │  │
+│  │   (Static)      │         │   (/api/recommend)      │  │
+│  └─────────────────┘         └──────────┬──────────────┘  │
+│                                         │                  │
+│                              ┌──────────▼──────────────┐  │
+│                              │  AI Pipeline           │  │
+│                              │  (3-Stage Processing)  │  │
+│                              └──────────┬──────────────┘  │
+│                                         │                  │
+│                              ┌──────────▼──────────────┐  │
+│                              │  Cloudflare Workers AI │  │
+│                              │  (Llama 3.1 & 3.3)     │  │
+│                              └────────────────────────┘  │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### AI Pipeline Stages
+
+The recommendation engine uses a 3-stage AI pipeline:
+
+1. **Stage 1: Data Normalization** (Queued → Running)
+   - Analyzes monthly usage patterns
+   - Identifies seasonal trends
+   - Calculates baseline consumption
+   - Duration: ~3-5 seconds
+
+2. **Stage 2: AI Processing** (Running)
+   - Scores plans against user preferences
+   - Evaluates savings potential
+   - Assesses renewable energy options
+   - Duration: ~5-8 seconds
+
+3. **Stage 3: Recommendation Synthesis** (Complete)
+   - Generates top 3 recommendations
+   - Creates AI-powered explanations
+   - Calculates savings projections
+   - Duration: ~3-5 seconds
+
+**Total Pipeline Time:** 15-20 seconds (typical)
+
+## API Documentation
+
+### POST /api/recommend
+
+Generate personalized energy plan recommendations based on usage data and preferences.
+
+**Endpoint:** `POST /api/recommend`
+
+**Content-Type:** `application/json`
+
+**Request Body:**
+
+```json
+{
+  "monthlyUsage": [
+    { "month": 1, "kWh": 800 },
+    { "month": 2, "kWh": 820 },
+    // ... 12 months total
+  ],
+  "annualConsumption": 9800,
+  "currentPlan": {
+    "supplier": "Current Energy Co",
+    "planName": "Fixed Rate 12",
+    "currentRate": 0.12,
+    "monthlyFee": 9.95,
+    "monthsRemaining": 6,
+    "earlyTerminationFee": 150
+  },
+  "preferences": {
+    "prioritizeSavings": true,
+    "prioritizeRenewable": false,
+    "prioritizeFlexibility": false,
+    "maxContractMonths": 12,
+    "riskTolerance": "medium"
+  }
+}
+```
+
+**Field Constraints:**
+
+| Field | Type | Required | Constraints |
+|-------|------|----------|-------------|
+| monthlyUsage | array | Yes | 12 objects with month (1-12) and kWh (> 0) |
+| annualConsumption | number | Yes | Sum of monthly usage |
+| currentPlan.supplier | string | Yes | Min 1 character |
+| currentPlan.currentRate | number | Yes | > 0 ($/kWh) |
+| preferences.maxContractMonths | number | Yes | 1-24 months |
+| preferences.riskTolerance | string | Yes | "low", "medium", or "high" |
+
+**Response (200 OK):**
+
+```json
+[
+  {
+    "id": "rec_1",
+    "rank": 1,
+    "planName": "Green Energy Saver 12",
+    "monthlyPrice": 95.50,
+    "annualSavings": 450.00,
+    "explanation": "This plan offers excellent savings with 50% renewable energy...",
+    "supplier": "GreenPower Inc",
+    "contractLength": 12,
+    "earlyTerminationFee": 0,
+    "renewablePercentage": 50,
+    "rationale": {
+      "savingsScore": 85,
+      "renewableScore": 75,
+      "flexibilityScore": 90,
+      "overallScore": 83
+    }
+  },
+  {
+    "id": "rec_2",
+    "rank": 2,
+    "planName": "Fixed Rate Pro",
+    "monthlyPrice": 98.25,
+    "annualSavings": 420.00,
+    "explanation": "Stable pricing with no surprises...",
+    // ... similar structure
+  },
+  {
+    "id": "rec_3",
+    "rank": 3,
+    "planName": "Flex Energy 6",
+    "monthlyPrice": 100.00,
+    "annualSavings": 380.00,
+    "explanation": "Short-term contract with maximum flexibility...",
+    // ... similar structure
+  }
+]
+```
+
+**Error Codes:**
+
+| Code | Description |
+|------|-------------|
+| 400 | Bad Request - Invalid input (missing fields, invalid values) |
+| 500 | Internal Server Error - AI processing failed |
+| 503 | Service Unavailable - AI service temporarily unavailable |
+
+**Example curl Request:**
+
+```bash
+curl -X POST https://energy-genius.YOUR_ACCOUNT.workers.dev/api/recommend \
+  -H "Content-Type: application/json" \
+  -d @request.json
+```
 
 ## Development
 
@@ -551,3 +741,137 @@ Configuration files:
 - `tailwind.config.ts` - Tailwind theme and plugin configuration
 - `postcss.config.js` - PostCSS configuration with Tailwind
 - `src/ui/globals.css` - Global styles and CSS variables
+
+## Contributing
+
+### Bug Reports
+
+To report bugs, please provide:
+1. **Description:** Clear description of the issue
+2. **Steps to Reproduce:** Exact steps to reproduce the bug
+3. **Expected Behavior:** What you expected to happen
+4. **Actual Behavior:** What actually happened
+5. **Environment:** OS, browser version, Node.js version
+6. **Screenshots:** If applicable
+
+### Feature Requests
+
+For feature requests, please describe:
+1. **Use Case:** What problem does this feature solve?
+2. **Proposed Solution:** How should it work?
+3. **Alternatives Considered:** Other approaches you've considered
+4. **Additional Context:** Any other relevant information
+
+### Code Contributions
+
+**Branch Naming:**
+- `feature/description` - New features
+- `fix/description` - Bug fixes
+- `docs/description` - Documentation updates
+- `refactor/description` - Code refactoring
+
+**Commit Messages:**
+- Use clear, descriptive commit messages
+- Follow conventional commits format when possible
+- Example: "feat: add seasonal usage pattern detection"
+
+**Pull Request Process:**
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes with tests
+4. Run `npm run verify` (type-check, lint, format, tests)
+5. Submit pull request with clear description
+6. Ensure all CI checks pass
+
+### Testing Requirements
+
+Before submitting a pull request:
+- ✅ Run `npm run type-check` - No TypeScript errors
+- ✅ Run `npm run lint` - No linting errors
+- ✅ Run `npm run format:check` - Code properly formatted
+- ✅ Run `npm run test:run` - All tests pass
+- ✅ Run `npm run build` - Production build succeeds
+- ✅ Manual testing in browser (if UI changes)
+
+### Code Review Process
+
+All pull requests require:
+1. Passing CI checks
+2. Code review approval
+3. No merge conflicts
+4. Updated documentation (if applicable)
+
+## License & Attribution
+
+### License
+
+This project is licensed under the **MIT License**.
+
+```
+MIT License
+
+Copyright (c) 2025 EnergyGenius
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+### Third-Party Libraries
+
+This project uses the following open-source libraries:
+
+**Frontend:**
+- [React](https://react.dev/) - MIT License
+- [Radix UI](https://www.radix-ui.com/) - MIT License
+- [Tailwind CSS](https://tailwindcss.com/) - MIT License
+- [Vite](https://vitejs.dev/) - MIT License
+- [shadcn/ui](https://ui.shadcn.com/) - MIT License
+
+**Backend:**
+- [Cloudflare Workers](https://workers.cloudflare.com/) - Proprietary (Cloudflare)
+- [Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/) - Proprietary (Cloudflare)
+- [Meta Llama 3](https://llama.meta.com/) - Meta License
+
+**Development:**
+- [TypeScript](https://www.typescriptlang.org/) - Apache 2.0 License
+- [ESLint](https://eslint.org/) - MIT License
+- [Prettier](https://prettier.io/) - MIT License
+- [Vitest](https://vitest.dev/) - MIT License
+
+### AI Model Attribution
+
+This application uses **Cloudflare Workers AI** with the following models:
+- **Meta Llama 3.3 70B Instruct** - Fast inference for data normalization
+- **Meta Llama 3.1 8B Instruct** - Accurate inference for recommendation generation
+
+AI-generated recommendations are clearly labeled with:
+> Powered by Cloudflare Workers + AI
+
+### Acknowledgments
+
+- Built with [BMAD (Build Modern Apps Differently)](https://github.com/bmadcode/bmad) methodology
+- Developed using Claude Code (Anthropic AI assistant)
+- Deployed on Cloudflare Workers edge network
+
+---
+
+**Project Status:** ✅ Production Ready
+**Version:** 1.0.0
+**Last Updated:** 2025-11-11
+
+For questions, issues, or feature requests, please open an issue on GitHub.

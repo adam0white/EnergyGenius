@@ -174,6 +174,10 @@ function StageCard({ stage, isLast }: { stage: Stage; isLast: boolean }) {
  * Main ProgressTimeline component
  */
 export function ProgressTimeline({ stages }: ProgressTimelineProps) {
+	// Determine current stage for screen reader announcements
+	const currentStage = stages.find((s) => s.status === 'running');
+	const completedCount = stages.filter((s) => s.status === 'complete' || s.status === 'completed').length;
+
 	return (
 		<div className="w-full max-w-3xl mx-auto px-4 py-8">
 			{/* Header */}
@@ -184,8 +188,14 @@ export function ProgressTimeline({ stages }: ProgressTimelineProps) {
 				</p>
 			</div>
 
+			{/* Screen reader announcement for current stage */}
+			<div aria-live="polite" aria-atomic="true" className="sr-only">
+				{currentStage && `${currentStage.name} is currently running. ${completedCount} of ${stages.length} stages completed.`}
+				{completedCount === stages.length && 'All stages completed. Recommendations ready.'}
+			</div>
+
 			{/* Timeline stages */}
-			<div className="space-y-0">
+			<div className="space-y-0" role="progressbar" aria-label="Processing progress" aria-valuenow={completedCount} aria-valuemin={0} aria-valuemax={stages.length}>
 				{stages.map((stage, index) => (
 					<StageCard key={stage.name} stage={stage} isLast={index === stages.length - 1} />
 				))}

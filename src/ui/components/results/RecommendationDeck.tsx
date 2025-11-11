@@ -100,11 +100,13 @@ function RecommendationCard({ recommendation, rank }: { recommendation: Recommen
 			className={`p-6 border border-gray-200 rounded-xl shadow-md transition-all hover:shadow-lg hover:bg-gray-50 ${
 				rank === 1 ? 'border-blue-400 border-2' : ''
 			}`}
+			role="article"
+			aria-labelledby={`recommendation-${rank}-title`}
 		>
 			{/* Header: Supplier name + Badge */}
 			<div className="flex items-start justify-between mb-4">
 				<div>
-					<h3 className="text-xl font-bold text-gray-900">{supplier}</h3>
+					<h3 id={`recommendation-${rank}-title`} className="text-xl font-bold text-gray-900">{supplier}</h3>
 					<p className="text-base text-gray-600 mt-1">{recommendation.planName}</p>
 				</div>
 				<SavingsBadge savings={savings} />
