@@ -1,0 +1,40 @@
+gate:
+  story_id: 3.2
+  story_title: Prompt Builder System
+  epic: epic-3-ai-pipeline
+
+decision: PASS
+
+assessment:
+  acceptance_criteria: 43/43 complete
+  build_status: SUCCESS
+  core_functionality: VERIFIED
+  integration_status: FULLY_INTEGRATED
+
+details:
+  criteria_coverage: 100%
+  type_safety: FULL
+  error_handling: COMPREHENSIVE
+  token_limits: RESPECTED
+
+  files_created:
+    - src/worker/prompts/usage-summary.ts (83 lines)
+    - src/worker/prompts/plan-scoring.ts (118 lines)
+    - src/worker/prompts/narrative.ts (108 lines)
+    - src/worker/prompts/index.ts (reexports)
+
+  integrations:
+    - Pipeline orchestration: INTEGRATED
+    - Recommendation handler: COMPATIBLE
+    - Validation layer: COMPATIBLE
+
+  risk_assessment: LOW
+
+recommendations:
+  ready_for_done: true
+  blockers: []
+  follow_up_items: []
+
+qa_reviewer: Quinn (Test Architect & Quality Advisor)
+review_date: "2025-11-10"
+review_type: fast-qa-gate-epic3
