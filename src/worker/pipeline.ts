@@ -89,6 +89,16 @@ export interface PipelineError {
 }
 
 /**
+ * Performance timing breakdown for a stage
+ */
+export interface StagePerformance {
+	promptBuildMs?: number;
+	inferenceMs?: number;
+	parseMs?: number;
+	totalMs: number;
+}
+
+/**
  * Final pipeline result combining all stage outputs
  */
 export interface PipelineResult {
@@ -98,6 +108,11 @@ export interface PipelineResult {
 	errors: PipelineError[];
 	executionTime: number;
 	timestamp: string;
+	performance?: {
+		usageSummary?: StagePerformance;
+		planScoring?: StagePerformance;
+		narrative?: StagePerformance;
+	};
 }
 
 /**
@@ -113,34 +128,55 @@ export type ProgressCallback = (stageName: string, status: 'running' | 'complete
  * Stage 1: Analyzes usage data and extracts summary metrics
  * @param env - Worker environment bindings
  * @param input - Stage input payload
- * @returns Usage summary output
+ * @returns Usage summary output and performance metrics
  */
-export async function runUsageSummary(env: Env, input: StageInput): Promise<UsageSummaryOutput> {
-	const startTime = Date.now();
+export async function runUsageSummary(env: Env, input: StageInput): Promise<{ result: UsageSummaryOutput; performance: StagePerformance }> {
+	const stageStartTime = Date.now();
 	logStageStart('usage-summary', input);
 
 	// Build optimized prompt using prompt builder
+	const promptStartTime = Date.now();
 	const prompt = buildUsageSummaryPrompt(input);
+	const promptBuildTime = Date.now() - promptStartTime;
 
 	// Call Workers AI with JSON mode enabled
 	const modelId = env.AI_MODEL_FAST || '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 
+	const inferenceStartTime = Date.now();
 	const aiResponse = await env.AI.run(modelId, {
 		prompt,
 		max_tokens: 512,
 		response_format: { type: 'json_object' },
 	});
+	const inferenceTime = Date.now() - inferenceStartTime;
 
 	// Extract response text
 	const responseText = (aiResponse as any)?.response || JSON.stringify(aiResponse);
 
 	// Parse and validate AI response
+	const parseStartTime = Date.now();
 	const result: UsageSummaryOutput = parseUsageSummary(responseText, 'usage-summary');
+	const parseTime = Date.now() - parseStartTime;
 
-	const duration = Date.now() - startTime;
-	logStageComplete('usage-summary', duration, result);
+	const totalDuration = Date.now() - stageStartTime;
 
-	return result;
+	const performance: StagePerformance = {
+		promptBuildMs: promptBuildTime,
+		inferenceMs: inferenceTime,
+		parseMs: parseTime,
+		totalMs: totalDuration,
+	};
+
+	// Enhanced performance logging
+	console.log(`[PERF] [usage-summary] Model: ${modelId}`);
+	console.log(`[PERF] [usage-summary] Prompt Build: ${promptBuildTime}ms`);
+	console.log(`[PERF] [usage-summary] AI Inference: ${inferenceTime}ms`);
+	console.log(`[PERF] [usage-summary] Response Parse: ${parseTime}ms`);
+	console.log(`[PERF] [usage-summary] Total Duration: ${totalDuration}ms`);
+
+	logStageComplete('usage-summary', totalDuration, result);
+
+	return { result, performance };
 }
 
 /**
@@ -148,23 +184,31 @@ export async function runUsageSummary(env: Env, input: StageInput): Promise<Usag
  * @param env - Worker environment bindings
  * @param usageSummary - Output from Stage 1
  * @param input - Original stage input payload
- * @returns Plan scoring output
+ * @returns Plan scoring output and performance metrics
  */
-export async function runPlanScoring(env: Env, usageSummary: UsageSummaryOutput, input: StageInput): Promise<PlanScoringOutput> {
-	const startTime = Date.now();
+export async function runPlanScoring(
+	env: Env,
+	usageSummary: UsageSummaryOutput,
+	input: StageInput,
+): Promise<{ result: PlanScoringOutput; performance: StagePerformance }> {
+	const stageStartTime = Date.now();
 	logStageStart('plan-scoring', { usageSummary, preferences: input.preferences });
 
 	// Build optimized prompt using prompt builder with real supplier catalog
+	const promptStartTime = Date.now();
 	const prompt = buildPlanScoringPrompt(usageSummary, Array.from(supplierCatalog), input);
+	const promptBuildTime = Date.now() - promptStartTime;
 
 	// Call Workers AI with JSON mode enabled
 	const modelId = env.AI_MODEL_FAST || '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 
+	const inferenceStartTime = Date.now();
 	const aiResponse = await env.AI.run(modelId, {
 		prompt,
 		max_tokens: 1024,
 		response_format: { type: 'json_object' },
 	});
+	const inferenceTime = Date.now() - inferenceStartTime;
 
 	// Extract response text
 	const responseText = (aiResponse as any)?.response || JSON.stringify(aiResponse);
@@ -173,35 +217,60 @@ export async function runPlanScoring(env: Env, usageSummary: UsageSummaryOutput,
 	const validPlanIds = Array.from(supplierCatalog).map((plan) => plan.id);
 
 	// Parse and validate AI response
+	const parseStartTime = Date.now();
 	const result: PlanScoringOutput = parsePlanScoring(responseText, validPlanIds, 'plan-scoring');
+	const parseTime = Date.now() - parseStartTime;
 
-	const duration = Date.now() - startTime;
-	logStageComplete('plan-scoring', duration, result);
+	const totalDuration = Date.now() - stageStartTime;
 
-	return result;
+	const performance: StagePerformance = {
+		promptBuildMs: promptBuildTime,
+		inferenceMs: inferenceTime,
+		parseMs: parseTime,
+		totalMs: totalDuration,
+	};
+
+	// Enhanced performance logging
+	console.log(`[PERF] [plan-scoring] Model: ${modelId}`);
+	console.log(`[PERF] [plan-scoring] Prompt Build: ${promptBuildTime}ms`);
+	console.log(`[PERF] [plan-scoring] AI Inference: ${inferenceTime}ms`);
+	console.log(`[PERF] [plan-scoring] Response Parse: ${parseTime}ms`);
+	console.log(`[PERF] [plan-scoring] Total Duration: ${totalDuration}ms`);
+
+	logStageComplete('plan-scoring', totalDuration, result);
+
+	return { result, performance };
 }
 
 /**
  * Stage 3: Generates narrative explanations for top recommendations
  * @param env - Worker environment bindings
  * @param planScoring - Output from Stage 2
- * @returns Narrative output
+ * @returns Narrative output and performance metrics
  */
-export async function runNarrative(env: Env, planScoring: PlanScoringOutput, usageSummary: UsageSummaryOutput): Promise<NarrativeOutput> {
-	const startTime = Date.now();
+export async function runNarrative(
+	env: Env,
+	planScoring: PlanScoringOutput,
+	usageSummary: UsageSummaryOutput,
+): Promise<{ result: NarrativeOutput; performance: StagePerformance }> {
+	const stageStartTime = Date.now();
 	logStageStart('narrative', planScoring);
 
 	// Build optimized prompt using prompt builder
+	const promptStartTime = Date.now();
 	const prompt = buildNarrativePrompt(planScoring, usageSummary);
+	const promptBuildTime = Date.now() - promptStartTime;
 
 	// Call Workers AI with JSON mode enabled
 	const modelId = env.AI_MODEL_FAST || '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 
+	const inferenceStartTime = Date.now();
 	const aiResponse = await env.AI.run(modelId, {
 		prompt,
 		max_tokens: 1024,
 		response_format: { type: 'json_object' },
 	});
+	const inferenceTime = Date.now() - inferenceStartTime;
 
 	// Extract response text
 	const responseText = (aiResponse as any)?.response || String(aiResponse);
@@ -210,12 +279,29 @@ export async function runNarrative(env: Env, planScoring: PlanScoringOutput, usa
 	const topPlanIds = planScoring.scoredPlans.slice(0, 3).map((plan) => plan.planId);
 
 	// Parse and validate AI response
+	const parseStartTime = Date.now();
 	const result: NarrativeOutput = parseNarrative(responseText, topPlanIds, 'narrative');
+	const parseTime = Date.now() - parseStartTime;
 
-	const duration = Date.now() - startTime;
-	logStageComplete('narrative', duration, result);
+	const totalDuration = Date.now() - stageStartTime;
 
-	return result;
+	const performance: StagePerformance = {
+		promptBuildMs: promptBuildTime,
+		inferenceMs: inferenceTime,
+		parseMs: parseTime,
+		totalMs: totalDuration,
+	};
+
+	// Enhanced performance logging
+	console.log(`[PERF] [narrative] Model: ${modelId}`);
+	console.log(`[PERF] [narrative] Prompt Build: ${promptBuildTime}ms`);
+	console.log(`[PERF] [narrative] AI Inference: ${inferenceTime}ms`);
+	console.log(`[PERF] [narrative] Response Parse: ${parseTime}ms`);
+	console.log(`[PERF] [narrative] Total Duration: ${totalDuration}ms`);
+
+	logStageComplete('narrative', totalDuration, result);
+
+	return { result, performance };
 }
 
 // ===========================
@@ -232,6 +318,11 @@ export async function runNarrative(env: Env, planScoring: PlanScoringOutput, usa
 export async function runPipeline(env: Env, input: StageInput, progressCallback?: ProgressCallback): Promise<PipelineResult> {
 	const startTime = Date.now();
 	const errors: PipelineError[] = [];
+	const performanceMetrics: {
+		usageSummary?: StagePerformance;
+		planScoring?: StagePerformance;
+		narrative?: StagePerformance;
+	} = {};
 
 	let usageSummary: UsageSummaryOutput | undefined;
 	let planScoring: PlanScoringOutput | undefined;
@@ -246,11 +337,14 @@ export async function runPipeline(env: Env, input: StageInput, progressCallback?
 		safeCallback(progressCallback, 'usage-summary', 'running', null);
 
 		// Wrap with retry logic
-		usageSummary = await withRetry(() => withTimeout(runUsageSummary(env, input), 40000, 'usage-summary'), {
+		const stage1Result = await withRetry(() => withTimeout(runUsageSummary(env, input), 40000, 'usage-summary'), {
 			maxAttempts: 2,
 			backoffMs: 100,
 			stageName: 'usage-summary',
 		});
+
+		usageSummary = stage1Result.result;
+		performanceMetrics.usageSummary = stage1Result.performance;
 
 		safeCallback(progressCallback, 'usage-summary', 'complete', usageSummary);
 	} catch (error) {
@@ -276,11 +370,14 @@ export async function runPipeline(env: Env, input: StageInput, progressCallback?
 			safeCallback(progressCallback, 'plan-scoring', 'running', null);
 
 			// Wrap with retry logic
-			planScoring = await withRetry(() => withTimeout(runPlanScoring(env, usageSummary, input), 40000, 'plan-scoring'), {
+			const stage2Result = await withRetry(() => withTimeout(runPlanScoring(env, usageSummary, input), 40000, 'plan-scoring'), {
 				maxAttempts: 2,
 				backoffMs: 100,
 				stageName: 'plan-scoring',
 			});
+
+			planScoring = stage2Result.result;
+			performanceMetrics.planScoring = stage2Result.performance;
 
 			safeCallback(progressCallback, 'plan-scoring', 'complete', planScoring);
 		} catch (error) {
@@ -311,11 +408,14 @@ export async function runPipeline(env: Env, input: StageInput, progressCallback?
 			safeCallback(progressCallback, 'narrative', 'running', null);
 
 			// Wrap with retry logic
-			narrative = await withRetry(() => withTimeout(runNarrative(env, planScoring, usageSummary!), 40000, 'narrative'), {
+			const stage3Result = await withRetry(() => withTimeout(runNarrative(env, planScoring, usageSummary!), 40000, 'narrative'), {
 				maxAttempts: 2,
 				backoffMs: 100,
 				stageName: 'narrative',
 			});
+
+			narrative = stage3Result.result;
+			performanceMetrics.narrative = stage3Result.performance;
 
 			safeCallback(progressCallback, 'narrative', 'complete', narrative);
 		} catch (error) {
@@ -345,6 +445,11 @@ export async function runPipeline(env: Env, input: StageInput, progressCallback?
 
 	console.log(`[${new Date().toISOString()}] [PIPELINE] Pipeline completed in ${executionTime}ms with ${errors.length} errors`);
 
+	// Log performance summary
+	if (performanceMetrics.usageSummary || performanceMetrics.planScoring || performanceMetrics.narrative) {
+		console.log(`[PERF] [SUMMARY] Total Inference Time: ${(performanceMetrics.usageSummary?.inferenceMs || 0) + (performanceMetrics.planScoring?.inferenceMs || 0) + (performanceMetrics.narrative?.inferenceMs || 0)}ms`);
+	}
+
 	return {
 		usageSummary,
 		planScoring,
@@ -352,6 +457,7 @@ export async function runPipeline(env: Env, input: StageInput, progressCallback?
 		errors,
 		executionTime,
 		timestamp: new Date().toISOString(),
+		performance: performanceMetrics,
 	};
 }
 
@@ -371,7 +477,7 @@ export async function runPipeline(env: Env, input: StageInput, progressCallback?
  * See bug-timeout-race-condition.md for details.
  */
 async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, stageName: string): Promise<T> {
-	let timeoutId: NodeJS.Timeout | null = null;
+	let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
 	const timeoutPromise = new Promise<T>((_, reject) => {
 		timeoutId = setTimeout(() => {

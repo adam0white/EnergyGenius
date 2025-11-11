@@ -18,9 +18,9 @@
 #   - done: Story complete and merged
 
 development_status:
-  epic-7: planning
+  epic-7: active
   7.1-workers-ai-model-performance: ready-for-dev
-  7.2-why-section-formatting: ready-for-dev
+  7.2-why-section-formatting: done
   7.3-progress-timeline-timing: ready-for-dev
   epic-7-retrospective: pending
 

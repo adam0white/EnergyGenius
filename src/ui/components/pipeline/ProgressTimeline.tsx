@@ -203,7 +203,7 @@ export function ProgressTimeline({ stages }: ProgressTimelineProps) {
 
 			{/* Bottom message */}
 			<div className="mt-8 text-center">
-				<p className="text-sm text-gray-500">This typically takes 8-10 seconds. Please wait while we process your request.</p>
+				<p className="text-sm text-gray-500">This typically takes 15-20 seconds. Please wait while we process your request.</p>
 			</div>
 		</div>
 	);

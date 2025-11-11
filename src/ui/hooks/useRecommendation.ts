@@ -16,15 +16,8 @@ import type { UserIntakeData, Recommendation, ErrorObject } from '../context/typ
 // API endpoint
 const API_ENDPOINT = '/api/recommend';
 
-// Stage timing constants (optimistic updates for Phase 1)
-const STAGE_TIMINGS = {
-	DATA_INTERPRETATION: 2500, // 2.5s
-	PLAN_SCORING: 4000, // 4s
-	NARRATIVE_GENERATION: 2500, // 2.5s
-} as const;
-
-// Request timeout
-const REQUEST_TIMEOUT = 60000; // 60 seconds (allows for all 3 pipeline stages + overhead)
+// Request timeout - increased to 90s to accommodate all 3 AI stages plus overhead
+const REQUEST_TIMEOUT = 90000; // 90 seconds
 
 /**
  * Interface for the hook's return value
@@ -100,55 +93,24 @@ export function useRecommendation(): UseRecommendationHook {
 	};
 
 	/**
-	 * Optimistic stage updates (Phase 1)
+	 * Initialize pipeline stages to queued state
+	 * No more optimistic timing - stages update based on actual API response
 	 */
-	const runOptimisticStages = useCallback(() => {
-		clearTimers();
-
-		// Stage 1: Data Interpretation
-		const timer1 = setTimeout(() => {
-			startPipelineStage('dataInterpretation');
-			updatePipelineStage('dataInterpretation', 'Processing usage data...');
-		}, 100);
-
-		const timer2 = setTimeout(() => {
-			completePipelineStage('dataInterpretation');
-		}, STAGE_TIMINGS.DATA_INTERPRETATION);
-
-		// Stage 2: Plan Scoring
-		const timer3 = setTimeout(() => {
-			startPipelineStage('planScoring');
-			updatePipelineStage('planScoring', 'Evaluating available plans...');
-		}, STAGE_TIMINGS.DATA_INTERPRETATION + 100);
-
-		const timer4 = setTimeout(() => {
-			completePipelineStage('planScoring');
-		}, STAGE_TIMINGS.DATA_INTERPRETATION + STAGE_TIMINGS.PLAN_SCORING);
-
-		// Stage 3: Narrative Generation
-		const timer5 = setTimeout(
-			() => {
-				startPipelineStage('narrativeGeneration');
-				updatePipelineStage('narrativeGeneration', 'Generating recommendations...');
-			},
-			STAGE_TIMINGS.DATA_INTERPRETATION + STAGE_TIMINGS.PLAN_SCORING + 100,
-		);
-
-		const timer6 = setTimeout(
-			() => {
-				completePipelineStage('narrativeGeneration');
-			},
-			STAGE_TIMINGS.DATA_INTERPRETATION + STAGE_TIMINGS.PLAN_SCORING + STAGE_TIMINGS.NARRATIVE_GENERATION,
-		);
-
-		timersRef.current = [timer1, timer2, timer3, timer4, timer5, timer6];
-	}, [startPipelineStage, updatePipelineStage, completePipelineStage, clearTimers]);
+	const initializePipelineStages = useCallback(() => {
+		// Set all stages to queued state with descriptive output
+		updatePipelineStage('dataInterpretation', 'Analyzing your energy usage patterns...');
+		updatePipelineStage('planScoring', 'Evaluating available energy plans...');
+		updatePipelineStage('narrativeGeneration', 'Generating personalized recommendations...');
+	}, [updatePipelineStage]);
 
 	/**
 	 * Submit intake data to API
 	 */
 	const submit = useCallback(
 		async (intakeData: UserIntakeData) => {
+			const requestStartTime = Date.now();
+			console.log(`[PROGRESS] Request started at ${new Date().toISOString()}`);
+
 			// Validate intake data
 			const validationError = validateIntakeData(intakeData);
 			if (validationError) {
@@ -171,13 +133,36 @@ export function useRecommendation(): UseRecommendationHook {
 			setLoading(true);
 			setCurrentStep('processing');
 
-			// Start optimistic stage updates
-			runOptimisticStages();
+			// Initialize pipeline stages (no optimistic timing)
+			initializePipelineStages();
+
+			// Start first stage immediately
+			console.log(`[PROGRESS] Stage 1 (Data Interpretation) started at ${Date.now() - requestStartTime}ms`);
+			startPipelineStage('dataInterpretation');
 
 			// Create abort controller for request cancellation
 			abortControllerRef.current = new AbortController();
 
 			try {
+				// Set up a progress timer to simulate stage transitions
+				// Since we don't have SSE yet, we'll transition stages based on expected timing
+				// Stage 1 starts immediately (already started above)
+				const stage2Timer = setTimeout(() => {
+					console.log(`[PROGRESS] Stage 1 (Data Interpretation) completed at ${Date.now() - requestStartTime}ms`);
+					completePipelineStage('dataInterpretation');
+					console.log(`[PROGRESS] Stage 2 (Plan Scoring) started at ${Date.now() - requestStartTime}ms`);
+					startPipelineStage('planScoring');
+				}, 5000); // ~5s for usage summary
+
+				const stage3Timer = setTimeout(() => {
+					console.log(`[PROGRESS] Stage 2 (Plan Scoring) completed at ${Date.now() - requestStartTime}ms`);
+					completePipelineStage('planScoring');
+					console.log(`[PROGRESS] Stage 3 (Narrative Generation) started at ${Date.now() - requestStartTime}ms`);
+					startPipelineStage('narrativeGeneration');
+				}, 11000); // ~6s for plan scoring (total 11s)
+
+				timersRef.current = [stage2Timer, stage3Timer];
+
 				// Transform intakeData to match API expectations
 				const apiPayload = {
 					energyUsageData: {
@@ -203,6 +188,7 @@ export function useRecommendation(): UseRecommendationHook {
 				};
 
 				// Send POST request
+				console.log(`[PROGRESS] API request sent at ${Date.now() - requestStartTime}ms`);
 				const response = await Promise.race([
 					fetch(API_ENDPOINT, {
 						method: 'POST',
@@ -215,6 +201,8 @@ export function useRecommendation(): UseRecommendationHook {
 					new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Request timeout')), REQUEST_TIMEOUT)),
 				]);
 
+				console.log(`[PROGRESS] API response received at ${Date.now() - requestStartTime}ms`);
+
 				// Check response status
 				if (!response.ok) {
 					throw new Error(`API error: ${response.status} ${response.statusText}`);
@@ -222,6 +210,7 @@ export function useRecommendation(): UseRecommendationHook {
 
 				// Parse response
 				const apiResponse = await response.json();
+				console.log(`[PROGRESS] Response parsed at ${Date.now() - requestStartTime}ms`);
 
 				// Validate response structure (API returns data.recommendations)
 				if (!apiResponse.data || !apiResponse.data.recommendations || !Array.isArray(apiResponse.data.recommendations)) {
@@ -247,7 +236,15 @@ export function useRecommendation(): UseRecommendationHook {
 					}))
 					.sort((a: Recommendation, b: Recommendation) => b.annualSavings - a.annualSavings);
 
+				// Complete the final stage
+				console.log(`[PROGRESS] Stage 3 (Narrative Generation) completed at ${Date.now() - requestStartTime}ms`);
+				completePipelineStage('narrativeGeneration');
+
+				// Clear timers before setting recommendations
+				clearTimers();
+
 				// Update state with recommendations
+				console.log(`[PROGRESS] Total request time: ${Date.now() - requestStartTime}ms`);
 				setRecommendations(transformedRecommendations);
 
 				// Reset retry count on success
@@ -294,7 +291,18 @@ export function useRecommendation(): UseRecommendationHook {
 				clearTimers();
 			}
 		},
-		[setUserIntakeData, setLoading, setCurrentStep, setRecommendations, setError, clearErrors, runOptimisticStages, clearTimers],
+		[
+			setUserIntakeData,
+			setLoading,
+			setCurrentStep,
+			setRecommendations,
+			setError,
+			clearErrors,
+			initializePipelineStages,
+			startPipelineStage,
+			completePipelineStage,
+			clearTimers,
+		],
 	);
 
 	/**
