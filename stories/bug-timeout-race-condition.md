@@ -1,6 +1,6 @@
 # Bug: Plan-Scoring Timeout Race Condition
 
-**Status:** Ready for Review
+**Status:** Done
 
 ---
 
