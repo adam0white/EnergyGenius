@@ -42,6 +42,16 @@ export function parseNarrative(text: string): ParsedNarrative {
 
 	// Remove markdown bold syntax (**text**)
 	trimmed = trimmed.replace(/\*\*(.+?)\*\*/g, '$1');
+
+	// Remove markdown italic syntax (*text* and _text_)
+	trimmed = trimmed.replace(/\*([^*]+?)\*/g, '$1');
+	trimmed = trimmed.replace(/_([^_]+?)_/g, '$1');
+
+	// Remove markdown headers (# Header, ## Header, etc.)
+	trimmed = trimmed.replace(/^#{1,6}\s+(.+)$/gm, '$1');
+
+	// Remove inline code syntax (`code`)
+	trimmed = trimmed.replace(/`([^`]+?)`/g, '$1');
 	const sections: NarrativeSection[] = [];
 
 	// Split into paragraphs (double line breaks or significant breaks)

@@ -243,6 +243,138 @@ This plan offers fixed rates, so your monthly costs will be predictable.
 		expect(result.sections.some((s) => s.type === 'list')).toBe(true);
 		expect(result.sections.some((s) => s.type === 'metric')).toBe(true);
 	});
+
+	it('should strip markdown italic syntax with asterisks', () => {
+		const text = `This plan is *excellent* for your needs. It offers *great value* with savings.`;
+
+		const result = parseNarrative(text);
+
+		expect(result.sections[0].content).toBe('This plan is excellent for your needs. It offers great value with savings.');
+		expect(result.sections[0].content).not.toContain('*');
+	});
+
+	it('should strip markdown italic syntax with underscores', () => {
+		const text = `This plan is _highly recommended_ for your usage pattern.`;
+
+		const result = parseNarrative(text);
+
+		expect(result.sections[0].content).toBe('This plan is highly recommended for your usage pattern.');
+		expect(result.sections[0].content).not.toContain('_');
+	});
+
+	it('should strip markdown headers at various levels', () => {
+		const text = `# Main Header
+
+This is content.
+
+## Subheader
+
+More content here.
+
+### Third Level Header
+
+Final content.`;
+
+		const result = parseNarrative(text);
+
+		// Verify no hash symbols remain
+		result.sections.forEach((section) => {
+			if (typeof section.content === 'string') {
+				expect(section.content).not.toMatch(/^#+\s/);
+			}
+		});
+
+		// Headers should become regular paragraphs
+		const headerSection = result.sections.find((s) =>
+			typeof s.content === 'string' && s.content === 'Main Header'
+		);
+		expect(headerSection).toBeDefined();
+	});
+
+	it('should strip inline code syntax', () => {
+		const text = 'The rate is `$0.095/kWh` which is very competitive. Use code `SAVE2024` at signup.';
+
+		const result = parseNarrative(text);
+
+		expect(result.sections[0].content).toBe('The rate is $0.095/kWh which is very competitive. Use code SAVE2024 at signup.');
+		expect(result.sections[0].content).not.toContain('`');
+	});
+
+	it('should handle mixed markdown syntax in one text block', () => {
+		const text = '**Bold text** and *italic text* and _underscored_ text.\n\n' +
+			'# Header Here\n\n' +
+			'- List with **bold** item\n' +
+			'- Another *italic* item\n' +
+			'- Item with `code` syntax\n\n' +
+			'Paragraph with all: **bold**, *italic*, _underscore_, and `code`.';
+
+		const result = parseNarrative(text);
+
+		// Verify no markdown remains anywhere
+		result.sections.forEach((section) => {
+			if (typeof section.content === 'string') {
+				expect(section.content).not.toContain('**');
+				expect(section.content).not.toMatch(/(?<!\w)\*(?!\*)/); // Single asterisks not part of word
+				expect(section.content).not.toContain('_');
+				expect(section.content).not.toContain('`');
+				expect(section.content).not.toMatch(/^#+\s/);
+			} else if (Array.isArray(section.content)) {
+				section.content.forEach((item) => {
+					expect(item).not.toContain('**');
+					expect(item).not.toMatch(/(?<!\w)\*(?!\*)/);
+					expect(item).not.toContain('_');
+					expect(item).not.toContain('`');
+				});
+			}
+		});
+	});
+
+	it('should handle edge case with nested or overlapping markdown', () => {
+		const text = `Text with **bold and *italic* inside** and separate _emphasis_.`;
+
+		const result = parseNarrative(text);
+
+		// Should strip all markdown syntax
+		expect(result.sections[0].content).not.toContain('**');
+		expect(result.sections[0].content).not.toContain('*');
+		expect(result.sections[0].content).not.toContain('_');
+		// Verify content is present
+		expect(result.sections[0].content).toContain('bold');
+		expect(result.sections[0].content).toContain('italic');
+		expect(result.sections[0].content).toContain('emphasis');
+	});
+
+	it('should handle multiline text with various markdown patterns', () => {
+		const text = '# Important Plan Details\n\n' +
+			'This is an *excellent* plan with **great savings**.\n\n' +
+			'## Key Features\n' +
+			'- _Renewable energy_ source\n' +
+			'- `Fixed rate` of $0.09/kWh\n' +
+			'- **No termination** fees\n\n' +
+			'Save **$200** annually!';
+
+		const result = parseNarrative(text);
+
+		// Verify comprehensive markdown removal
+		result.sections.forEach((section) => {
+			if (typeof section.content === 'string') {
+				expect(section.content).not.toContain('**');
+				expect(section.content).not.toContain('`');
+				expect(section.content).not.toContain('_');
+				expect(section.content).not.toMatch(/^#+\s/);
+			} else if (Array.isArray(section.content)) {
+				section.content.forEach((item) => {
+					expect(item).not.toContain('**');
+					expect(item).not.toContain('`');
+					expect(item).not.toContain('_');
+				});
+			}
+		});
+
+		// Verify structure still parsed correctly
+		expect(result.sections.some((s) => s.type === 'list')).toBe(true);
+		expect(result.sections.some((s) => s.type === 'metric')).toBe(true);
+	});
 });
 
 describe('formatAsPlainText', () => {

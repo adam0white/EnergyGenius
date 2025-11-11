@@ -66,39 +66,39 @@ TONE & STYLE:
 - Be positive but honest about trade-offs
 
 OUTPUT FORMAT:
-Write plain text organized by plan. Use this structure:
+Write plain text organized by plan. Use this structure (NO markdown syntax - write in plain text only):
 
-**[Supplier] - [Plan Name]** (Score: [score]/100)
+[Supplier] - [Plan Name] (Score: [score]/100)
 
 [2-4 sentences explaining why this plan is recommended, highlighting key benefits and estimated savings]
 
-**Key Benefits:**
+Key Benefits:
 - [Benefit 1]
 - [Benefit 2]
 - [Benefit 3]
 
-**Important to Know:**
+Important to Know:
 [1-2 sentences about contract terms, fees, or other considerations]
 
-**Estimated Annual Savings: $[amount]**
+Estimated Annual Savings: $[amount]
 
 ---
 
 EXAMPLE OUTPUT:
 
-**Green Energy Co - EcoSaver 12** (Score: 92/100)
+Green Energy Co - EcoSaver 12 (Score: 92/100)
 
 This plan is our top recommendation because it could save you approximately $214 annually compared to your current plan. With 100% renewable energy and a flexible 12-month contract, it aligns perfectly with customers who value both savings and environmental responsibility. The competitive base rate of $0.095/kWh combined with a low monthly fee makes it ideal for your consistent usage pattern.
 
-**Key Benefits:**
+Key Benefits:
 - 15% annual savings over your current plan
 - 100% renewable energy from wind and solar
 - Flexible 12-month contract with no early termination fee
 
-**Important to Know:**
+Important to Know:
 This plan offers fixed rates, so your monthly costs will be predictable. The 12-month contract renews automatically at market rates, but you can cancel anytime after the initial term.
 
-**Estimated Annual Savings: $214.00**
+Estimated Annual Savings: $214.00
 
 ---
 
