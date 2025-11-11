@@ -37,7 +37,11 @@ export function parseNarrative(text: string): ParsedNarrative {
 		};
 	}
 
-	const trimmed = text.trim();
+	// Strip markdown syntax before parsing
+	let trimmed = text.trim();
+
+	// Remove markdown bold syntax (**text**)
+	trimmed = trimmed.replace(/\*\*(.+?)\*\*/g, '$1');
 	const sections: NarrativeSection[] = [];
 
 	// Split into paragraphs (double line breaks or significant breaks)

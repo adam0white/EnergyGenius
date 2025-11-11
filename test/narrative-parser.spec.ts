@@ -183,6 +183,66 @@ Best for your needs.`;
 		expect(reconstructed).toContain('Stable pricing');
 		expect(reconstructed).toContain('Best for your needs');
 	});
+
+	it('should strip markdown bold syntax from text', () => {
+		const text = `This plan is **highly recommended** for your usage.
+
+**Key Benefits:**
+- Save **$1,200** annually
+- **100%** renewable energy
+- Flexible contract`;
+
+		const result = parseNarrative(text);
+
+		// Check that markdown bold is stripped from first paragraph
+		const firstSection = result.sections[0];
+		expect(firstSection.content).toBe('This plan is highly recommended for your usage.');
+		expect(firstSection.content).not.toContain('**');
+
+		// Check list items don't have markdown
+		const listSection = result.sections.find((s) => s.type === 'list');
+		expect(listSection).toBeDefined();
+		if (listSection && Array.isArray(listSection.content)) {
+			listSection.content.forEach((item) => {
+				expect(item).not.toContain('**');
+			});
+			// Verify list items are present (header "Key Benefits:" may be separate section)
+			const savingsItem = listSection.content.find((item) => item.includes('Save'));
+			expect(savingsItem).toContain('Save $1,200 annually');
+		}
+	});
+
+	it('should handle real AI-generated narrative with markdown', () => {
+		const text = `This plan is our top recommendation because it could save you approximately **$214 annually** compared to your current plan.
+
+**Key Benefits:**
+- 15% annual savings over your current plan
+- 100% renewable energy from wind and solar
+- Flexible 12-month contract with no early termination fee
+
+**Important to Know:**
+This plan offers fixed rates, so your monthly costs will be predictable.
+
+**Estimated Annual Savings: $214.00**`;
+
+		const result = parseNarrative(text);
+
+		// Verify no markdown syntax remains
+		result.sections.forEach((section) => {
+			if (typeof section.content === 'string') {
+				expect(section.content).not.toContain('**');
+			} else if (Array.isArray(section.content)) {
+				section.content.forEach((item) => {
+					expect(item).not.toContain('**');
+				});
+			}
+		});
+
+		// Verify content is properly structured
+		expect(result.sections.length).toBeGreaterThan(1);
+		expect(result.sections.some((s) => s.type === 'list')).toBe(true);
+		expect(result.sections.some((s) => s.type === 'metric')).toBe(true);
+	});
 });
 
 describe('formatAsPlainText', () => {
