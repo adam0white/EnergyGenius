@@ -5,6 +5,7 @@ This module provides structured TypeScript data for supplier plans and usage sce
 ## Overview
 
 The data module contains:
+
 - **12 supplier plans** with diverse pricing, renewable options, and contract terms
 - **5 usage scenarios** representing different household and business patterns
 - **TypeScript interfaces** for all data structures
@@ -49,9 +50,9 @@ import { supplierCatalog } from '@/worker/data';
 console.log(`Total plans: ${supplierCatalog.length}`);
 
 // Filter by criteria
-const greenPlans = supplierCatalog.filter(plan => plan.renewablePercent > 70);
-const budgetPlans = supplierCatalog.filter(plan => plan.baseRate < 0.10);
-const flexiblePlans = supplierCatalog.filter(plan => plan.contractTermMonths <= 6);
+const greenPlans = supplierCatalog.filter((plan) => plan.renewablePercent > 70);
+const budgetPlans = supplierCatalog.filter((plan) => plan.baseRate < 0.1);
+const flexiblePlans = supplierCatalog.filter((plan) => plan.contractTermMonths <= 6);
 
 // Access plan details
 const plan = supplierCatalog[0];
@@ -71,13 +72,13 @@ import { usageScenarios } from '@/worker/data';
 console.log(`Total scenarios: ${usageScenarios.length}`);
 
 // Find a specific scenario
-const avgHousehold = usageScenarios.find(s => s.id === 'scenario-avg');
+const avgHousehold = usageScenarios.find((s) => s.id === 'scenario-avg');
 
 // Calculate costs for a scenario
 function calculateAnnualCost(scenario: UsageScenario, rate: number, monthlyFee: number) {
-  const energyCost = scenario.annualKWh * rate;
-  const feeCost = monthlyFee * 12;
-  return energyCost + feeCost;
+	const energyCost = scenario.annualKWh * rate;
+	const feeCost = monthlyFee * 12;
+	return energyCost + feeCost;
 }
 
 const cost = calculateAnnualCost(avgHousehold, 0.12, 15);
@@ -93,12 +94,12 @@ import { validateSupplierCatalog, validateUsageScenarios } from '@/worker/data';
 import { supplierCatalog, usageScenarios } from '@/worker/data';
 
 try {
-  // Validate entire catalogs
-  validateSupplierCatalog(supplierCatalog);
-  validateUsageScenarios(usageScenarios);
-  console.log('Data validation passed!');
+	// Validate entire catalogs
+	validateSupplierCatalog(supplierCatalog);
+	validateUsageScenarios(usageScenarios);
+	console.log('Data validation passed!');
 } catch (error) {
-  console.error('Validation failed:', error.message);
+	console.error('Validation failed:', error.message);
 }
 ```
 
@@ -116,17 +117,20 @@ try {
 ### Plan Categories
 
 **High Renewable (>70%):**
+
 - Eco Max (90%)
 - Premium Stability (100%)
 - Solar Strong (85%)
 - Wind Powered Pro (95%)
 
 **Budget-Friendly (<$0.10/kWh):**
+
 - Budget Friendly ($0.089)
 - Ultimate Value ($0.085)
 - Economy Plus ($0.095)
 
 **Flexible (≤6 months):**
+
 - Balanced Green (6 months)
 - Flex Saver (3 months)
 
@@ -211,27 +215,23 @@ Edit `src/worker/data/supplier-catalog.ts`:
 
 ```typescript
 export const supplierCatalog: readonly SupplierPlan[] = [
-  // ... existing plans
-  {
-    id: "plan-new-001",
-    supplier: "New Supplier",
-    planName: "New Plan",
-    baseRate: 0.11,
-    monthlyFee: 10,
-    contractTermMonths: 12,
-    earlyTerminationFee: 0,
-    renewablePercent: 50,
-    ratings: {
-      reliabilityScore: 4.0,
-      customerServiceScore: 4.0
-    },
-    features: [
-      "Feature 1",
-      "Feature 2",
-      "Feature 3"
-    ],
-    availableInStates: ["TX", "CA"]
-  }
+	// ... existing plans
+	{
+		id: 'plan-new-001',
+		supplier: 'New Supplier',
+		planName: 'New Plan',
+		baseRate: 0.11,
+		monthlyFee: 10,
+		contractTermMonths: 12,
+		earlyTerminationFee: 0,
+		renewablePercent: 50,
+		ratings: {
+			reliabilityScore: 4.0,
+			customerServiceScore: 4.0,
+		},
+		features: ['Feature 1', 'Feature 2', 'Feature 3'],
+		availableInStates: ['TX', 'CA'],
+	},
 ] as const;
 ```
 
@@ -241,20 +241,20 @@ Edit `src/worker/data/usage-scenarios.ts`:
 
 ```typescript
 export const usageScenarios: readonly UsageScenario[] = [
-  // ... existing scenarios
-  {
-    id: "scenario-new",
-    name: "New Usage Pattern",
-    description: "Description of usage pattern",
-    type: "residential",
-    monthlyUsage: [
-      { month: 1, kWh: 800 },
-      { month: 2, kWh: 750 },
-      // ... must include all 12 months
-    ],
-    annualKWh: 9600,  // Must equal sum of monthly kWh
-    averageMonthlyKWh: 800  // Must equal annualKWh / 12
-  }
+	// ... existing scenarios
+	{
+		id: 'scenario-new',
+		name: 'New Usage Pattern',
+		description: 'Description of usage pattern',
+		type: 'residential',
+		monthlyUsage: [
+			{ month: 1, kWh: 800 },
+			{ month: 2, kWh: 750 },
+			// ... must include all 12 months
+		],
+		annualKWh: 9600, // Must equal sum of monthly kWh
+		averageMonthlyKWh: 800, // Must equal annualKWh / 12
+	},
 ] as const;
 ```
 
@@ -266,10 +266,10 @@ All data is marked as immutable using `as const` to prevent accidental modificat
 
 ```typescript
 // This will cause a TypeScript error:
-supplierCatalog[0].baseRate = 0.15;  // ❌ Error: Cannot assign to 'baseRate'
+supplierCatalog[0].baseRate = 0.15; // ❌ Error: Cannot assign to 'baseRate'
 
 // Data should only be read, not modified:
-const rate = supplierCatalog[0].baseRate;  // ✅ OK
+const rate = supplierCatalog[0].baseRate; // ✅ OK
 ```
 
 ## Type Definitions
@@ -278,20 +278,20 @@ const rate = supplierCatalog[0].baseRate;  // ✅ OK
 
 ```typescript
 interface SupplierPlan {
-  id: string;
-  supplier: string;
-  planName: string;
-  baseRate: number;              // $/kWh
-  monthlyFee: number;            // $/month
-  contractTermMonths: number;    // 3, 6, 12, or 24
-  earlyTerminationFee: number;   // $, 0 for no penalty
-  renewablePercent: number;      // 0-100
-  ratings: {
-    reliabilityScore: number;    // 1-5
-    customerServiceScore: number; // 1-5
-  };
-  features: string[];
-  availableInStates: string[];
+	id: string;
+	supplier: string;
+	planName: string;
+	baseRate: number; // $/kWh
+	monthlyFee: number; // $/month
+	contractTermMonths: number; // 3, 6, 12, or 24
+	earlyTerminationFee: number; // $, 0 for no penalty
+	renewablePercent: number; // 0-100
+	ratings: {
+		reliabilityScore: number; // 1-5
+		customerServiceScore: number; // 1-5
+	};
+	features: string[];
+	availableInStates: string[];
 }
 ```
 
@@ -299,18 +299,18 @@ interface SupplierPlan {
 
 ```typescript
 interface UsageScenario {
-  id: string;
-  name: string;
-  description: string;
-  type: "residential" | "small-business" | "seasonal-high" | "seasonal-low";
-  monthlyUsage: UsageData[];     // Array of 12 entries
-  annualKWh: number;             // Total annual consumption
-  averageMonthlyKWh: number;     // Calculated average
+	id: string;
+	name: string;
+	description: string;
+	type: 'residential' | 'small-business' | 'seasonal-high' | 'seasonal-low';
+	monthlyUsage: UsageData[]; // Array of 12 entries
+	annualKWh: number; // Total annual consumption
+	averageMonthlyKWh: number; // Calculated average
 }
 
 interface UsageData {
-  month: number;    // 1-12
-  kWh: number;      // Consumption for that month
+	month: number; // 1-12
+	kWh: number; // Consumption for that month
 }
 ```
 
@@ -340,9 +340,74 @@ validateUsageScenarios(scenarios: unknown): void // Throws on error
 - Quality ratings use a 1-5 scale (5 = best)
 - Data reflects realistic US electricity market conditions
 
+## Refreshing Supplier Catalog Data
+
+### When to Refresh Data
+
+Consider refreshing the supplier catalog when:
+
+- **Quarterly reviews:** Check for major plan changes every 3-6 months
+- **Market changes:** Significant rate changes in electricity markets
+- **New suppliers:** New providers enter the market
+- **Seasonal updates:** Before peak usage seasons (summer/winter)
+- **Feature releases:** When adding new plan types or features
+
+### How to Refresh Data
+
+The project includes an **optional scraper utility** for refreshing supplier catalog data from [Power to Choose](https://www.powertochoose.org).
+
+**Quick Reference:**
+
+```bash
+# Step 1: Run the scraper
+npx tsx scripts/scrape/powertochoose.ts
+
+# Step 2: Review output
+cat scripts/scrape/output/raw-scrape-output.json
+
+# Step 3: Backup current catalog
+cp src/worker/data/supplier-catalog.ts \
+   src/worker/data/supplier-catalog.backup.ts
+
+# Step 4: Update catalog file
+# (Manually or using conversion script)
+
+# Step 5: Validate
+npx tsc --noEmit
+npm run dev
+```
+
+**For detailed instructions, see:** [scripts/scrape/README.md](../../../scripts/scrape/README.md)
+
+### Data Freshness
+
+**Current Data:**
+- **Last updated:** 2025-11-10 (manually curated)
+- **Source:** Initial seed data for MVP
+- **Coverage:** 12 plans from Texas market
+
+**Future Updates:**
+- Use the scraper utility to refresh from Power to Choose
+- Manually add plans from other states as needed
+- Review and validate all scraped data before integration
+
+### Important Notes
+
+1. **Manual Review Required:** Always review scraped data before integrating
+2. **Not Automated:** Scraper is a manual developer utility, not a runtime service
+3. **Backup First:** Always backup existing catalog before replacing data
+4. **Test Thoroughly:** Run full pipeline tests after data refresh
+5. **Git Workflow:** Use version control to track data changes
+
+For complete scraper documentation, workflow, troubleshooting, and examples, see:
+**[scripts/scrape/README.md](../../../scripts/scrape/README.md)**
+
+---
+
 ## Future Enhancements
 
 Potential additions:
+
 - Time-of-use pricing plans
 - Demand response programs
 - Solar buyback rates
@@ -354,4 +419,4 @@ Potential additions:
 
 **Last Updated:** 2025-11-10
 **Version:** 1.0
-**Related Stories:** Epic 1, Story 1.3
+**Related Stories:** Epic 1 Story 1.3, Epic 2 Story 2.4
