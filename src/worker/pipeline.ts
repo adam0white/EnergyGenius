@@ -389,15 +389,23 @@ export async function runPipeline(env: Env, input: StageInput, progressCallback?
 			});
 			console.error(`[${new Date().toISOString()}] [PLAN_SCORING] [ERROR] ${errorMessage}`);
 
-			// Use fallback data
-			planScoring = generatePlanScoringFallback(Array.from(supplierCatalog));
+			// Use fallback data with usage summary for cost calculation
+			planScoring = generatePlanScoringFallback(
+				Array.from(supplierCatalog),
+				usageSummary?.totalAnnualUsage,
+				usageSummary?.annualCost
+			);
 
 			safeCallback(progressCallback, 'plan-scoring', 'error', null);
 		}
 	} else {
 		// Use fallback even if stage 1 failed
 		console.log(`[${new Date().toISOString()}] [PLAN_SCORING] Stage 1 failed, using fallback plan scoring`);
-		planScoring = generatePlanScoringFallback(Array.from(supplierCatalog));
+		planScoring = generatePlanScoringFallback(
+			Array.from(supplierCatalog),
+			usageSummary?.totalAnnualUsage,
+			usageSummary?.annualCost
+		);
 	}
 
 	// ===========================

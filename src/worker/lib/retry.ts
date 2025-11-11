@@ -138,19 +138,34 @@ export function generateUsageFallback(monthlyData: Array<{ month: string; usage:
 
 /**
  * Generates fallback plan scoring (neutral scores for all plans)
+ * @param supplierPlans - Array of supplier plans from catalog
+ * @param totalAnnualUsage - Total annual usage in kWh (optional, defaults to average)
+ * @param currentAnnualCost - Current annual cost for savings calculation (optional)
  */
-export function generatePlanScoringFallback(supplierPlans: any[]): any {
+export function generatePlanScoringFallback(supplierPlans: any[], totalAnnualUsage?: number, currentAnnualCost?: number): any {
 	console.log(`[${new Date().toISOString()}] [FALLBACK] Using neutral plan scoring fallback`);
 
+	// Use average residential usage if not provided (10,000 kWh/year is typical)
+	const annualUsage = totalAnnualUsage || 10000;
+	const currentCost = currentAnnualCost || 0;
+
 	return {
-		scoredPlans: supplierPlans.slice(0, 10).map((plan) => ({
-			planId: plan.id,
-			supplier: plan.supplier,
-			planName: plan.planName,
-			score: 50, // Neutral score
-			estimatedAnnualCost: 0,
-			estimatedSavings: 0,
-		})),
+		scoredPlans: supplierPlans.slice(0, 10).map((plan) => {
+			// Calculate estimated annual cost: (baseRate * totalAnnualUsage) + (monthlyFee * 12)
+			const estimatedAnnualCost = (plan.baseRate * annualUsage) + (plan.monthlyFee * 12);
+
+			// Calculate estimated savings: currentAnnualCost - estimatedAnnualCost
+			const estimatedSavings = currentCost > 0 ? currentCost - estimatedAnnualCost : 0;
+
+			return {
+				planId: plan.id,
+				supplier: plan.supplier,
+				planName: plan.planName,
+				score: 50, // Neutral score
+				estimatedAnnualCost: Math.round(estimatedAnnualCost * 100) / 100,
+				estimatedSavings: Math.round(estimatedSavings * 100) / 100,
+			};
+		}),
 		totalPlansScored: Math.min(supplierPlans.length, 10),
 		fallback: true,
 	};

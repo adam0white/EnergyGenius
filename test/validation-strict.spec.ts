@@ -75,7 +75,7 @@ describe('Strict Plan Validation (Story 7.8)', () => {
 	});
 
 	describe('Plan Name Validation', () => {
-		it('should REJECT if AI modifies plan name', () => {
+		it('should REJECT if AI modifies plan name (non-contract-length changes)', () => {
 			const validPlan = Array.from(supplierCatalog)[0];
 			const modifiedNameResponse = JSON.stringify([
 				{
@@ -108,6 +108,51 @@ describe('Strict Plan Validation (Story 7.8)', () => {
 			]);
 
 			expect(() => parsePlanScoring(exactNameResponse, validPlanIds, 'test-stage')).not.toThrow();
+		});
+
+		it('should ACCEPT plan name with different contract length (fuzzy match)', () => {
+			// Find plans with contract length variations
+			const greenMountain12 = Array.from(supplierCatalog).find(
+				(p) => p.planName === 'Pollution Free e-Plus 12 Choice' && p.supplier === 'GREEN MOUNTAIN ENERGY COMPANY',
+			);
+			if (!greenMountain12) throw new Error('Test plan not found');
+
+			// AI returns 12-month plan name but with 24-month plan's ID (common variation)
+			const fuzzyMatchResponse = JSON.stringify([
+				{
+					planId: greenMountain12.id,
+					supplier: greenMountain12.supplier,
+					planName: 'Pollution Free e-Plus 24 Choice', // Different contract length
+					score: 85,
+					estimatedAnnualCost: 1300,
+					estimatedSavings: 150,
+					reasoning: 'Good renewable option',
+				},
+			]);
+
+			// Should NOT throw - fuzzy matching allows contract length variations
+			expect(() => parsePlanScoring(fuzzyMatchResponse, validPlanIds, 'test-stage')).not.toThrow();
+		});
+
+		it('should ACCEPT contract length variations for Frontier Power Saver plans', () => {
+			// Frontier Power Saver 6 and Frontier Power Saver 12 should match
+			const frontierPlan = Array.from(supplierCatalog).find((p) => p.planName === 'Frontier Power Saver 6');
+			if (!frontierPlan) throw new Error('Test plan not found');
+
+			const fuzzyMatchResponse = JSON.stringify([
+				{
+					planId: frontierPlan.id,
+					supplier: frontierPlan.supplier,
+					planName: 'Frontier Power Saver 12', // Different contract length
+					score: 85,
+					estimatedAnnualCost: 1300,
+					estimatedSavings: 150,
+					reasoning: 'Good rate',
+				},
+			]);
+
+			// Should NOT throw - fuzzy matching allows contract length variations
+			expect(() => parsePlanScoring(fuzzyMatchResponse, validPlanIds, 'test-stage')).not.toThrow();
 		});
 	});
 
@@ -172,14 +217,14 @@ describe('Strict Plan Validation (Story 7.8)', () => {
 	describe('Real-world Hallucination Scenarios', () => {
 		it('should REJECT common hallucination: plan name variation', () => {
 			// AI adds "Premium" to existing plan name
-			const ecoMaxPlan = Array.from(supplierCatalog).find((p) => p.planName === 'Eco Max');
-			if (!ecoMaxPlan) throw new Error('Test plan not found');
+			const plan = Array.from(supplierCatalog).find((p) => p.planName === 'Gexa Eco Choice 12');
+			if (!plan) throw new Error('Test plan not found');
 
 			const hallucination = JSON.stringify([
 				{
-					planId: ecoMaxPlan.id,
-					supplier: ecoMaxPlan.supplier,
-					planName: 'Eco Max Premium', // Hallucinated variation
+					planId: plan.id,
+					supplier: plan.supplier,
+					planName: 'Gexa Eco Choice 12 Premium', // Hallucinated variation
 					score: 92,
 					estimatedAnnualCost: 1250,
 					estimatedSavings: 180,

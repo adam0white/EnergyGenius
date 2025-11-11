@@ -26,18 +26,18 @@ const DEFAULT_PLAN_SCORING_RESPONSE = {
 	response: JSON.stringify({
 		scoredPlans: [
 			{
-				planId: 'plan-eco-001',
-				supplier: 'Green Energy Co',
-				planName: 'Eco Max',
+				planId: 'plan-gexa-energy-gexa-eco-choice-12',
+				supplier: 'GEXA ENERGY',
+				planName: 'Gexa Eco Choice 12',
 				score: 85,
 				estimatedAnnualCost: 1200,
 				estimatedSavings: 285,
 				reasoning: 'Best match for renewable preference with significant savings',
 			},
 			{
-				planId: 'plan-budget-001',
-				supplier: 'Power Plus',
-				planName: 'Budget Friendly',
+				planId: 'plan-frontier-utilities-frontier-power-saver',
+				supplier: 'FRONTIER UTILITIES',
+				planName: 'Frontier Power Saver 6',
 				score: 78,
 				estimatedAnnualCost: 1150,
 				estimatedSavings: 335,
@@ -53,11 +53,11 @@ const DEFAULT_NARRATIVE_RESPONSE = {
 		explanation: 'Based on your seasonal usage pattern with peak consumption in summer months, we recommend energy plans that offer competitive rates and align with your savings priorities.',
 		topRecommendations: [
 			{
-				planId: 'plan-eco-001',
+				planId: 'plan-gexa-energy-gexa-eco-choice-12',
 				rationale: 'This plan offers the best balance of cost savings and renewable energy commitment, reducing your annual costs by approximately $285.',
 			},
 			{
-				planId: 'plan-budget-001',
+				planId: 'plan-frontier-utilities-frontier-power-saver',
 				rationale: 'Maximum savings potential with straightforward pricing structure that works well with your variable usage patterns.',
 			},
 		],

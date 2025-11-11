@@ -112,10 +112,12 @@ SCORING CRITERIA:
 
 VALIDATION REQUIREMENT:
 Each plan you return MUST have:
-- planId that EXACTLY matches one from the AVAILABLE PLANS list
-- supplier that EXACTLY matches the corresponding plan
-- planName that EXACTLY matches the corresponding plan
-DO NOT create variations or modifications of these values.
+- planId that EXACTLY matches one from the AVAILABLE PLANS list (PRIMARY KEY - most important!)
+- supplier that EXACTLY matches the corresponding plan (STRICT - no variations allowed)
+- planName from the catalog (minor contract length variations like "12" vs "24" are acceptable)
+
+CRITICAL: planId is your PRIMARY KEY. Always reference plans by their exact planId.
+The validation system will STRICTLY check that planId and supplier match the catalog exactly.
 
 EXAMPLE OUTPUT (copy this structure exactly):
 [

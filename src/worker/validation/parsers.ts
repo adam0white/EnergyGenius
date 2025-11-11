@@ -11,6 +11,44 @@ import { sanitizeAIResponse, sanitizeText, truncateText } from './sanitizers';
 import { supplierCatalog } from '../data/supplier-catalog';
 
 /**
+ * Fuzzy plan name matching - allows contract length variations
+ * Strips contract length numbers to match base plan names
+ *
+ * Examples:
+ * - "Pollution Free e-Plus 12 Choice" matches "Pollution Free e-Plus 36 Choice"
+ * - "Frontier Power Saver 6" matches "Frontier Power Saver 12"
+ * - "Smart Simple 24" matches "Smart Simple 12"
+ *
+ * @param aiPlanName - Plan name from AI response
+ * @param catalogPlanName - Plan name from catalog
+ * @returns true if names match (allowing contract length variations)
+ */
+function planNamesMatch(aiPlanName: string, catalogPlanName: string): boolean {
+	// Exact match always passes
+	if (aiPlanName === catalogPlanName) {
+		return true;
+	}
+
+	// Normalize both names: remove contract length numbers (common patterns)
+	// Pattern: remove standalone numbers that are likely contract lengths (3, 6, 9, 12, 15, 18, 24, 32, 36, 60 months)
+	const normalizePattern = /\b(3|6|9|12|15|18|19|24|32|36|60)\b/g;
+
+	const normalizedAI = aiPlanName.replace(normalizePattern, '').replace(/\s+/g, ' ').trim();
+	const normalizedCatalog = catalogPlanName.replace(normalizePattern, '').replace(/\s+/g, ' ').trim();
+
+	// Compare normalized names
+	if (normalizedAI === normalizedCatalog) {
+		console.log(
+			`[${new Date().toISOString()}] [VALIDATION] Plan name fuzzy match: AI="${aiPlanName}" ≈ Catalog="${catalogPlanName}"`,
+		);
+		return true;
+	}
+
+	// No match
+	return false;
+}
+
+/**
  * Parses and validates Usage Summary response (Stage 1)
  * @param rawResponse - Raw AI response text
  * @param stageName - Stage name for error reporting
@@ -108,7 +146,9 @@ export function parsePlanScoring(rawResponse: string, validPlanIds: string[], st
 		throw new ValidationError(message, stageName, [{ path: ['planId'], message: `Invalid plan IDs: ${invalidPlanIds.join(', ')}` }]);
 	}
 
-	// STRICT VALIDATION: Verify plan names and suppliers match catalog exactly
+	// STRICT VALIDATION: Verify plan names and suppliers match catalog
+	// - Supplier: STRICT (exact match required)
+	// - Plan Name: RELAXED (fuzzy matching to allow contract length variations)
 	const catalogMap = new Map(Array.from(supplierCatalog).map((p) => [p.id, p]));
 	const mismatchedPlans: string[] = [];
 
@@ -116,15 +156,15 @@ export function parsePlanScoring(rawResponse: string, validPlanIds: string[], st
 		const catalogPlan = catalogMap.get(scoredPlan.planId);
 		if (!catalogPlan) continue; // Already caught by ID validation above
 
-		// Check if supplier name matches exactly
+		// Check if supplier name matches exactly (STRICT)
 		if (scoredPlan.supplier !== catalogPlan.supplier) {
 			mismatchedPlans.push(
 				`${scoredPlan.planId}: supplier mismatch (AI: "${scoredPlan.supplier}", Catalog: "${catalogPlan.supplier}")`,
 			);
 		}
 
-		// Check if plan name matches exactly
-		if (scoredPlan.planName !== catalogPlan.planName) {
+		// Check if plan name matches (RELAXED - allow contract length variations)
+		if (!planNamesMatch(scoredPlan.planName, catalogPlan.planName)) {
 			mismatchedPlans.push(
 				`${scoredPlan.planId}: planName mismatch (AI: "${scoredPlan.planName}", Catalog: "${catalogPlan.planName}")`,
 			);
@@ -132,7 +172,7 @@ export function parsePlanScoring(rawResponse: string, validPlanIds: string[], st
 	}
 
 	if (mismatchedPlans.length > 0) {
-		const message = `AI modified plan details. All plan names and suppliers must exactly match catalog. Mismatches: ${mismatchedPlans.join('; ')}`;
+		const message = `AI modified plan details. Supplier must exactly match. Plan names must match (allowing contract length variations). Mismatches: ${mismatchedPlans.join('; ')}`;
 		console.error(`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] ${message}`);
 		throw new ValidationError(message, stageName, [{ path: ['plans'], message: mismatchedPlans.join('; ') }]);
 	}

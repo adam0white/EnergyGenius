@@ -1,0 +1,84 @@
+# Sprint Status - Epic 8: Critical Bug Fixes (Post-Deployment)
+# generated: 2025-11-11
+# project: EnergyGenius
+# tracking_system: file-system
+# story_location: stories/
+
+# STATUS DEFINITIONS:
+# Epic Status:
+#   - planning: Epic created, stories drafted
+#   - active: At least one story in development
+#   - review: Stories in review phase
+#   - done: All stories complete
+#
+# Story Status:
+#   - ready-for-dev: Story ready for developer to start
+#   - in-progress: Developer actively working
+#   - review: Implementation complete, awaiting review
+#   - done: Story complete and merged
+
+development_status:
+  epic-8: planning
+  8.1-fix-validation-relax-plan-names: ready-for-dev
+  8.2-fix-zero-cost-display: ready-for-dev
+  8.3-fix-progress-duration-display: ready-for-dev
+  8.4-verify-scraper-plan-data: ready-for-dev
+
+# Epic 8 Notes:
+# ==============
+# CRITICAL PRODUCTION BUG FIXES - All P0 and P1 severity
+#
+# Background: Epic 7 deployed successfully but post-deployment reveals critical
+# issues affecting user experience and system functionality.
+#
+# Four critical bugs identified and prioritized:
+# 1. Story 8.1 (P0): Validation too strict - rejects valid plan variations
+#    Impact: AI recommendations fail, fall back to $0 costs (system unusable)
+#
+# 2. Story 8.2 (P0): $0 costs showing in fallback
+#    Impact: Users cannot make decisions, system broken in production
+#
+# 3. Story 8.3 (P2): Progress duration shows "0s" when complete
+#    Impact: Minor UX issue but confusing to users
+#
+# 4. Story 8.4 (P1): Verify scraper working & plan data availability
+#    Impact: If scraper broken, limited plan options reduce recommendation quality
+#
+# Recommended Execution Order:
+# Phase 1 (Immediate - P0):
+#   1. 8.4 - Verify scraper and plan data (determines if other fixes needed)
+#   2. 8.1 - Fix validation (allows recommendations to work)
+#   3. 8.2 - Fix $0 costs (makes fallback useful)
+#
+# Phase 2 (Follow-up - P2):
+#   4. 8.3 - Fix progress duration (cosmetic, lower priority)
+#
+# Dependencies:
+# - 8.1 and 8.2 are related (both affect recommendation quality)
+# - 8.4 results may affect priorities
+# - 8.3 is independent
+#
+# Timeline Estimate:
+# 8.4: 1 day (verify/fix scraper, check data)
+# 8.1: 2 days (understand validation, implement fuzzy matching, test)
+# 8.2: 1-2 days (debug fallback, fix costs, test)
+# 8.3: 0.5-1 day (identify issue, fix, test)
+# Total: 4-6 days for full epic
+
+# Scraper Status Notes:
+# Story 7.7 implemented web scraper for powertochoose.org.
+# Story 8.4 will verify it's working and we have ~100 plans in catalog.
+# If scraper is broken, must fix to get sufficient plan data.
+
+# Validation Status Notes:
+# Story 7.8 implemented strict 3-stage validation to prevent hallucinations.
+# This was correct design, but TOO strict for real-world variations.
+# Story 8.1 will relax planName validation while keeping supplier/planId strict.
+
+# Cost Display Status Notes:
+# Story 8.1 failure causes fallback, which doesn't include cost data.
+# Story 8.2 fixes fallback to always show real costs (not $0).
+# Together they should make system functional again.
+
+created_at: 2025-11-11
+created_by: Scrum Master
