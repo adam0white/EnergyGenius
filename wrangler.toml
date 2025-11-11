@@ -1,0 +1,16 @@
+name = "energy-genius"
+main = "src/worker/index.ts"
+compatibility_date = "2025-01-01"
+account_id = "21785aeab46b7c081cae0be3a4313dbd"
+
+[assets]
+directory = "./dist"
+
+[ai]
+binding = "AI"
+
+[vars]
+AI_MODEL_FAST = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+AI_MODEL_ACCURATE = "@cf/meta/llama-3.1-8b-instruct"
+ENABLE_MOCK_DATA = "true"
+ENABLE_SSE = "false"

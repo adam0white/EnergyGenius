@@ -1,0 +1,30 @@
+{
+	"name": "energy-genius",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+		"dev": "npm run dev:ui & npm run dev:worker",
+		"dev:ui": "vite build --watch",
+		"dev:worker": "wrangler dev --port 8787",
+		"build": "vite build",
+		"deploy": "npm run build && wrangler deploy",
+		"start": "wrangler dev",
+		"test": "vitest",
+		"cf-typegen": "wrangler types"
+	},
+	"devDependencies": {
+		"@cloudflare/vitest-pool-workers": "^0.8.19",
+		"@cloudflare/workers-types": "^4.20251111.0",
+		"@types/react": "^19.2.2",
+		"@types/react-dom": "^19.2.2",
+		"@vitejs/plugin-react": "^5.1.0",
+		"typescript": "^5.5.2",
+		"vite": "^7.2.2",
+		"vitest": "~3.2.0",
+		"wrangler": "^4.46.0"
+	},
+	"dependencies": {
+		"react": "^19.2.0",
+		"react-dom": "^19.2.0"
+	}
+}
