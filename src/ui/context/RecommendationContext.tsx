@@ -25,9 +25,9 @@ import type {
 const initialState: RecommendationState = {
 	recommendations: [],
 	pipelineStages: {
-		dataInterpretation: { status: 'idle', timestamp: null, output: '' },
-		planScoring: { status: 'idle', timestamp: null, output: '' },
-		narrativeGeneration: { status: 'idle', timestamp: null, output: '' },
+		dataInterpretation: { status: 'idle', timestamp: null, endTime: null, output: '' },
+		planScoring: { status: 'idle', timestamp: null, endTime: null, output: '' },
+		narrativeGeneration: { status: 'idle', timestamp: null, endTime: null, output: '' },
 	},
 	userIntakeData: null,
 	errors: [],
@@ -54,6 +54,7 @@ function recommendationReducer(state: RecommendationState, action: Recommendatio
 					[action.payload.stage]: {
 						status: 'running',
 						timestamp: new Date(),
+						endTime: null,
 						output: '',
 					},
 				},
@@ -80,6 +81,7 @@ function recommendationReducer(state: RecommendationState, action: Recommendatio
 					[action.payload.stage]: {
 						...state.pipelineStages[action.payload.stage],
 						status: 'complete',
+						endTime: new Date(),
 					},
 				},
 			};

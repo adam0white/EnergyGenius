@@ -34,7 +34,8 @@ export interface Recommendation {
  */
 export interface PipelineStage {
 	status: PipelineStatus;
-	timestamp: Date | null;
+	timestamp: Date | null; // Start time
+	endTime: Date | null; // End time (set when status becomes 'complete')
 	output: string;
 }
 
