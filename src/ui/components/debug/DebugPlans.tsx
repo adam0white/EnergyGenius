@@ -35,13 +35,48 @@ function formatPercent(value: number): string {
 }
 
 /**
- * Get tier badge based on renewable percentage and rating
+ * Get tier badge based on renewable percentage, contract flexibility, and pricing
+ * Adjusted to work with real scraped data where most ratings are 3.0
  */
 function getTier(plan: SupplierPlan): 'Gold' | 'Silver' | 'Bronze' {
-	const avgRating = (plan.ratings.reliabilityScore + plan.ratings.customerServiceScore) / 2;
+	// Calculate a composite score based on multiple factors
+	let score = 0;
 
-	if (plan.renewablePercent >= 80 && avgRating >= 4.5) return 'Gold';
-	if (plan.renewablePercent >= 50 && avgRating >= 4.0) return 'Silver';
+	// Renewable percentage (0-40 points)
+	if (plan.renewablePercent >= 80) {
+		score += 40;
+	} else if (plan.renewablePercent >= 50) {
+		score += 30;
+	} else if (plan.renewablePercent >= 25) {
+		score += 20;
+	} else {
+		score += 10;
+	}
+
+	// Contract flexibility (0-30 points) - shorter contracts are more flexible
+	if (plan.contractTermMonths <= 3) {
+		score += 30;
+	} else if (plan.contractTermMonths <= 6) {
+		score += 25;
+	} else if (plan.contractTermMonths <= 12) {
+		score += 20;
+	} else if (plan.contractTermMonths <= 24) {
+		score += 10;
+	}
+
+	// Pricing competitiveness (0-30 points)
+	// Lower rates and fees are better
+	if (plan.baseRate <= 0.12 && plan.monthlyFee <= 9.95) {
+		score += 30;
+	} else if (plan.baseRate <= 0.15 && plan.monthlyFee <= 9.95) {
+		score += 20;
+	} else if (plan.baseRate <= 0.18) {
+		score += 10;
+	}
+
+	// Tier thresholds (out of 100 points)
+	if (score >= 70) return 'Gold';
+	if (score >= 50) return 'Silver';
 	return 'Bronze';
 }
 

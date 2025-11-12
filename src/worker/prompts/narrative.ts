@@ -89,13 +89,26 @@ CUSTOMER CONTEXT:
 TOP RECOMMENDED PLANS (REAL DATA - DO NOT MODIFY):
 ${JSON.stringify(enrichedPlans, null, 2)}
 
+CRITICAL FINANCIAL INTERPRETATION RULE:
+When interpreting the "estimatedSavings" field, you MUST understand:
+- POSITIVE values (e.g., estimatedSavings: 214.50) = SAVINGS - The user saves this much money per year
+- NEGATIVE values (e.g., estimatedSavings: -93.30) = LOSS - The user pays this much MORE per year
+- ZERO (estimatedSavings: 0) = No change in cost
+
+MANDATORY: When estimatedSavings is negative, you MUST clearly state this is an ADDITIONAL COST or that the plan is MORE EXPENSIVE than the current plan. Never describe a negative value as "savings".
+
+EXAMPLES OF CORRECT INTERPRETATION:
+- estimatedSavings: 150 → "This plan saves you $150 per year"
+- estimatedSavings: -93.3 → "This plan costs $93.30 MORE per year than your current plan" OR "Additional cost of $93.30/year"
+- estimatedSavings: 0 → "This plan has similar annual costs to your current plan"
+
 TASK:
 Write a friendly, easy-to-understand explanation for each of the top ${enrichedPlans.length} recommended plans. For each plan, explain:
 
-1. Why we're recommending it (focus on benefits and savings)
+1. Why we're recommending it (focus on benefits - even if cost increases, there may be other benefits like renewable energy, flexibility, or features)
 2. Key advantages specific to their usage pattern
 3. Important considerations or things to note
-4. Estimated savings vs. current plan
+4. Financial impact vs. current plan (CORRECTLY interpret positive savings vs. negative additional costs)
 
 TONE & STYLE:
 - Write in friendly, conversational tone
@@ -131,8 +144,9 @@ CRITICAL SEPARATOR REQUIREMENT:
 - Each separator MUST appear on its own line with no other text
 - Format: Plan 1 text... then "---" then Plan 2 text... then "---" then Plan 3 text... then "---"
 
-EXAMPLE OUTPUT:
+EXAMPLE OUTPUT (showing both savings and additional cost scenarios):
 
+EXAMPLE 1 - POSITIVE SAVINGS:
 Green Energy Co - EcoSaver 12 (Score: 92/100)
 
 This plan is our top recommendation because it could save you approximately $214 annually compared to your current plan. With 100% renewable energy and a flexible 12-month contract, it aligns perfectly with customers who value both savings and environmental responsibility. The competitive base rate of $0.095/kWh combined with a low monthly fee makes it ideal for your consistent usage pattern.
@@ -146,6 +160,23 @@ Important to Know:
 This plan offers fixed rates, so your monthly costs will be predictable. The 12-month contract renews automatically at market rates, but you can cancel anytime after the initial term.
 
 Estimated Annual Savings: $214.00
+
+---
+
+EXAMPLE 2 - NEGATIVE SAVINGS (ADDITIONAL COST):
+Eco Premium Energy - Green Choice 24 (Score: 85/100)
+
+While this plan costs $93.30 MORE per year than your current plan, we're recommending it because it offers 100% renewable energy from local wind farms and superior customer service ratings. If environmental impact is important to you, the additional cost of about $7.78 per month could be worth it for the peace of mind of knowing your energy is completely clean and supports local renewable infrastructure.
+
+Key Benefits:
+- 100% renewable energy from Texas wind farms
+- Award-winning 24/7 customer service
+- Fixed rate protection for 24 months
+
+Important to Know:
+This premium green plan has higher costs but delivers exceptional environmental benefits and service quality. The 24-month contract locks in your rate for added stability.
+
+Estimated Additional Annual Cost: $93.30
 
 ---
 
