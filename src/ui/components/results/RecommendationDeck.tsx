@@ -44,10 +44,15 @@ interface RecommendationDeckProps {
 
 /**
  * Determine savings tier based on amount
+ * FIXED: Ensure savings is a number (Story 10.8)
+ * Defensive type checking prevents edge cases with undefined/null/string values
  */
 function getSavingsTier(savings: number): 'gold' | 'silver' | 'bronze' {
-	if (savings >= 1000) return 'gold';
-	if (savings >= 500) return 'silver';
+	// Ensure savings is a number (defensive programming against type coercion issues)
+	const numericSavings = typeof savings === 'number' ? savings : Number(savings) || 0;
+
+	if (numericSavings >= 1000) return 'gold';
+	if (numericSavings >= 500) return 'silver';
 	return 'bronze';
 }
 

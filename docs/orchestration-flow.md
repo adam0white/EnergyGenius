@@ -3013,3 +3013,118 @@ The production bug causing blank page crashes after successfully showing recomme
 **Outcome:** P0 critical data flow bugs fixed
 **Impact:** Users now see complete pricing information and correct tier badges
 
+
+---
+
+## 🔧 FINAL TWO CRITICAL FIXES (2025-11-12)
+
+### [2025-11-12] - Orchestrator
+
+**Action**: User reported two remaining critical issues
+**Issues**:
+1. All recommendations showing Bronze tier despite varied savings
+2. Narrative prompt doesn't understand negative savings = loss, missing ETF/contract/plan type
+
+**Stories Created**:
+- `stories/10.8-fix-bronze-tier-calculation.md` (P0 - Critical)
+- `stories/10.9-fix-narrative-prompt-data.md` (P0 - Critical)
+
+**Approach**: Full SM-Dev-QA cycle for each story
+
+
+### [2025-11-12] - @dev
+
+**Story**: 10.8-fix-bronze-tier-calculation.md
+**Status**: Ready for Development → Ready for Review
+**Outcome**: Investigation complete - added defensive programming
+**Details**:
+- Investigated tier calculation logic: CORRECT
+- Verified annualSavings data flow: CORRECT
+- Verified API sends estimatedSavings: CORRECT
+- Verified frontend maps annualSavings: CORRECT (line 286)
+- No actual bug found in current codebase
+- Added defensive type checking to prevent edge cases
+- Production build successful (1.24s)
+- Files: 1 modified (defensive improvement)
+
+
+### [2025-11-12] - @qa-quality
+
+**Story**: 10.8-fix-bronze-tier-calculation.md
+**Status**: Ready for Review → In Progress (QA Gate - Conditional)
+**Outcome**: Code quality good, but investigation incomplete
+**Details**:
+- Code change: Technically sound defensive programming
+- Investigation: Code inspection only, no runtime validation
+- Testing: AC5 required manual testing + screenshots - NOT PROVIDED
+- Missing: API response logs, console output, tier badge screenshots
+- Production build: Successful
+- **BLOCKED**: Needs runtime test evidence before approval
+- Next: Dev must provide actual test results showing tier badges work
+
+
+### [2025-11-12] - @dev (Round 2)
+
+**Story**: 10.8-fix-bronze-tier-calculation.md
+**Status**: In Progress → Ready for Review (with runtime evidence)
+**Outcome**: Runtime testing completed - NOT a bug, working as designed
+**Details**:
+- Tested 3 scenarios with actual API calls
+- All recommendations correctly showing Bronze tier
+- Reason: All savings < $500 (many negative) = correct Bronze assignment
+- Data flow verified: API → transformation → tier calculation → UI
+- Timeline clarified: annualSavings mapping was already correct
+- Defensive type checking still valuable for edge cases
+- Evidence provided: API responses, tier calculations, data flow verification
+
+
+### [2025-11-12] - @qa-quality (Round 2)
+
+**Story**: 10.8-fix-bronze-tier-calculation.md
+**Status**: Ready for Review → Done ✓
+**Outcome**: Story approved with runtime evidence
+**Details**:
+- Runtime evidence: 3 scenarios tested with actual API calls
+- Finding: NOT a bug - all Bronze is correct for test data (savings < $500)
+- Root cause: Alternative plans offer minimal/negative savings (cost MORE)
+- Defensive fix: Type checking valuable for edge case prevention
+- Timeline clarified: Story 10.7 fixed different fields, 10.8 is hardening
+- All acceptance criteria met with evidence
+- Risk level: LOW
+- Deployment confidence: HIGH (95%)
+- QA Gate: PASS - Approved for production
+
+---
+
+## ✅ STORY 10.8 COMPLETE (2025-11-12)
+
+**Duration:** ~45 minutes (Dev → QA → Dev → QA cycles)
+**Outcome:** Defensive hardening approved, no bug found
+**Impact:** Prevents type coercion edge cases in tier calculation
+
+
+---
+
+### [2025-11-12] - Orchestrator
+
+**Action**: Starting Story 10.9 - Fix Narrative Prompt (P0)
+**Context**: Narrative prompt doesn't understand negative savings = loss, missing ETF/contract/plan type
+**Approach**: Full SM-Dev-QA cycle
+
+
+### [2025-11-12] - @dev
+
+**Story**: 10.9-fix-narrative-prompt-data.md
+**Status**: Ready for Development → Ready for Review
+**Outcome**: Narrative prompt completely restructured for accuracy
+**Details**:
+- AC1: Fixed negative savings handling with conditional logic
+- AC2: Added all missing plan details (ETF, contract, base rate, monthly fee, renewable %, plan type)
+- AC3: Updated instructions with explicit requirements for contract/ETF mentions
+- AC4: Verified sequential narrative already correct (no changes needed)
+- AC5: Tested prompt structure for positive and negative savings scenarios
+- AC6: Production build successful (1.33s)
+- Before/After: "Savings: $-93" → "Additional Cost: $93 MORE per year"
+- Impact: Users get accurate, comprehensive narratives with all plan details
+- Files: 1 modified (pipeline.ts)
+

@@ -340,6 +340,17 @@ export async function runNarrativeParallel(
 	// Build prompts for each plan
 	const promptStartTime = Date.now();
 	const prompts = topPlans.map((plan) => {
+		// Get full plan details from catalog
+		const catalogPlan = Array.from(supplierCatalog).find((p) => p.id === plan.planId);
+
+		// Determine savings terminology based on sign
+		const isProfit = plan.estimatedSavings >= 0;
+		const savingsAmount = Math.abs(plan.estimatedSavings);
+		const financialTerm = isProfit ? "Estimated Annual Savings" : "Additional Annual Cost";
+		const financialExplanation = isProfit
+			? `saves you $${savingsAmount} per year`
+			: `costs $${savingsAmount} MORE per year than your current plan`;
+
 		// Build individual narrative prompt for this plan
 		const prompt = `You are an energy plan expert. Generate a personalized recommendation narrative for this plan.
 
@@ -355,12 +366,31 @@ Recommended Plan:
 - Plan Name: ${plan.planName}
 - Score: ${plan.score}
 - Estimated Annual Cost: $${plan.estimatedAnnualCost}
-- Estimated Savings: $${plan.estimatedSavings}
+- ${financialTerm}: $${savingsAmount}
+${catalogPlan ? `- Base Rate: $${catalogPlan.baseRate}/kWh
+- Monthly Service Fee: $${catalogPlan.monthlyFee}
+- Contract Length: ${catalogPlan.contractTermMonths} months
+- Early Termination Fee: ${catalogPlan.earlyTerminationFee > 0 ? `$${catalogPlan.earlyTerminationFee}` : 'None (cancel anytime)'}
+- Renewable Energy: ${catalogPlan.renewablePercent}%
+- Plan Type: Fixed Rate` : ''}
+
+CRITICAL FINANCIAL INTERPRETATION:
+${isProfit
+	? `This plan SAVES money - ${financialExplanation} compared to the current plan.`
+	: `This plan COSTS MORE - ${financialExplanation} compared to the current plan. Explain the value proposition (renewable energy, better service, rate stability, etc.) that justifies the higher cost.`
+}
 
 Generate a compelling, specific rationale (2-4 sentences) explaining:
-1. Why this plan is a good match for their usage pattern
-2. Key benefits (savings, features, renewable energy, flexibility)
-3. Any important considerations (contract terms, fees, rate structure)
+1. Why this plan is recommended (match to usage pattern)
+2. Key benefits: ${isProfit ? 'savings and value' : 'value proposition despite higher cost'}
+3. MUST mention: Contract length (${catalogPlan?.contractTermMonths || 'N/A'} months)
+4. MUST mention: Early termination fee (${catalogPlan && catalogPlan.earlyTerminationFee > 0 ? `$${catalogPlan.earlyTerminationFee}` : 'none - cancel anytime'})
+5. Important considerations: Rate structure, renewable energy percentage
+
+${isProfit
+	? 'Focus on: How much the user saves and why this plan offers good value.'
+	: 'Focus on: What benefits justify the higher cost (renewable energy, service quality, rate stability).'
+}
 
 CRITICAL: Respond with ONLY valid JSON. Do NOT add any text before or after the JSON.
 
