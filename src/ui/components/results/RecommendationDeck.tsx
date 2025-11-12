@@ -133,7 +133,8 @@ function FormattedNarrative({ text }: { text: string | null }) {
 }
 
 /**
- * Savings badge component
+ * Savings badge component with tooltip explanation
+ * Shows savings-based value tier (not plan tier from provider)
  */
 function SavingsBadge({ savings }: { savings: number }) {
 	const tier = getSavingsTier(savings);
@@ -141,28 +142,43 @@ function SavingsBadge({ savings }: { savings: number }) {
 	const tierConfig = {
 		gold: {
 			icon: '⭐',
-			label: 'Gold',
+			label: 'Gold Value',
 			className: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+			description: '$1,000+ annual savings',
 		},
 		silver: {
 			icon: '⚪',
-			label: 'Silver',
+			label: 'Silver Value',
 			className: 'bg-gray-100 text-gray-800 border-gray-300',
+			description: '$500-$999 annual savings',
 		},
 		bronze: {
 			icon: '🔶',
-			label: 'Bronze',
+			label: 'Bronze Value',
 			className: 'bg-orange-100 text-orange-800 border-orange-300',
+			description: 'Under $500 annual savings',
 		},
 	};
 
 	const config = tierConfig[tier];
 
 	return (
-		<Badge variant="outline" className={`${config.className} font-semibold`}>
-			<span className="mr-1">{config.icon}</span>
-			{config.label}
-		</Badge>
+		<div className="group relative inline-block">
+			<Badge variant="outline" className={`${config.className} font-semibold cursor-help`}>
+				<span className="mr-1">{config.icon}</span>
+				{config.label}
+			</Badge>
+			{/* Tooltip */}
+			<div className="absolute right-0 top-full mt-2 w-56 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+				<div className="font-semibold mb-1">Value Tier Explanation</div>
+				<div className="mb-2">{config.description}</div>
+				<div className="text-gray-300 text-[10px]">
+					Tiers indicate potential savings based on your current plan, not the supplier&apos;s plan quality.
+				</div>
+				{/* Arrow */}
+				<div className="absolute -top-1 right-4 w-2 h-2 bg-gray-900 transform rotate-45"></div>
+			</div>
+		</div>
 	);
 }
 

@@ -3128,3 +3128,66 @@ The production bug causing blank page crashes after successfully showing recomme
 - Impact: Users get accurate, comprehensive narratives with all plan details
 - Files: 1 modified (pipeline.ts)
 
+
+
+### [2025-11-12] - @qa-quality
+
+**Story**: 10.9-fix-narrative-prompt-data.md
+**Status**: Ready for Review → Done ✓
+**Outcome**: Story approved - comprehensive narrative improvements
+**Details**:
+- AC1-AC5: All acceptance criteria met with excellent implementation
+- Negative savings: Properly handled with conditional terminology
+- Missing fields: All 6 missing fields added to narrative prompt
+- Instructions: Clear, explicit requirements for contract/ETF/plan type
+- Code quality: Clean, maintainable, defensive null handling
+- Testing: Validated with positive/negative savings scenarios
+- Production build: Successful (1.33s)
+- Risk level: LOW
+- QA Gate: PASS - Approved for production
+
+---
+
+## ✅ STORY 10.9 COMPLETE (2025-11-12)
+
+**Duration:** ~30 minutes (Dev → QA cycle)
+**Outcome:** Narrative prompt comprehensively improved
+**Impact:** Users receive accurate, informative narratives with all plan details
+
+
+---
+
+### [2025-11-12] - Orchestrator
+
+**Action**: Starting Story 10.10 - Investigate Plan Tier Display Disconnect (P0)
+**Context**: User reports "all recommended plans show Bronze, not the plans' actual tiers" - Critical investigation needed
+**Critical Insight**: Story 10.8 investigated SAVINGS-BASED tier calculation (Gold ≥$1000, Silver ≥$500, Bronze <$500). User now reports plans may have ACTUAL tier data (Gold Plan, Silver Plan, Bronze Plan) from energy providers that we're ignoring.
+**Approach**: Comprehensive investigation story (8 ACs) to determine:
+  1. Do plans in catalog have tier field/data?
+  2. Are we displaying plan tier or savings tier?
+  3. Should we show plan tier, savings tier, or both?
+  4. Why is everything showing Bronze?
+  5. What's the correct display strategy?
+
+
+### [2025-11-12] - @sm
+
+**Story**: 10.10-investigate-plan-tier-display-disconnect.md
+**Status**: Draft → Ready for Development
+**Outcome**: Investigation story created and finalized
+**Details**:
+- User identified critical disconnect: expected to see plan tiers from catalog, seeing savings tiers instead
+- Different from Story 10.8: savings calculation vs plan classification
+- 8 comprehensive acceptance criteria covering:
+  - AC1: Investigate supplier catalog for plan tier data
+  - AC2: Trace data flow from backend to frontend
+  - AC3: Analyze current tier display logic
+  - AC4: Debug with real API responses
+  - AC5: Determine display strategy (plan tier vs savings tier)
+  - AC6: Implement fix based on investigation
+  - AC7: Validate with real data and user testing
+  - AC8: Production build and documentation
+- Investigation will determine if plan tier data exists in catalog
+- Story includes decision matrix for display strategy
+- Comprehensive debug logging approach documented
+- Ready for Dev investigation and implementation
