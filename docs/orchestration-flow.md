@@ -2629,3 +2629,131 @@ The production bug causing blank page crashes after successfully showing recomme
 - User-friendly error messages if errors occur
 - Multiple validation layers ensure type safety
 
+
+---
+
+## 🔍 INVESTIGATION - Calculation & Data Accuracy (2025-11-12)
+
+### [2025-11-12] - Orchestrator
+
+**Action**: User reported multiple calculation and data quality issues
+**Issues**:
+1. Incorrect savings calculations (cheap plans show savings, expensive plans don't)
+2. All recommendations showing Bronze tier only
+3. Missing kWh rate display on recommendations
+4. All plans showing $9.95 monthly fee (suspicious uniformity)
+5. Tiered pricing (< 500, 500-2000, >2000 kWh) may not be supported
+
+**Story Created**: `stories/10.2-investigate-calculation-data-accuracy.md`
+- 6 comprehensive acceptance criteria
+- Systematic audit of: calculations, scoring, data quality, tiered pricing, LLM involvement, UI
+- Investigation will produce findings report and fix stories
+
+### [2025-11-12] - @sm-scrum
+
+**Story**: 10.2-investigate-calculation-data-accuracy.md
+**Status**: Draft → Ready for Development
+**Outcome**: Story finalized with comprehensive investigation scope
+**Details**:
+- All 6 acceptance criteria verified as clear and investigable
+- Specific files, test cases, and code examples provided
+- Investigation scope covers all reported issues
+- Excellent developer handoff with minimal ambiguity
+
+
+### [2025-11-12] - @dev
+
+**Story**: 10.2-investigate-calculation-data-accuracy.md
+**Status**: Ready for Development → Ready for Review
+**Outcome**: Comprehensive investigation completed - 5 bugs identified
+**Details**:
+- Analyzed cost calculation logic, scoring, data quality, tiered pricing, and LLM involvement
+- Tested with manual examples and data analysis
+- Discovered 2 critical bugs, 2 high priority issues, 1 medium priority enhancement
+
+**Critical Bugs Found:**
+1. All 250 plans have identical $9.95 monthly fee (scraper bug)
+2. LLM performs cost calculations (hallucination risk)
+
+**High Priority Issues:**
+3. Price per kWh not displayed in UI
+4. All recommendations show Bronze tier (caused by bug #1)
+
+**Medium Priority:**
+5. Tiered pricing not supported (acceptable for now)
+
+**Deliverables:**
+- Comprehensive investigation report in story Dev Notes
+- 4 recommended fix stories documented
+- Data quality analysis completed
+- Ready for QA validation
+
+
+### [2025-11-12] - @qa-quality
+
+**Story**: 10.2-investigate-calculation-data-accuracy.md
+**Status**: Ready for Review → Done ✓
+**Outcome**: Investigation findings validated and approved
+**Details**:
+- All 6 acceptance criteria verified as thoroughly completed
+- All 5 bugs confirmed through code verification:
+  1. CRITICAL: All 250 plans have $9.95 monthly fee (100% affected)
+  2. CRITICAL: LLM performs cost calculations (hallucination risk)
+  3. HIGH: Price per kWh not displayed in UI
+  4. HIGH: All Bronze tier (root cause: bug #1)
+  5. MEDIUM: Tiered pricing not supported (acceptable for MVP)
+- Code verification confidence: HIGH
+- Investigation quality: EXCELLENT
+- Recommended fix stories: APPROVED (4 stories)
+- Risk level: LOW (findings accurate, fixes well-scoped)
+- Ready to proceed with fix story implementation
+
+
+### [2025-11-12] - @sm-scrum
+
+**Action**: Created 4 fix stories from investigation 10.2 findings
+**Outcome**: All fix stories created and marked Ready for Development
+**Stories Created**:
+- 10.3: Fix Monthly Fee Data - Re-scrape Supplier Catalog (P0 - CRITICAL)
+- 10.4: Move Cost Calculations from LLM to TypeScript (P0 - CRITICAL)
+- 10.5: Display kWh Rate in UI (P1 - HIGH)
+- 10.6: Add Tiered Pricing Support (P2 - FUTURE/DEFERRED)
+**Details**:
+- All stories have clear acceptance criteria based on investigation
+- Implementation guidance provided with code examples
+- Test requirements documented
+- References to investigation story 10.2
+- Stories 10.3, 10.4, 10.5 ready for immediate implementation
+- Story 10.6 deferred for post-launch enhancement
+
+---
+
+## 📊 INVESTIGATION CYCLE COMPLETE (2025-11-12)
+
+### Summary: Story 10.2 Investigation → 4 Fix Stories
+
+**Investigation Duration:** ~45 minutes
+**Agents Used:** SM → Dev → QA → SM
+**Findings:** 5 bugs identified (2 critical, 2 high, 1 medium)
+**Fix Stories Created:** 4 (3 for immediate implementation, 1 deferred)
+
+**Critical Path:**
+1. Story 10.3: Re-scrape supplier catalog (P0)
+2. Story 10.4: Move calculations to TypeScript (P0)
+3. Story 10.5: Display kWh rate in UI (P1)
+
+**Next Action:** Begin implementation of critical fix stories
+
+
+---
+
+## 🔧 IMPLEMENTATION PHASE - Fix Stories (2025-11-12)
+
+### [2025-11-12] - Orchestrator
+
+**Action**: Beginning implementation of 3 critical fix stories
+**Plan**: Stories 10.3 → 10.4 → 10.5 (one by one with full validation)
+**Approach**: SM → Dev → QA cycle for each story
+
+**Starting with Story 10.3: Fix Monthly Fee Data - Re-scrape Supplier Catalog (P0)**
+
