@@ -396,14 +396,28 @@ Respond with valid JSON:
 		}
 
 		try {
+			// CRITICAL FIX: Extract raw response text and sanitize it
 			const responseText = (response as any)?.response || JSON.stringify(response);
-			const parsed = JSON.parse(responseText);
+
+			// Import sanitizeAIResponse at top of file - for now use inline implementation
+			// Strip markdown code blocks that Workers AI sometimes adds
+			let cleaned = responseText.trim();
+			const codeBlockRegex = /^```(?:json)?\s*\n?([\s\S]*?)\n?```$/;
+			const match = cleaned.match(codeBlockRegex);
+			if (match) {
+				cleaned = match[1].trim();
+				console.log(`[NARRATIVE_PARALLEL] Stripped markdown code blocks from ${planId} response`);
+			}
+
+			// Parse the cleaned JSON
+			const parsed = JSON.parse(cleaned);
 			return {
 				planId,
 				rationale: parsed.rationale || 'No explanation available',
 			};
 		} catch (parseError) {
 			console.error(`[NARRATIVE_PARALLEL] Parse error for ${planId}:`, parseError);
+			console.error(`[NARRATIVE_PARALLEL] Raw response (first 300 chars): ${((response as any)?.response || '').substring(0, 300)}`);
 			const plan = topPlans.find((p) => p.planId === planId);
 			return {
 				planId,

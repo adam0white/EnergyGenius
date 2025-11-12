@@ -152,9 +152,20 @@ export function sanitizeAIResponse(response: string): string {
 
 	let cleaned = response.trim();
 
-	// Remove markdown code blocks if present
-	cleaned = cleaned.replace(/```json\s*/g, '');
-	cleaned = cleaned.replace(/```\s*/g, '');
+	// CRITICAL FIX: Remove markdown code blocks PROPERLY
+	// Match ```json\n{...}\n``` or ```\n{...}\n``` patterns
+	const codeBlockRegex = /^```(?:json)?\s*\n?([\s\S]*?)\n?```$/;
+	const match = cleaned.match(codeBlockRegex);
+
+	if (match) {
+		// Extract content between code blocks
+		cleaned = match[1].trim();
+		console.log('[SANITIZER] Removed markdown code blocks from AI response');
+	} else {
+		// Fallback: try removing code blocks that aren't properly closed
+		cleaned = cleaned.replace(/^```(?:json)?\s*\n?/g, '');
+		cleaned = cleaned.replace(/\n?```$/g, '');
+	}
 
 	// Remove code comment markers that appear before JSON (AI model artifacts)
 	// Example: "*/\n{...}" or "*/*\n{...}"
