@@ -293,6 +293,8 @@ export function useRecommendation(): UseRecommendationHook {
 							contractLength: rec.contractTermMonths || 12,
 							earlyTerminationFee: rec.earlyTerminationFee ?? 0,
 							renewablePercentage: rec.renewablePercent ?? 0,
+							baseRate: rec.baseRate ?? 0,
+							monthlyFee: rec.monthlyFee ?? 0,
 						};
 						return recommendation;
 					})
