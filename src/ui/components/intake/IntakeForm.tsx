@@ -116,13 +116,18 @@ export function IntakeForm({ onSubmit, isSubmitting = false }: IntakeFormProps) 
 	};
 
 	/**
-	 * Update monthly usage value
+	 * Update monthly usage value and auto-calculate annual consumption
 	 */
 	const updateMonthlyUsage = (month: number, kWh: number) => {
-		setFormData((prev) => ({
-			...prev,
-			monthlyUsage: prev.monthlyUsage.map((usage) => (usage.month === month ? { ...usage, kWh } : usage)),
-		}));
+		setFormData((prev) => {
+			const updatedMonthlyUsage = prev.monthlyUsage.map((usage) => (usage.month === month ? { ...usage, kWh } : usage));
+			const total = updatedMonthlyUsage.reduce((sum, usage) => sum + (usage.kWh || 0), 0);
+			return {
+				...prev,
+				monthlyUsage: updatedMonthlyUsage,
+				annualConsumption: total,
+			};
+		});
 	};
 
 	/**
@@ -472,15 +477,17 @@ export function IntakeForm({ onSubmit, isSubmitting = false }: IntakeFormProps) 
 								id="maxContractMonths"
 								type="number"
 								value={formData.preferences.maxContractMonths || ''}
-								onChange={(e) =>
+								onChange={(e) => {
+									const value = parseInt(e.target.value) || 12;
+									const clamped = Math.max(1, Math.min(36, value));
 									setFormData((prev) => ({
 										...prev,
 										preferences: {
 											...prev.preferences,
-											maxContractMonths: parseInt(e.target.value) || 12,
+											maxContractMonths: clamped,
 										},
-									}))
-								}
+									}));
+								}}
 								placeholder="12"
 								min="1"
 								max="36"

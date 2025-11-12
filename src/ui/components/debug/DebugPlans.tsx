@@ -185,12 +185,11 @@ export function DebugPlans({ open, onOpenChange }: DebugPlansProps) {
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+			<DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto bg-white">
 				<DialogHeader>
-					<DialogTitle className="text-2xl font-bold">Debug: All Available Plans</DialogTitle>
+					<DialogTitle className="text-2xl font-bold">Energy Plan Explorer</DialogTitle>
 					<DialogDescription>
-						<span className="text-orange-600 font-semibold">⚠️ Developer/Testing Feature</span> - View and analyze all energy
-						plans in the catalog
+						View and analyze all energy plans in the catalog with advanced filtering and export options
 					</DialogDescription>
 				</DialogHeader>
 

@@ -216,9 +216,15 @@ function RecommendationCard({ recommendation, rank }: { recommendation: Recommen
 			{/* Best value indicator for top recommendation */}
 			{rank === 1 && (
 				<div className="mt-4 pt-4 border-t border-blue-200">
-					<Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300">
-						⚡ Best Value
-					</Badge>
+					{savings >= 0 ? (
+						<Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300">
+							⚡ Best Value
+						</Badge>
+					) : (
+						<Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300">
+							⚡ Top Pick
+						</Badge>
+					)}
 				</div>
 			)}
 		</Card>

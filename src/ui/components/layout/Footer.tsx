@@ -19,7 +19,7 @@ export function Footer() {
 					<div className="flex items-center gap-4 text-sm">
 						<span className="text-muted-foreground">Powered by Cloudflare Workers + AI</span>
 						<Button variant="ghost" size="sm" onClick={() => setDebugOpen(true)} className="text-xs text-muted-foreground">
-							Debug Plans
+							View All Plans
 						</Button>
 					</div>
 				</div>
