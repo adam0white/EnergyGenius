@@ -227,6 +227,40 @@ export function DebugPlans({ open, onOpenChange }: DebugPlansProps) {
 					</DialogDescription>
 				</DialogHeader>
 
+				{/* Tier System Explanation */}
+				<div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+					<div className="flex items-start gap-3">
+						<svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+						</svg>
+						<div className="flex-1">
+							<h4 className="font-semibold text-blue-900 mb-1">Understanding Plan Tiers</h4>
+							<p className="text-sm text-blue-800 mb-2">
+								Plans are categorized into tiers based on their overall features and value:
+							</p>
+							<div className="grid md:grid-cols-3 gap-2 mb-3">
+								<div className="text-sm">
+									<span className="font-semibold text-blue-900">Gold:</span>
+									<span className="text-blue-800"> Best combination of high renewable energy, flexible contracts, and competitive pricing</span>
+								</div>
+								<div className="text-sm">
+									<span className="font-semibold text-blue-900">Silver:</span>
+									<span className="text-blue-800"> Good balance with moderate renewable energy or pricing</span>
+								</div>
+								<div className="text-sm">
+									<span className="font-semibold text-blue-900">Bronze:</span>
+									<span className="text-blue-800"> Standard plans with basic features or longer contract terms</span>
+								</div>
+							</div>
+							<div className="bg-blue-100 rounded p-2 text-sm text-blue-900">
+								<strong>Important:</strong> The tier reflects overall plan quality, not your personal match.
+								Your recommendations consider your specific usage and preferences, so a Bronze plan might be your best
+								option based on what matters most to you (e.g., lowest price, contract flexibility, or specific renewable percentage).
+							</div>
+						</div>
+					</div>
+				</div>
+
 				{/* Statistics Panel */}
 				<Card className="p-4 bg-blue-50 border-blue-200">
 					<div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
