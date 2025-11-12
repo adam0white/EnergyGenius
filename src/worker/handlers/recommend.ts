@@ -124,18 +124,19 @@ export async function handleRecommend(request: Request, env: Env, requestId: str
 		preferences: intakeData.preferences,
 	};
 
-	// Run AI pipeline
+	// Run AI pipeline with lazy narrative generation
 	let pipelineResult: PipelineResult;
 
 	try {
-		pipelineResult = await runPipeline(env, pipelineInput);
+		// NEW: Run only Stages 1 & 2 first (no narrative)
+		pipelineResult = await runPipeline(env, pipelineInput, undefined, { skipNarrative: true });
 	} catch (error) {
 		const errorMessage = error instanceof Error ? error.message : 'Unknown pipeline error';
 		return createErrorResponse(500, `Pipeline execution failed: ${errorMessage}`, 'PIPELINE_ERROR');
 	}
 
 	// Check if we have any successful results
-	if (!pipelineResult.usageSummary && !pipelineResult.planScoring && !pipelineResult.narrative) {
+	if (!pipelineResult.usageSummary && !pipelineResult.planScoring) {
 		return createErrorResponse(500, 'Pipeline failed: no stages completed successfully', 'PIPELINE_COMPLETE_FAILURE');
 	}
 
@@ -145,14 +146,13 @@ export async function handleRecommend(request: Request, env: Env, requestId: str
 
 	const recommendations = pipelineResult.planScoring
 		? pipelineResult.planScoring.scoredPlans.map((plan) => {
-				const narrativeItem = pipelineResult.narrative?.topRecommendations.find((n) => n.planId === plan.planId);
-
 				// Find matching plan in supplier catalog to get full details
 				const catalogPlan = supplierCatalog.find((p) => p.id === plan.planId);
 
 				return {
 					...plan,
-					rationale: narrativeItem?.rationale || 'No explanation available',
+					// NEW: Set rationale to null for lazy loading
+					rationale: null,
 					// Enrich with supplier catalog data
 					renewablePercent: catalogPlan?.renewablePercent ?? 0,
 					contractTermMonths: catalogPlan?.contractTermMonths ?? 12,

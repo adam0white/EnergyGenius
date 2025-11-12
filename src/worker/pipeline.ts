@@ -304,18 +304,167 @@ export async function runNarrative(
 	return { result, performance };
 }
 
+/**
+ * Stage 3 (Parallel): Generates narrative explanations for top 3 recommendations IN PARALLEL
+ * This is faster than sequential generation but uses more AI compute
+ * @param env - Worker environment bindings
+ * @param planScoring - Output from Stage 2
+ * @param usageSummary - Output from Stage 1
+ * @returns Narrative output and performance metrics
+ */
+export async function runNarrativeParallel(
+	env: Env,
+	planScoring: PlanScoringOutput,
+	usageSummary: UsageSummaryOutput,
+): Promise<{ result: NarrativeOutput; performance: StagePerformance }> {
+	const stageStartTime = Date.now();
+	logStageStart('narrative-parallel', planScoring);
+
+	// Get top 3 plans
+	const topPlans = planScoring.scoredPlans.slice(0, 3);
+	const modelId = env.AI_MODEL_FAST || '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
+
+	console.log(`[NARRATIVE_PARALLEL] Generating narratives for ${topPlans.length} plans IN PARALLEL`);
+
+	// Build prompts for each plan
+	const promptStartTime = Date.now();
+	const prompts = topPlans.map((plan) => {
+		// Build individual narrative prompt for this plan
+		const prompt = `You are an energy plan expert. Generate a personalized recommendation narrative for this plan.
+
+Usage Summary:
+- Average Monthly Usage: ${usageSummary.averageMonthlyUsage} kWh
+- Annual Usage: ${usageSummary.totalAnnualUsage} kWh
+- Usage Pattern: ${usageSummary.usagePattern}
+- Current Annual Cost: $${usageSummary.annualCost}
+
+Recommended Plan:
+- Plan ID: ${plan.planId}
+- Supplier: ${plan.supplier}
+- Plan Name: ${plan.planName}
+- Score: ${plan.score}
+- Estimated Annual Cost: $${plan.estimatedAnnualCost}
+- Estimated Savings: $${plan.estimatedSavings}
+
+Generate a compelling, specific rationale (2-4 sentences) explaining:
+1. Why this plan is a good match for their usage pattern
+2. Key benefits (savings, features, renewable energy, flexibility)
+3. Any important considerations (contract terms, fees, rate structure)
+
+Respond with valid JSON:
+{
+  "rationale": "Your explanation here..."
+}`;
+
+		return { planId: plan.planId, prompt };
+	});
+	const promptBuildTime = Date.now() - promptStartTime;
+
+	// Call Workers AI for all 3 plans IN PARALLEL
+	const inferenceStartTime = Date.now();
+	const aiResponses = await Promise.all(
+		prompts.map(async ({ planId, prompt }) => {
+			try {
+				const response = await env.AI.run(modelId, {
+					prompt,
+					max_tokens: 512,
+					response_format: { type: 'json_object' },
+				});
+				return { planId, response, error: null };
+			} catch (error) {
+				console.error(`[NARRATIVE_PARALLEL] Error generating narrative for ${planId}:`, error);
+				return {
+					planId,
+					response: null,
+					error: error instanceof Error ? error.message : 'Unknown error'
+				};
+			}
+		}),
+	);
+	const inferenceTime = Date.now() - inferenceStartTime;
+
+	// Parse responses
+	const parseStartTime = Date.now();
+	const topRecommendations: Array<{ planId: string; rationale: string }> = aiResponses.map(({ planId, response, error }) => {
+		if (error || !response) {
+			// Fallback rationale if AI generation failed
+			const plan = topPlans.find((p) => p.planId === planId);
+			return {
+				planId,
+				rationale: `This plan offers an estimated savings of $${plan?.estimatedSavings || 0}/year with a score of ${plan?.score || 0}.`,
+			};
+		}
+
+		try {
+			const responseText = (response as any)?.response || JSON.stringify(response);
+			const parsed = JSON.parse(responseText);
+			return {
+				planId,
+				rationale: parsed.rationale || 'No explanation available',
+			};
+		} catch (parseError) {
+			console.error(`[NARRATIVE_PARALLEL] Parse error for ${planId}:`, parseError);
+			const plan = topPlans.find((p) => p.planId === planId);
+			return {
+				planId,
+				rationale: `This plan offers an estimated savings of $${plan?.estimatedSavings || 0}/year with a score of ${plan?.score || 0}.`,
+			};
+		}
+	});
+	const parseTime = Date.now() - parseStartTime;
+
+	const totalDuration = Date.now() - stageStartTime;
+
+	const performance: StagePerformance = {
+		promptBuildMs: promptBuildTime,
+		inferenceMs: inferenceTime,
+		parseMs: parseTime,
+		totalMs: totalDuration,
+	};
+
+	// Build result
+	const result: NarrativeOutput = {
+		explanation: `Generated ${topRecommendations.length} personalized recommendations based on your usage pattern.`,
+		topRecommendations,
+	};
+
+	// Enhanced performance logging
+	console.log(`[PERF] [narrative-parallel] Model: ${modelId}`);
+	console.log(`[PERF] [narrative-parallel] Prompt Build: ${promptBuildTime}ms`);
+	console.log(`[PERF] [narrative-parallel] AI Inference (PARALLEL): ${inferenceTime}ms`);
+	console.log(`[PERF] [narrative-parallel] Response Parse: ${parseTime}ms`);
+	console.log(`[PERF] [narrative-parallel] Total Duration: ${totalDuration}ms`);
+
+	logStageComplete('narrative-parallel', totalDuration, result);
+
+	return { result, performance };
+}
+
 // ===========================
 // Main Pipeline Orchestrator
 // ===========================
+
+/**
+ * Pipeline options
+ */
+export interface PipelineOptions {
+	skipNarrative?: boolean; // If true, skip Stage 3 (narrative generation)
+}
 
 /**
  * Executes the three-stage AI pipeline sequentially
  * @param env - Worker environment bindings
  * @param input - Pipeline input payload
  * @param progressCallback - Optional callback for progress updates (SSE support)
+ * @param options - Pipeline options (e.g., skipNarrative for lazy loading)
  * @returns Pipeline result with all stage outputs and errors
  */
-export async function runPipeline(env: Env, input: StageInput, progressCallback?: ProgressCallback): Promise<PipelineResult> {
+export async function runPipeline(
+	env: Env,
+	input: StageInput,
+	progressCallback?: ProgressCallback,
+	options?: PipelineOptions,
+): Promise<PipelineResult> {
 	const startTime = Date.now();
 	const errors: PipelineError[] = [];
 	const performanceMetrics: {
@@ -328,7 +477,7 @@ export async function runPipeline(env: Env, input: StageInput, progressCallback?
 	let planScoring: PlanScoringOutput | undefined;
 	let narrative: NarrativeOutput | undefined;
 
-	console.log(`[${new Date().toISOString()}] [PIPELINE] Starting AI pipeline orchestration`);
+	console.log(`[${new Date().toISOString()}] [PIPELINE] Starting AI pipeline orchestration (skipNarrative: ${options?.skipNarrative ?? false})`);
 
 	// ===========================
 	// Stage 1: Usage Summary
@@ -411,39 +560,44 @@ export async function runPipeline(env: Env, input: StageInput, progressCallback?
 	// ===========================
 	// Stage 3: Narrative
 	// ===========================
-	if (planScoring) {
-		try {
-			safeCallback(progressCallback, 'narrative', 'running', null);
+	// NEW: Skip narrative generation if skipNarrative option is enabled (for lazy loading)
+	if (!options?.skipNarrative) {
+		if (planScoring) {
+			try {
+				safeCallback(progressCallback, 'narrative', 'running', null);
 
-			// Wrap with retry logic
-			const stage3Result = await withRetry(() => withTimeout(runNarrative(env, planScoring, usageSummary!), 40000, 'narrative'), {
-				maxAttempts: 2,
-				backoffMs: 100,
-				stageName: 'narrative',
-			});
+				// Wrap with retry logic
+				const stage3Result = await withRetry(() => withTimeout(runNarrative(env, planScoring, usageSummary!), 40000, 'narrative'), {
+					maxAttempts: 2,
+					backoffMs: 100,
+					stageName: 'narrative',
+				});
 
-			narrative = stage3Result.result;
-			performanceMetrics.narrative = stage3Result.performance;
+				narrative = stage3Result.result;
+				performanceMetrics.narrative = stage3Result.performance;
 
-			safeCallback(progressCallback, 'narrative', 'complete', narrative);
-		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : 'Unknown error in narrative stage';
-			errors.push({
-				stage: 'narrative',
-				message: errorMessage,
-				timestamp: new Date().toISOString(),
-			});
-			console.error(`[${new Date().toISOString()}] [NARRATIVE] [ERROR] ${errorMessage}`);
+				safeCallback(progressCallback, 'narrative', 'complete', narrative);
+			} catch (error) {
+				const errorMessage = error instanceof Error ? error.message : 'Unknown error in narrative stage';
+				errors.push({
+					stage: 'narrative',
+					message: errorMessage,
+					timestamp: new Date().toISOString(),
+				});
+				console.error(`[${new Date().toISOString()}] [NARRATIVE] [ERROR] ${errorMessage}`);
 
-			// Use fallback data
-			narrative = generateNarrativeFallback(planScoring.scoredPlans);
+				// Use fallback data
+				narrative = generateNarrativeFallback(planScoring.scoredPlans);
 
-			safeCallback(progressCallback, 'narrative', 'error', null);
+				safeCallback(progressCallback, 'narrative', 'error', null);
+			}
+		} else {
+			// Should not reach here with fallback logic above, but handle gracefully
+			console.log(`[${new Date().toISOString()}] [NARRATIVE] No plan scoring available, using generic fallback`);
+			narrative = generateNarrativeFallback([]);
 		}
 	} else {
-		// Should not reach here with fallback logic above, but handle gracefully
-		console.log(`[${new Date().toISOString()}] [NARRATIVE] No plan scoring available, using generic fallback`);
-		narrative = generateNarrativeFallback([]);
+		console.log(`[${new Date().toISOString()}] [NARRATIVE] Skipped (lazy loading enabled)`);
 	}
 
 	// ===========================

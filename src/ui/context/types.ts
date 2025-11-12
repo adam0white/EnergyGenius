@@ -15,7 +15,7 @@ export interface Recommendation {
 	planName: string;
 	monthlyPrice: number;
 	annualSavings: number;
-	explanation: string;
+	explanation: string | null; // NEW: Can be null for lazy loading
 	rationale: {
 		savingsScore: number;
 		renewableScore: number;

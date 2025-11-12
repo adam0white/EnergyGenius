@@ -13,11 +13,13 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useRecommendation as useRecommendationContext } from '../context';
 import type { UserIntakeData, Recommendation, ErrorObject } from '../context/types';
 
-// API endpoint
+// API endpoints
 const API_ENDPOINT = '/api/recommend';
+const NARRATIVES_ENDPOINT = '/api/narratives';
 
 // Request timeout - increased to 90s to accommodate all 3 AI stages plus overhead
 const REQUEST_TIMEOUT = 90000; // 90 seconds
+const NARRATIVES_TIMEOUT = 30000; // 30 seconds for parallel narrative generation
 
 /**
  * Interface for the hook's return value
@@ -36,6 +38,55 @@ export interface UseRecommendationHook {
 	error: string | null;
 	retryCount: number;
 	reset: () => void;
+}
+
+/**
+ * Fetch narratives for recommendations
+ * @param usageSummary - Usage summary from Stage 1
+ * @param recommendations - Scored plans from Stage 2
+ * @param requestStartTime - Request start timestamp for logging
+ * @returns Promise with narratives array
+ */
+async function fetchNarratives(usageSummary: any, recommendations: any[], requestStartTime: number): Promise<any[]> {
+	console.log(`[NARRATIVES] Fetching narratives for ${recommendations.length} plans...`);
+
+	// Build planScoring payload
+	const planScoring = {
+		scoredPlans: recommendations.map((rec: any) => ({
+			planId: rec.planId,
+			supplier: rec.supplier,
+			planName: rec.planName,
+			score: rec.score,
+			estimatedAnnualCost: rec.estimatedAnnualCost,
+			estimatedSavings: rec.estimatedSavings,
+		})),
+		totalPlansScored: recommendations.length,
+	};
+
+	const response = await Promise.race([
+		fetch(NARRATIVES_ENDPOINT, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ usageSummary, planScoring }),
+		}),
+		new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Narratives request timeout')), NARRATIVES_TIMEOUT)),
+	]);
+
+	if (!response.ok) {
+		throw new Error(`Narratives API error: ${response.status} ${response.statusText}`);
+	}
+
+	const data = await response.json();
+
+	if (!data.narratives || !Array.isArray(data.narratives)) {
+		throw new Error('Invalid narratives response format');
+	}
+
+	console.log(`[NARRATIVES] Received ${data.narratives.length} narratives in ${Date.now() - requestStartTime}ms`);
+
+	return data.narratives;
 }
 
 /**
@@ -230,7 +281,7 @@ export function useRecommendation(): UseRecommendationHook {
 							planName: rec.planName,
 							monthlyPrice: rec.estimatedAnnualCost / 12,
 							annualSavings: rec.estimatedSavings,
-							explanation: rec.rationale,
+							explanation: rec.rationale, // NEW: Will be null for lazy loading
 							rationale: {
 								savingsScore: rec.score * 0.8, // Approximate based on score
 								renewableScore: rec.score * 0.5,
@@ -247,16 +298,40 @@ export function useRecommendation(): UseRecommendationHook {
 					})
 					.sort((a: Recommendation, b: Recommendation) => b.annualSavings - a.annualSavings);
 
-				// Complete the final stage
-				console.log(`[PROGRESS] Stage 3 (Narrative Generation) completed at ${Date.now() - requestStartTime}ms`);
-				completePipelineStage('narrativeGeneration');
-
 				// Clear timers before setting recommendations
 				clearTimers();
 
-				// Update state with recommendations
-				console.log(`[PROGRESS] Total request time: ${Date.now() - requestStartTime}ms`);
+				// Update state with recommendations (with null explanations for now)
+				console.log(`[PROGRESS] Recommendations ready at ${Date.now() - requestStartTime}ms (narratives loading...)`);
 				setRecommendations(transformedRecommendations);
+
+				// NEW: Fetch narratives in the background
+				// Start narrative generation stage
+				console.log(`[PROGRESS] Stage 3 (Narrative Generation) started at ${Date.now() - requestStartTime}ms`);
+				startPipelineStage('narrativeGeneration');
+
+				// Call narratives endpoint with usageSummary and planScoring
+				fetchNarratives(apiResponse.data.usageSummary, apiResponse.data.recommendations, requestStartTime)
+					.then((narratives) => {
+						// Update recommendations with narratives
+						const updatedRecommendations = transformedRecommendations.map((rec) => {
+							const narrative = narratives.find((n: any) => n.planId === rec.id);
+							return {
+								...rec,
+								explanation: narrative?.rationale || 'No explanation available',
+							};
+						});
+
+						console.log(`[PROGRESS] Stage 3 (Narrative Generation) completed at ${Date.now() - requestStartTime}ms`);
+						completePipelineStage('narrativeGeneration');
+						setRecommendations(updatedRecommendations);
+						console.log(`[PROGRESS] Total request time with narratives: ${Date.now() - requestStartTime}ms`);
+					})
+					.catch((error) => {
+						console.error('[PROGRESS] Narrative generation failed:', error);
+						completePipelineStage('narrativeGeneration');
+						// Keep recommendations with null explanations (cards will show loading state)
+					});
 
 				// Reset retry count on success
 				retryCountRef.current = 0;

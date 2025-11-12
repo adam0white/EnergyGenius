@@ -20,7 +20,7 @@ interface Recommendation {
 	planName: string;
 	monthlyPrice: number;
 	annualSavings: number;
-	explanation: string;
+	explanation: string | null; // NEW: Can be null for lazy loading
 	rationale?: {
 		savingsScore: number;
 		renewableScore: number;
@@ -82,8 +82,20 @@ function NarrativeSectionRenderer({ section }: { section: NarrativeSection }) {
 /**
  * Formatted Narrative Component
  * Parses and displays narrative text with structure
+ * NEW: Supports null text for lazy loading with skeleton
  */
-function FormattedNarrative({ text }: { text: string }) {
+function FormattedNarrative({ text }: { text: string | null }) {
+	// NEW: Show loading skeleton if text is null
+	if (text === null) {
+		return (
+			<div className="space-y-2 animate-pulse">
+				<div className="h-4 bg-gray-200 rounded w-full"></div>
+				<div className="h-4 bg-gray-200 rounded w-11/12"></div>
+				<div className="h-4 bg-gray-200 rounded w-10/12"></div>
+			</div>
+		);
+	}
+
 	const parsed = parseNarrative(text);
 
 	// Fallback to plain text if parsing fails or returns empty
@@ -168,6 +180,18 @@ function RecommendationCard({ recommendation, rank }: { recommendation: Recommen
 				<SavingsBadge savings={savings} />
 			</div>
 
+			{/* Contract Details (Prominent) */}
+			<div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+				<div className="text-sm text-gray-700">
+					<span className="font-semibold text-gray-900">Contract:</span> {contractLength} months
+					{earlyTerminationFee > 0 && (
+						<span className="ml-2">
+							• <span className="font-semibold text-gray-900">ETF:</span> ${earlyTerminationFee}
+						</span>
+					)}
+				</div>
+			</div>
+
 			{/* Savings (prominent) */}
 			<div className="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
 				<div className="text-sm text-gray-600 mb-1">Annual Savings</div>
@@ -209,7 +233,12 @@ function RecommendationCard({ recommendation, rank }: { recommendation: Recommen
 
 			{/* AI Narrative */}
 			<div>
-				<h4 className="text-sm font-semibold text-gray-700 mb-2">Why We Recommend This</h4>
+				<div className="flex items-center justify-between mb-2">
+					<h4 className="text-sm font-semibold text-gray-700">Why We Recommend This</h4>
+					{recommendation.explanation === null && (
+						<span className="text-xs text-blue-600 font-medium animate-pulse">Loading...</span>
+					)}
+				</div>
 				<FormattedNarrative text={recommendation.explanation} />
 			</div>
 

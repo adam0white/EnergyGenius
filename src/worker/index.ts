@@ -19,6 +19,7 @@
 import { handleRecommend } from './handlers/recommend';
 import { handleMockData } from './handlers/mock-data';
 import { handleHealth } from './handlers/health';
+import { handleNarratives } from './handlers/narratives';
 import { createErrorResponse, handleError } from './lib/errors';
 import { logRequestStart, logRequestEnd, generateRequestId } from './lib/logging';
 
@@ -66,6 +67,13 @@ export default {
 			// Route: POST /api/recommend (Recommendation endpoint)
 			if (pathname === '/api/recommend' && request.method === 'POST') {
 				const response = await handleRecommend(request, env, requestId);
+				logRequestEnd(requestId, request.method, pathname, response.status, Date.now() - startTime);
+				return response;
+			}
+
+			// Route: POST /api/narratives (Narrative generation endpoint)
+			if (pathname === '/api/narratives' && request.method === 'POST') {
+				const response = await handleNarratives(request, env, requestId);
 				logRequestEnd(requestId, request.method, pathname, response.status, Date.now() - startTime);
 				return response;
 			}

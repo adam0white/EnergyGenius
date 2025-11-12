@@ -123,6 +123,14 @@ Estimated Annual Savings: $[amount]
 
 ---
 
+CRITICAL SEPARATOR REQUIREMENT:
+- You MUST write exactly THREE plan explanations (one for each plan in the list above)
+- After EACH plan explanation, you MUST write exactly "---" on its own line as a separator
+- The separator MUST be exactly three dashes: "---" (not more, not less)
+- Do NOT skip separators or merge plan explanations together
+- Each separator MUST appear on its own line with no other text
+- Format: Plan 1 text... then "---" then Plan 2 text... then "---" then Plan 3 text... then "---"
+
 EXAMPLE OUTPUT:
 
 Green Energy Co - EcoSaver 12 (Score: 92/100)
@@ -145,7 +153,7 @@ VALIDATION REQUIREMENT:
 Every plan name, supplier, rate, and feature you mention MUST exactly match the data above.
 Do NOT add, remove, or modify any plan details.
 
-Now provide explanations for the ${enrichedPlans.length} recommended plans:`;
+Now provide explanations for the ${enrichedPlans.length} recommended plans. Remember to separate EACH plan with "---" on its own line:`;
 
 	return prompt;
 }

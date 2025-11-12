@@ -223,18 +223,50 @@ export function parseNarrative(rawResponse: string, topPlanIds: string[], stageN
 		);
 	}
 
-	// Split response by plan sections (look for plan ID patterns or separators)
-	const sections = sanitized.split(/---+|\*\*\*+/).filter((s) => s.trim().length > 50);
+	// Split response by plan sections (look for --- separators)
+	// Split on exactly "---" with optional whitespace before/after
+	const rawSections = sanitized.split(/\s*---+\s*/);
 
-	// Build narrative structure
-	const topRecommendations = topPlanIds.slice(0, 3).map((planId, index) => {
-		// Try to find matching section
-		const section = sections[index] || sanitized.substring(index * 500, (index + 1) * 500);
-		return {
+	// Filter out empty/too-short sections and trim
+	const sections = rawSections
+		.map(s => s.trim())
+		.filter(s => s.length > 50);
+
+	// CRITICAL: Log section parsing for debugging
+	console.log(
+		`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Split into ${sections.length} sections (expected ${topPlanIds.length})`
+	);
+
+	// ROBUSTNESS: Handle malformed AI responses
+	let topRecommendations: Array<{ planId: string; rationale: string }>;
+
+	if (sections.length >= topPlanIds.length) {
+		// AI generated proper separators - use sections as-is
+		topRecommendations = topPlanIds.map((planId, index) => ({
 			planId,
-			rationale: truncateText(section.trim(), 2000),
-		};
-	});
+			rationale: truncateText(sections[index].trim(), 2000),
+		}));
+		console.log(
+			`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Using ${sections.length} properly separated sections`
+		);
+	} else {
+		// AI generated too few sections - split by character count as fallback
+		console.warn(
+			`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Warning: Expected ${topPlanIds.length} sections but got ${sections.length}. Using character-based fallback.`
+		);
+
+		const charsPerPlan = Math.floor(sanitized.length / topPlanIds.length);
+		topRecommendations = topPlanIds.map((planId, index) => {
+			const startPos = index * charsPerPlan;
+			const endPos = (index + 1) * charsPerPlan;
+			const section = sanitized.substring(startPos, endPos).trim();
+
+			return {
+				planId,
+				rationale: truncateText(section, 2000),
+			};
+		});
+	}
 
 	// Validate with Zod
 	const narrative = {
