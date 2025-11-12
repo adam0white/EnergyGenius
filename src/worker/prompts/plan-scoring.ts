@@ -11,9 +11,13 @@ import type { SupplierPlan } from '../data/types';
  * @param usageSummary - Output from Stage 1 (usage analysis)
  * @param supplierPlans - Array of available supplier plans
  * @param input - Original stage input with preferences
- * @returns Formatted prompt string ready for AI model
+ * @returns Object with prompt string and indexed plans catalog for parser
  */
-export function buildPlanScoringPrompt(usageSummary: UsageSummaryOutput, supplierPlans: SupplierPlan[], input: StageInput): string {
+export function buildPlanScoringPrompt(
+	usageSummary: UsageSummaryOutput,
+	supplierPlans: SupplierPlan[],
+	input: StageInput,
+): { prompt: string; indexedPlans: Array<{ index: number; planId: string; supplier: string; planName: string }> } {
 	// Validate inputs
 	if (!usageSummary) {
 		throw new Error('Usage summary is required for plan scoring');
@@ -34,8 +38,9 @@ export function buildPlanScoringPrompt(usageSummary: UsageSummaryOutput, supplie
 
 	// Filter plans by user's max contract length preference, then prepare sanitized plan catalog (limit to first 20 plans)
 	const filteredPlans = supplierPlans.filter((plan) => plan.contractTermMonths <= preferences.maxContractMonths);
-	const plansToScore = filteredPlans.slice(0, 20).map((plan) => ({
-		planId: String(plan.id),
+	const plansToScore = filteredPlans.slice(0, 20).map((plan, index) => ({
+		index: index, // Simple index 0-19 for AI to reference
+		planId: String(plan.id), // Keep for our reference but AI won't need to copy
 		supplier: String(plan.supplier),
 		planName: String(plan.planName),
 		baseRate: Math.round(plan.baseRate * 10000) / 10000,
@@ -53,22 +58,20 @@ export function buildPlanScoringPrompt(usageSummary: UsageSummaryOutput, supplie
 ║                          ⚠️  READ THIS FIRST  ⚠️                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
-PLAN ID REQUIREMENTS (MOST IMPORTANT):
-✓ You MUST use planId values EXACTLY as provided - character-for-character
-✓ DO NOT truncate, shorten, or modify planId in ANY way
-✓ DO NOT create new plan IDs or guess at plan IDs
-✓ Each planId is a PRIMARY KEY - it must match EXACTLY
+PLAN INDEXING SYSTEM (MOST IMPORTANT):
+✓ Each plan has a simple INDEX number (0-${plansToScore.length - 1})
+✓ You MUST reference plans by their INDEX number ONLY
+✓ DO NOT copy planId, supplier, or planName from the catalog
+✓ Just return the INDEX number - we'll map it back to the actual plan
 
-CORRECT: "plan-green-mountain-energy-pollution-free-e-plus-12"
-WRONG: "plan-green-mountain-energy-pollution-free-e-plus-1" (truncated)
-WRONG: "plan-green-mountain-pollution-free" (abbreviated)
-WRONG: "plan-green-mountain-energy-pollution-free-e-plus-d" (corrupted)
+CORRECT: Return index 0, 5, 12, etc.
+WRONG: Trying to copy "plan-green-mountain-energy-pollution-free-e-plus-12"
+WRONG: Typing out supplier or plan names
 
 OTHER REQUIREMENTS:
 ✓ You MUST select and score ONLY from the provided list of real plans below
 ✓ Do NOT create, suggest, or recommend plans that are not in this exact list
-✓ Do NOT modify plan names, suppliers, or any plan properties
-✓ Every plan you score MUST exactly match a plan from the AVAILABLE PLANS list
+✓ Every plan you score MUST use a valid index from the AVAILABLE PLANS list
 
 USAGE SUMMARY:
 - Average Monthly Usage: ${usageSummary.averageMonthlyUsage} kWh
@@ -107,9 +110,7 @@ Start your response with [ and end with ]
 Required JSON array format (top 10 maximum), sorted by score descending:
 [
   {
-    "planId": "<EXACT plan ID from catalog - COPY IT EXACTLY, DO NOT TYPE>",
-    "supplier": "<EXACT supplier name from catalog>",
-    "planName": "<EXACT plan name from catalog>",
+    "index": <plan index number 0-${plansToScore.length - 1}>,
     "score": <0-100>,
     "estimatedAnnualCost": <number>,
     "estimatedSavings": <number>,
@@ -117,7 +118,7 @@ Required JSON array format (top 10 maximum), sorted by score descending:
   }
 ]
 
-⚠️  REMINDER: Copy the planId EXACTLY from the AVAILABLE PLANS list above. Do NOT type it manually.
+⚠️  CRITICAL: Use the INDEX number (0-${plansToScore.length - 1}), NOT planId/supplier/planName. Just return the number!
 
 SCORING CRITERIA:
 - Base score: 50 points
@@ -130,31 +131,44 @@ SCORING CRITERIA:
 
 VALIDATION REQUIREMENT - TRIPLE CHECK BEFORE RESPONDING:
 Before submitting your response, verify EVERY plan you selected:
-1. ✓ planId appears in the AVAILABLE PLANS list above (EXACT match, character-for-character)
-2. ✓ supplier name appears in the AVAILABLE PLANS list above (EXACT match)
-3. ✓ planName appears in the AVAILABLE PLANS list above (allow contract length variations)
+1. ✓ Index is a valid number from 0 to ${plansToScore.length - 1}
+2. ✓ Index corresponds to a plan in the AVAILABLE PLANS list above
+3. ✓ You are NOT returning planId, supplier, or planName fields
 
-CRITICAL: planId is your PRIMARY KEY. Always reference plans by their exact planId.
-The validation system will REJECT your response if ANY planId doesn't match EXACTLY.
+CRITICAL: Use INDEX numbers ONLY. We will map them to actual plan data.
+The validation system will REJECT your response if you use anything OTHER than index numbers.
 
-⚠️  COMMON MISTAKE TO AVOID: Truncating long plan IDs
-If a planId is "plan-just-energy-sustainable-simply-drive-12", you MUST include the FULL ID including "-12"
-DO NOT output "plan-just-energy-sustainable-simply-d" (truncated/corrupted)
+⚠️  COMMON MISTAKE TO AVOID: Trying to copy plan IDs or names
+DO NOT try to copy complex strings like "plan-just-energy-sustainable-simply-drive-12"
+JUST use the index number like 0, 5, 12, etc.
 
 EXAMPLE OUTPUT (copy this structure exactly):
 [
   {
-    "planId": "plan-001",
-    "supplier": "Green Energy Co",
-    "planName": "EcoSaver 12",
+    "index": 0,
     "score": 92,
     "estimatedAnnualCost": 1214.50,
     "estimatedSavings": 214.00,
     "reasoning": "15% savings with 100% renewable energy and flexible 12-month contract"
+  },
+  {
+    "index": 5,
+    "score": 88,
+    "estimatedAnnualCost": 1350.00,
+    "estimatedSavings": 150.00,
+    "reasoning": "Good savings with competitive rate and short contract"
   }
 ]
 
 Provide ONLY the JSON array now:`;
 
-	return prompt;
+	// Return both the prompt and the indexed plan catalog for the parser
+	const indexedPlans = plansToScore.map((plan) => ({
+		index: plan.index,
+		planId: plan.planId,
+		supplier: plan.supplier,
+		planName: plan.planName,
+	}));
+
+	return { prompt, indexedPlans };
 }

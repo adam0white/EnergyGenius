@@ -152,20 +152,47 @@ export function sanitizeAIResponse(response: string): string {
 
 	let cleaned = response.trim();
 
-	// CRITICAL FIX: Remove markdown code blocks PROPERLY
-	// Match ```json\n{...}\n``` or ```\n{...}\n``` patterns
-	const codeBlockRegex = /^```(?:json)?\s*\n?([\s\S]*?)\n?```$/;
-	const match = cleaned.match(codeBlockRegex);
+	// ENHANCED MARKDOWN CODE BLOCK REMOVAL
+	// Handles multiple patterns:
+	// 1. ```json\n{...}\n```
+	// 2. ```\n{...}\n``` (no language tag)
+	// 3. ` ``` ` with spaces/newlines
+	// 4. Prose before code blocks
 
-	if (match) {
-		// Extract content between code blocks
-		cleaned = match[1].trim();
-		console.log('[SANITIZER] Removed markdown code blocks from AI response');
-	} else {
-		// Fallback: try removing code blocks that aren't properly closed
-		cleaned = cleaned.replace(/^```(?:json)?\s*\n?/g, '');
-		cleaned = cleaned.replace(/\n?```$/g, '');
+	// First, try to extract content from properly formatted code blocks
+	const codeBlockPatterns = [
+		/^```(?:json)?\s*\n([\s\S]*?)\n```$/m,  // Standard: ```json\n...\n```
+		/```(?:json)?\s*\n([\s\S]*?)\n```/,      // Anywhere in text
+		/^```([\s\S]*?)```$/m,                   // Simple: ```...```
+		/```([\s\S]*?)```/,                      // Simple anywhere
+	];
+
+	let extracted = false;
+	for (const pattern of codeBlockPatterns) {
+		const match = cleaned.match(pattern);
+		if (match && match[1]) {
+			cleaned = match[1].trim();
+			console.log('[SANITIZER] Extracted JSON from markdown code block');
+			extracted = true;
+			break;
+		}
 	}
+
+	// If no code block found, remove any leading prose before JSON
+	if (!extracted) {
+		// Remove everything before first { or [
+		const jsonStart = cleaned.search(/[{\[]/);
+		if (jsonStart > 0) {
+			const beforeJSON = cleaned.substring(0, jsonStart).trim();
+			if (beforeJSON.length > 0) {
+				console.log(`[SANITIZER] Removed leading prose: "${beforeJSON.substring(0, 50)}..."`);
+				cleaned = cleaned.substring(jsonStart);
+			}
+		}
+	}
+
+	// Remove any remaining backticks
+	cleaned = cleaned.replace(/^`+|`+$/g, '');
 
 	// Remove code comment markers that appear before JSON (AI model artifacts)
 	// Example: "*/\n{...}" or "*/*\n{...}"
@@ -182,7 +209,7 @@ export function sanitizeAIResponse(response: string): string {
 		cleaned = extractFirstJSON(cleaned);
 	} catch (error) {
 		console.error('[SANITIZER] Failed to extract JSON:', error);
-		// If extraction fails, fall back to original logic
+		// If extraction fails, fall back to cleaned string
 	}
 
 	// Final trim

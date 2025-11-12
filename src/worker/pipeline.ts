@@ -196,7 +196,7 @@ export async function runPlanScoring(
 
 	// Build optimized prompt using prompt builder with real supplier catalog
 	const promptStartTime = Date.now();
-	const prompt = buildPlanScoringPrompt(usageSummary, Array.from(supplierCatalog), input);
+	const { prompt, indexedPlans } = buildPlanScoringPrompt(usageSummary, Array.from(supplierCatalog), input);
 	const promptBuildTime = Date.now() - promptStartTime;
 
 	// Call Workers AI with JSON mode enabled
@@ -213,12 +213,9 @@ export async function runPlanScoring(
 	// Extract response text
 	const responseText = (aiResponse as any)?.response || JSON.stringify(aiResponse);
 
-	// Get valid plan IDs from catalog
-	const validPlanIds = Array.from(supplierCatalog).map((plan) => plan.id);
-
-	// Parse and validate AI response
+	// Parse and validate AI response using indexed plans for mapping
 	const parseStartTime = Date.now();
-	const result: PlanScoringOutput = parsePlanScoring(responseText, validPlanIds, 'plan-scoring');
+	const result: PlanScoringOutput = parsePlanScoring(responseText, indexedPlans, 'plan-scoring');
 	const parseTime = Date.now() - parseStartTime;
 
 	const totalDuration = Date.now() - stageStartTime;

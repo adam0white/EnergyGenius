@@ -89,18 +89,44 @@ CUSTOMER CONTEXT:
 TOP RECOMMENDED PLANS (REAL DATA - DO NOT MODIFY):
 ${JSON.stringify(enrichedPlans, null, 2)}
 
-CRITICAL FINANCIAL INTERPRETATION RULE:
+╔══════════════════════════════════════════════════════════════════════════════╗
+║          CRITICAL FINANCIAL INTERPRETATION RULE - READ CAREFULLY              ║
+║                          ⚠️  MANDATORY REQUIREMENT  ⚠️                         ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
 When interpreting the "estimatedSavings" field, you MUST understand:
-- POSITIVE values (e.g., estimatedSavings: 214.50) = SAVINGS - The user saves this much money per year
-- NEGATIVE values (e.g., estimatedSavings: -93.30) = LOSS - The user pays this much MORE per year
-- ZERO (estimatedSavings: 0) = No change in cost
 
-MANDATORY: When estimatedSavings is negative, you MUST clearly state this is an ADDITIONAL COST or that the plan is MORE EXPENSIVE than the current plan. Never describe a negative value as "savings".
+✓ POSITIVE values (e.g., estimatedSavings: 214.50) = SAVINGS
+  → The user SAVES this much money per year
+  → Say: "saves you $214.50 per year" or "annual savings of $214.50"
 
-EXAMPLES OF CORRECT INTERPRETATION:
-- estimatedSavings: 150 → "This plan saves you $150 per year"
-- estimatedSavings: -93.3 → "This plan costs $93.30 MORE per year than your current plan" OR "Additional cost of $93.30/year"
-- estimatedSavings: 0 → "This plan has similar annual costs to your current plan"
+✓ NEGATIVE values (e.g., estimatedSavings: -93.30) = ADDITIONAL COST
+  → The user PAYS this much MORE per year
+  → Say: "costs $93.30 MORE per year" or "additional annual cost of $93.30"
+  → NEVER say: "savings of $-93.30" ❌
+  → NEVER use the word "savings" with negative values ❌
+
+✓ ZERO (estimatedSavings: 0) = No change in cost
+  → Say: "has similar annual costs to your current plan"
+
+MANDATORY EXAMPLES - FOLLOW THESE EXACTLY:
+╔════════════════════════════════════════════════════════════════════════════╗
+║ estimatedSavings: 150                                                       ║
+║ ✓ CORRECT: "This plan saves you $150 per year"                             ║
+║ ✓ CORRECT: "Annual savings of $150"                                        ║
+║ ❌ WRONG: N/A (positive values are straightforward)                         ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+╔════════════════════════════════════════════════════════════════════════════╗
+║ estimatedSavings: -93.3                                                     ║
+║ ✓ CORRECT: "This plan costs $93.30 MORE per year than your current plan"   ║
+║ ✓ CORRECT: "Additional annual cost of $93.30"                              ║
+║ ✓ CORRECT: "While this plan costs about $7.78 more per month..."           ║
+║ ❌ WRONG: "This plan offers savings of $-93.30" ← NEVER DO THIS            ║
+║ ❌ WRONG: "Estimated annual savings: $-93.30" ← NEVER DO THIS              ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+IF YOU USE THE WORD "SAVINGS" WITH A NEGATIVE NUMBER, YOUR RESPONSE WILL BE REJECTED.
 
 TASK:
 Write a friendly, easy-to-understand explanation for each of the top ${enrichedPlans.length} recommended plans. For each plan, explain:

@@ -92,12 +92,16 @@ export function parseUsageSummary(rawResponse: string, stageName: string = 'usag
 /**
  * Parses and validates Plan Scoring response (Stage 2)
  * @param rawResponse - Raw AI response text
- * @param validPlanIds - Array of valid plan IDs from catalog
+ * @param indexedPlans - Array of indexed plans from prompt builder (for mapping indices back to plan IDs)
  * @param stageName - Stage name for error reporting
  * @returns Validated plan scoring output
  * @throws ParseError, ValidationError, MismatchError
  */
-export function parsePlanScoring(rawResponse: string, validPlanIds: string[], stageName: string = 'plan-scoring'): PlanScoringValidated {
+export function parsePlanScoring(
+	rawResponse: string,
+	indexedPlans: Array<{ index: number; planId: string; supplier: string; planName: string }>,
+	stageName: string = 'plan-scoring',
+): PlanScoringValidated {
 	// Log raw response (truncated)
 	console.log(
 		`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Raw response (first 500 chars): ${rawResponse.substring(0, 500)}`,
@@ -124,140 +128,84 @@ export function parsePlanScoring(rawResponse: string, validPlanIds: string[], st
 		};
 	}
 
-	// Validate with Zod
-	let validated: PlanScoringValidated;
-	try {
-		validated = PlanScoringSchema.parse(parsed);
-	} catch (error) {
-		if (error instanceof z.ZodError) {
-			const message = `Schema validation failed: ${error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`;
-			console.error(`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] ${message}`);
-			throw new ValidationError(message, stageName, error.errors);
-		}
-		throw error;
-	}
+	// NEW INDEX-BASED APPROACH: Map AI response indices to actual plan data
+	const scoredPlans: Array<{
+		planId: string;
+		supplier: string;
+		planName: string;
+		score: number;
+		estimatedAnnualCost: number;
+		estimatedSavings: number;
+		reasoning: string;
+	}> = [];
 
-	// STRICT VALIDATION WITH AUTO-CORRECTION: Verify plan IDs match catalog
-	const correctedPlans: typeof validated.scoredPlans = [];
-	const invalidPlanIds: string[] = [];
-	const correctedPlanIds: Array<{ original: string; corrected: string }> = [];
+	const invalidIndices: number[] = [];
 
-	for (const plan of validated.scoredPlans) {
-		// Try exact match first
-		if (validPlanIds.includes(plan.planId)) {
-			correctedPlans.push(plan);
+	// Iterate through AI's scored plans (which should have "index" field)
+	for (const aiPlan of parsed.scoredPlans || []) {
+		const planIndex = aiPlan.index;
+
+		// Validate index is a number
+		if (typeof planIndex !== 'number') {
+			console.error(
+				`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Invalid index type: ${typeof planIndex} (expected number)`,
+			);
 			continue;
 		}
 
-		// Try fuzzy matching for truncated/corrupted IDs
-		// Common issue: AI truncates long plan IDs like "plan-xyz-abc-d" instead of "plan-xyz-abc-def-12"
-		const fuzzyMatch = validPlanIds.find(validId => {
-			// Check if valid ID starts with the (possibly truncated) AI ID
-			return validId.startsWith(plan.planId);
+		// Validate index is within range
+		if (planIndex < 0 || planIndex >= indexedPlans.length) {
+			console.error(
+				`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Index out of range: ${planIndex} (valid: 0-${indexedPlans.length - 1})`,
+			);
+			invalidIndices.push(planIndex);
+			continue;
+		}
+
+		// Map index to actual plan data from our catalog
+		const actualPlan = indexedPlans[planIndex];
+
+		if (!actualPlan) {
+			console.error(`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] No plan found at index: ${planIndex}`);
+			invalidIndices.push(planIndex);
+			continue;
+		}
+
+		// Build scored plan using ACTUAL catalog data (not AI's)
+		scoredPlans.push({
+			planId: actualPlan.planId,
+			supplier: actualPlan.supplier,
+			planName: actualPlan.planName,
+			score: aiPlan.score,
+			estimatedAnnualCost: aiPlan.estimatedAnnualCost,
+			estimatedSavings: aiPlan.estimatedSavings,
+			reasoning: aiPlan.reasoning,
 		});
 
-		if (fuzzyMatch) {
-			console.warn(
-				`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Auto-corrected truncated plan ID: "${plan.planId}" → "${fuzzyMatch}"`
-			);
-			correctedPlanIds.push({ original: plan.planId, corrected: fuzzyMatch });
-			correctedPlans.push({
-				...plan,
-				planId: fuzzyMatch,
-			});
-			continue;
-		}
-
-		// Try partial match (AI may have corrupted the end)
-		const partialMatch = validPlanIds.find(validId => {
-			// Remove last segment and check if they match up to that point
-			const aiParts = plan.planId.split('-');
-			const validParts = validId.split('-');
-
-			// Must have at least 70% of segments matching
-			const minMatching = Math.floor(Math.min(aiParts.length, validParts.length) * 0.7);
-			let matches = 0;
-			for (let i = 0; i < Math.min(aiParts.length, validParts.length); i++) {
-				if (aiParts[i] === validParts[i]) matches++;
-			}
-
-			return matches >= minMatching && matches >= 3;
-		});
-
-		if (partialMatch) {
-			console.warn(
-				`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Auto-corrected corrupted plan ID: "${plan.planId}" → "${partialMatch}"`
-			);
-			correctedPlanIds.push({ original: plan.planId, corrected: partialMatch });
-			correctedPlans.push({
-				...plan,
-				planId: partialMatch,
-			});
-			continue;
-		}
-
-		// No match found - this plan ID is truly invalid
-		invalidPlanIds.push(plan.planId);
-		console.error(
-			`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Invalid plan ID (no fuzzy match): "${plan.planId}"`
+		console.log(
+			`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Mapped index ${planIndex} → ${actualPlan.planId} (${actualPlan.supplier})`,
 		);
 	}
 
-	// Log corrections summary
-	if (correctedPlanIds.length > 0) {
-		console.warn(
-			`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Auto-corrected ${correctedPlanIds.length} plan IDs: ${correctedPlanIds.map(c => `"${c.original}" → "${c.corrected}"`).join(', ')}`
-		);
-	}
-
-	// If too many invalid IDs (>50% of plans), throw error
-	if (invalidPlanIds.length > 0) {
-		const errorRate = invalidPlanIds.length / validated.scoredPlans.length;
+	// Check if too many invalid indices
+	if (invalidIndices.length > 0) {
+		const errorRate = invalidIndices.length / (parsed.scoredPlans?.length || 1);
 		if (errorRate > 0.5) {
-			const message = `Too many invalid plan IDs (${invalidPlanIds.length}/${validated.scoredPlans.length}): ${invalidPlanIds.join(', ')}. AI generated non-existent plans. All plan IDs must exactly match the catalog.`;
+			const message = `Too many invalid indices (${invalidIndices.length}/${parsed.scoredPlans?.length}): ${invalidIndices.join(', ')}. AI returned indices outside valid range (0-${indexedPlans.length - 1}).`;
 			console.error(`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] ${message}`);
-			throw new ValidationError(message, stageName, [{ path: ['planId'], message: `Invalid plan IDs: ${invalidPlanIds.join(', ')}` }]);
+			throw new ValidationError(message, stageName, [{ path: ['index'], message: `Invalid indices: ${invalidIndices.join(', ')}` }]);
 		} else {
-			// Just log warning and filter out invalid plans
 			console.warn(
-				`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Filtered out ${invalidPlanIds.length} invalid plan IDs: ${invalidPlanIds.join(', ')}`
+				`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Filtered out ${invalidIndices.length} invalid indices: ${invalidIndices.join(', ')}`,
 			);
 		}
 	}
 
-	// Update validated plans with corrected list
-	validated.scoredPlans = correctedPlans;
-
-	// STRICT VALIDATION: Verify plan names and suppliers match catalog
-	// - Supplier: STRICT (exact match required)
-	// - Plan Name: RELAXED (fuzzy matching to allow contract length variations)
-	const catalogMap = new Map(Array.from(supplierCatalog).map((p) => [p.id, p]));
-	const mismatchedPlans: string[] = [];
-
-	for (const scoredPlan of validated.scoredPlans) {
-		const catalogPlan = catalogMap.get(scoredPlan.planId);
-		if (!catalogPlan) continue; // Already caught by ID validation above
-
-		// Check if supplier name matches exactly (STRICT)
-		if (scoredPlan.supplier !== catalogPlan.supplier) {
-			mismatchedPlans.push(
-				`${scoredPlan.planId}: supplier mismatch (AI: "${scoredPlan.supplier}", Catalog: "${catalogPlan.supplier}")`,
-			);
-		}
-
-		// Check if plan name matches (RELAXED - allow contract length variations)
-		if (!planNamesMatch(scoredPlan.planName, catalogPlan.planName)) {
-			mismatchedPlans.push(
-				`${scoredPlan.planId}: planName mismatch (AI: "${scoredPlan.planName}", Catalog: "${catalogPlan.planName}")`,
-			);
-		}
-	}
-
-	if (mismatchedPlans.length > 0) {
-		const message = `AI modified plan details. Supplier must exactly match. Plan names must match (allowing contract length variations). Mismatches: ${mismatchedPlans.join('; ')}`;
-		console.error(`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] ${message}`);
-		throw new ValidationError(message, stageName, [{ path: ['plans'], message: mismatchedPlans.join('; ') }]);
-	}
+	// Create validated output structure
+	const validated: PlanScoringValidated = {
+		scoredPlans,
+		totalPlansScored: scoredPlans.length,
+	};
 
 	// Sort by score descending
 	validated.scoredPlans.sort((a, b) => b.score - a.score);
