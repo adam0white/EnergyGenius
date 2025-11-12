@@ -48,11 +48,27 @@ export function buildPlanScoringPrompt(usageSummary: UsageSummaryOutput, supplie
 	// Build structured prompt
 	const prompt = `You are an energy plan comparison expert. Score the following supplier plans based on the user's usage pattern and preferences.
 
-CRITICAL CONSTRAINT - READ THIS FIRST:
-You MUST select and score ONLY from the provided list of real plans below.
-Do NOT create, suggest, or recommend plans that are not in this exact list.
-Do NOT modify plan names, suppliers, or any plan properties.
-Every plan you score MUST exactly match a plan from the AVAILABLE PLANS list.
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                            CRITICAL CONSTRAINT                                ║
+║                          ⚠️  READ THIS FIRST  ⚠️                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+PLAN ID REQUIREMENTS (MOST IMPORTANT):
+✓ You MUST use planId values EXACTLY as provided - character-for-character
+✓ DO NOT truncate, shorten, or modify planId in ANY way
+✓ DO NOT create new plan IDs or guess at plan IDs
+✓ Each planId is a PRIMARY KEY - it must match EXACTLY
+
+CORRECT: "plan-green-mountain-energy-pollution-free-e-plus-12"
+WRONG: "plan-green-mountain-energy-pollution-free-e-plus-1" (truncated)
+WRONG: "plan-green-mountain-pollution-free" (abbreviated)
+WRONG: "plan-green-mountain-energy-pollution-free-e-plus-d" (corrupted)
+
+OTHER REQUIREMENTS:
+✓ You MUST select and score ONLY from the provided list of real plans below
+✓ Do NOT create, suggest, or recommend plans that are not in this exact list
+✓ Do NOT modify plan names, suppliers, or any plan properties
+✓ Every plan you score MUST exactly match a plan from the AVAILABLE PLANS list
 
 USAGE SUMMARY:
 - Average Monthly Usage: ${usageSummary.averageMonthlyUsage} kWh
@@ -91,15 +107,17 @@ Start your response with [ and end with ]
 Required JSON array format (top 10 maximum), sorted by score descending:
 [
   {
-    "planId": "<plan ID>",
-    "supplier": "<supplier name>",
-    "planName": "<plan name>",
+    "planId": "<EXACT plan ID from catalog - COPY IT EXACTLY, DO NOT TYPE>",
+    "supplier": "<EXACT supplier name from catalog>",
+    "planName": "<EXACT plan name from catalog>",
     "score": <0-100>,
     "estimatedAnnualCost": <number>,
     "estimatedSavings": <number>,
     "reasoning": "<brief 1-2 sentence explanation>"
   }
 ]
+
+⚠️  REMINDER: Copy the planId EXACTLY from the AVAILABLE PLANS list above. Do NOT type it manually.
 
 SCORING CRITERIA:
 - Base score: 50 points
@@ -110,14 +128,18 @@ SCORING CRITERIA:
 - Note: All plans shown already meet user's max contract length requirement
 - Minimum 5 plans, maximum 10 plans
 
-VALIDATION REQUIREMENT:
-Each plan you return MUST have:
-- planId that EXACTLY matches one from the AVAILABLE PLANS list (PRIMARY KEY - most important!)
-- supplier that EXACTLY matches the corresponding plan (STRICT - no variations allowed)
-- planName from the catalog (minor contract length variations like "12" vs "24" are acceptable)
+VALIDATION REQUIREMENT - TRIPLE CHECK BEFORE RESPONDING:
+Before submitting your response, verify EVERY plan you selected:
+1. ✓ planId appears in the AVAILABLE PLANS list above (EXACT match, character-for-character)
+2. ✓ supplier name appears in the AVAILABLE PLANS list above (EXACT match)
+3. ✓ planName appears in the AVAILABLE PLANS list above (allow contract length variations)
 
 CRITICAL: planId is your PRIMARY KEY. Always reference plans by their exact planId.
-The validation system will STRICTLY check that planId and supplier match the catalog exactly.
+The validation system will REJECT your response if ANY planId doesn't match EXACTLY.
+
+⚠️  COMMON MISTAKE TO AVOID: Truncating long plan IDs
+If a planId is "plan-just-energy-sustainable-simply-drive-12", you MUST include the FULL ID including "-12"
+DO NOT output "plan-just-energy-sustainable-simply-d" (truncated/corrupted)
 
 EXAMPLE OUTPUT (copy this structure exactly):
 [

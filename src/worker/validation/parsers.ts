@@ -137,14 +137,96 @@ export function parsePlanScoring(rawResponse: string, validPlanIds: string[], st
 		throw error;
 	}
 
-	// STRICT VALIDATION: Verify plan IDs match catalog
-	const invalidPlanIds = validated.scoredPlans.filter((plan) => !validPlanIds.includes(plan.planId)).map((plan) => plan.planId);
+	// STRICT VALIDATION WITH AUTO-CORRECTION: Verify plan IDs match catalog
+	const correctedPlans: typeof validated.scoredPlans = [];
+	const invalidPlanIds: string[] = [];
+	const correctedPlanIds: Array<{ original: string; corrected: string }> = [];
 
-	if (invalidPlanIds.length > 0) {
-		const message = `Plan IDs not found in catalog: ${invalidPlanIds.join(', ')}. AI generated non-existent plans. All plan IDs must exactly match the catalog.`;
-		console.error(`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] ${message}`);
-		throw new ValidationError(message, stageName, [{ path: ['planId'], message: `Invalid plan IDs: ${invalidPlanIds.join(', ')}` }]);
+	for (const plan of validated.scoredPlans) {
+		// Try exact match first
+		if (validPlanIds.includes(plan.planId)) {
+			correctedPlans.push(plan);
+			continue;
+		}
+
+		// Try fuzzy matching for truncated/corrupted IDs
+		// Common issue: AI truncates long plan IDs like "plan-xyz-abc-d" instead of "plan-xyz-abc-def-12"
+		const fuzzyMatch = validPlanIds.find(validId => {
+			// Check if valid ID starts with the (possibly truncated) AI ID
+			return validId.startsWith(plan.planId);
+		});
+
+		if (fuzzyMatch) {
+			console.warn(
+				`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Auto-corrected truncated plan ID: "${plan.planId}" → "${fuzzyMatch}"`
+			);
+			correctedPlanIds.push({ original: plan.planId, corrected: fuzzyMatch });
+			correctedPlans.push({
+				...plan,
+				planId: fuzzyMatch,
+			});
+			continue;
+		}
+
+		// Try partial match (AI may have corrupted the end)
+		const partialMatch = validPlanIds.find(validId => {
+			// Remove last segment and check if they match up to that point
+			const aiParts = plan.planId.split('-');
+			const validParts = validId.split('-');
+
+			// Must have at least 70% of segments matching
+			const minMatching = Math.floor(Math.min(aiParts.length, validParts.length) * 0.7);
+			let matches = 0;
+			for (let i = 0; i < Math.min(aiParts.length, validParts.length); i++) {
+				if (aiParts[i] === validParts[i]) matches++;
+			}
+
+			return matches >= minMatching && matches >= 3;
+		});
+
+		if (partialMatch) {
+			console.warn(
+				`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Auto-corrected corrupted plan ID: "${plan.planId}" → "${partialMatch}"`
+			);
+			correctedPlanIds.push({ original: plan.planId, corrected: partialMatch });
+			correctedPlans.push({
+				...plan,
+				planId: partialMatch,
+			});
+			continue;
+		}
+
+		// No match found - this plan ID is truly invalid
+		invalidPlanIds.push(plan.planId);
+		console.error(
+			`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Invalid plan ID (no fuzzy match): "${plan.planId}"`
+		);
 	}
+
+	// Log corrections summary
+	if (correctedPlanIds.length > 0) {
+		console.warn(
+			`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Auto-corrected ${correctedPlanIds.length} plan IDs: ${correctedPlanIds.map(c => `"${c.original}" → "${c.corrected}"`).join(', ')}`
+		);
+	}
+
+	// If too many invalid IDs (>50% of plans), throw error
+	if (invalidPlanIds.length > 0) {
+		const errorRate = invalidPlanIds.length / validated.scoredPlans.length;
+		if (errorRate > 0.5) {
+			const message = `Too many invalid plan IDs (${invalidPlanIds.length}/${validated.scoredPlans.length}): ${invalidPlanIds.join(', ')}. AI generated non-existent plans. All plan IDs must exactly match the catalog.`;
+			console.error(`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] ${message}`);
+			throw new ValidationError(message, stageName, [{ path: ['planId'], message: `Invalid plan IDs: ${invalidPlanIds.join(', ')}` }]);
+		} else {
+			// Just log warning and filter out invalid plans
+			console.warn(
+				`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Filtered out ${invalidPlanIds.length} invalid plan IDs: ${invalidPlanIds.join(', ')}`
+			);
+		}
+	}
+
+	// Update validated plans with corrected list
+	validated.scoredPlans = correctedPlans;
 
 	// STRICT VALIDATION: Verify plan names and suppliers match catalog
 	// - Supplier: STRICT (exact match required)

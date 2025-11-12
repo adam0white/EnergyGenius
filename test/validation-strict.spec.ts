@@ -26,7 +26,7 @@ describe('Strict Plan Validation (Story 7.8)', () => {
 			]);
 
 			expect(() => parsePlanScoring(invalidResponse, validPlanIds, 'test-stage')).toThrow(ValidationError);
-			expect(() => parsePlanScoring(invalidResponse, validPlanIds, 'test-stage')).toThrow(/not found in catalog/);
+			expect(() => parsePlanScoring(invalidResponse, validPlanIds, 'test-stage')).toThrow(/Too many invalid plan IDs/);
 		});
 
 		it('should ACCEPT recommendations with valid plan IDs', () => {
@@ -46,7 +46,7 @@ describe('Strict Plan Validation (Story 7.8)', () => {
 			expect(() => parsePlanScoring(validResponse, validPlanIds, 'test-stage')).not.toThrow();
 		});
 
-		it('should REJECT if ANY plan ID is invalid (partial failure)', () => {
+		it('should FILTER OUT invalid plan IDs (resilient behavior)', () => {
 			const validPlan = Array.from(supplierCatalog)[0];
 			const mixedResponse = JSON.stringify([
 				{
@@ -69,8 +69,47 @@ describe('Strict Plan Validation (Story 7.8)', () => {
 				},
 			]);
 
-			expect(() => parsePlanScoring(mixedResponse, validPlanIds, 'test-stage')).toThrow(ValidationError);
-			expect(() => parsePlanScoring(mixedResponse, validPlanIds, 'test-stage')).toThrow(/fictional-plan-002/);
+			// NEW BEHAVIOR: Filter out invalid plans instead of throwing (more resilient)
+			const result = parsePlanScoring(mixedResponse, validPlanIds, 'test-stage');
+			expect(result.scoredPlans).toHaveLength(1); // Only valid plan should remain
+			expect(result.scoredPlans[0].planId).toBe(validPlan.id);
+		});
+
+		it('should REJECT if MAJORITY of plan IDs are invalid (>50% error rate)', () => {
+			const validPlan = Array.from(supplierCatalog)[0];
+			const mostlyInvalidResponse = JSON.stringify([
+				{
+					planId: validPlan.id,
+					supplier: validPlan.supplier,
+					planName: validPlan.planName,
+					score: 85,
+					estimatedAnnualCost: 1300,
+					estimatedSavings: 150,
+					reasoning: 'Good match',
+				},
+				{
+					planId: 'fictional-plan-001',
+					supplier: 'Made Up Inc',
+					planName: 'Fake Plan 1',
+					score: 90,
+					estimatedAnnualCost: 1100,
+					estimatedSavings: 250,
+					reasoning: 'Fake 1',
+				},
+				{
+					planId: 'fictional-plan-002',
+					supplier: 'Made Up Inc',
+					planName: 'Fake Plan 2',
+					score: 88,
+					estimatedAnnualCost: 1150,
+					estimatedSavings: 200,
+					reasoning: 'Fake 2',
+				},
+			]);
+
+			// Should throw when >50% of plans are invalid (2 out of 3)
+			expect(() => parsePlanScoring(mostlyInvalidResponse, validPlanIds, 'test-stage')).toThrow(ValidationError);
+			expect(() => parsePlanScoring(mostlyInvalidResponse, validPlanIds, 'test-stage')).toThrow(/Too many invalid plan IDs/);
 		});
 	});
 
@@ -278,7 +317,7 @@ describe('Strict Plan Validation (Story 7.8)', () => {
 			expect(() => parsePlanScoring(emptyResponse, validPlanIds, 'test-stage')).toThrow();
 		});
 
-		it('should validate all plans in large response', () => {
+		it('should filter out invalid plans in large response (resilient)', () => {
 			// Create response with 10 plans - one invalid
 			const validPlans = Array.from(supplierCatalog).slice(0, 9);
 			const plans = validPlans.map((p) => ({
@@ -291,7 +330,7 @@ describe('Strict Plan Validation (Story 7.8)', () => {
 				reasoning: 'Good match',
 			}));
 
-			// Add one invalid plan
+			// Add one invalid plan (10% error rate - should be filtered, not throw)
 			plans.push({
 				planId: 'invalid-plan-id',
 				supplier: 'Invalid Supplier',
@@ -303,7 +342,9 @@ describe('Strict Plan Validation (Story 7.8)', () => {
 			});
 
 			const response = JSON.stringify(plans);
-			expect(() => parsePlanScoring(response, validPlanIds, 'test-stage')).toThrow(ValidationError);
+			// Should NOT throw - only 10% error rate, should filter out invalid plan
+			const result = parsePlanScoring(response, validPlanIds, 'test-stage');
+			expect(result.scoredPlans).toHaveLength(9); // 9 valid plans remain
 		});
 	});
 });

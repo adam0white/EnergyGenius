@@ -29,8 +29,17 @@ export interface NarrativeSection {
  * @param text - Raw narrative text from AI
  * @returns Parsed narrative with identified structure
  */
-export function parseNarrative(text: string): ParsedNarrative {
-	if (!text || text.trim().length === 0) {
+export function parseNarrative(text: string | null | undefined): ParsedNarrative {
+	// Handle null/undefined/empty safely
+	if (!text || typeof text !== 'string') {
+		return {
+			type: 'plain',
+			sections: [],
+		};
+	}
+
+	const trimmed = text.trim();
+	if (trimmed.length === 0) {
 		return {
 			type: 'plain',
 			sections: [],
@@ -38,33 +47,33 @@ export function parseNarrative(text: string): ParsedNarrative {
 	}
 
 	// Strip markdown syntax before parsing
-	let trimmed = text.trim();
+	let cleaned = trimmed;
 
 	// Remove markdown bold syntax (**text**)
-	trimmed = trimmed.replace(/\*\*(.+?)\*\*/g, '$1');
+	cleaned = cleaned.replace(/\*\*(.+?)\*\*/g, '$1');
 
 	// Remove markdown italic syntax (*text* and _text_)
 	// BUT: Don't match asterisks at start of line followed by space (those are bullet points!)
-	trimmed = trimmed.replace(/(?<!^)(?<!\n)\*([^*\n]+?)\*/g, '$1');
-	trimmed = trimmed.replace(/_([^_]+?)_/g, '$1');
+	cleaned = cleaned.replace(/(?<!^)(?<!\n)\*([^*\n]+?)\*/g, '$1');
+	cleaned = cleaned.replace(/_([^_]+?)_/g, '$1');
 
 	// Remove markdown headers (# Header, ## Header, etc.)
-	trimmed = trimmed.replace(/^#{1,6}\s+(.+)$/gm, '$1');
+	cleaned = cleaned.replace(/^#{1,6}\s+(.+)$/gm, '$1');
 
 	// Remove inline code syntax (`code`)
-	trimmed = trimmed.replace(/`([^`]+?)`/g, '$1');
+	cleaned = cleaned.replace(/`([^`]+?)`/g, '$1');
 	const sections: NarrativeSection[] = [];
 
 	// First, try to detect if the text contains embedded bullet lists
 	// This handles cases where the AI returns text like: "text\n- item1\n- item2\nmore text"
 	// But NOT pure lists where every line is a list item (those use the original logic)
-	const lines = trimmed.split('\n').filter((l) => l.trim());
+	const lines = cleaned.split('\n').filter((l) => l.trim());
 	const listItemCount = lines.filter((l) => /^[\s]*[-*•]\s+/.test(l)).length;
 	const hasEmbeddedList = listItemCount > 0 && listItemCount < lines.length;
 
 	if (hasEmbeddedList) {
 		// Process line by line, but respect blank line paragraph breaks
-		const lines = trimmed.split('\n');
+		const lines = cleaned.split('\n');
 		let currentList: string[] = [];
 		let currentParagraph: string[] = [];
 
@@ -167,7 +176,7 @@ export function parseNarrative(text: string): ParsedNarrative {
 		}
 	} else {
 		// Original logic: split by double line breaks
-		const paragraphs = trimmed
+		const paragraphs = cleaned
 			.split(/\n\n+/)
 			.map((p) => p.trim())
 			.filter((p) => p.length > 0);
@@ -214,7 +223,7 @@ export function parseNarrative(text: string): ParsedNarrative {
 	if (sections.length === 0) {
 		sections.push({
 			type: 'paragraph',
-			content: trimmed,
+			content: cleaned,
 		});
 	}
 
