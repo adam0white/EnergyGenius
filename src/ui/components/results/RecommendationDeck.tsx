@@ -34,6 +34,8 @@ interface Recommendation {
 	contractLength?: number;
 	earlyTerminationFee?: number;
 	renewablePercentage?: number;
+	baseRate?: number; // Price per kWh
+	monthlyFee?: number; // Monthly service charge
 }
 
 interface RecommendationDeckProps {
@@ -237,8 +239,22 @@ function RecommendationCard({ recommendation, rank }: { recommendation: Recommen
 
 			{/* Pricing Summary (always visible) */}
 			<div className="space-y-2 mb-4">
-				<div className="flex justify-between text-sm items-center">
-					<span className="text-gray-600">Estimated Monthly Cost:</span>
+				<div className="flex justify-between text-sm">
+					<span className="text-gray-600">Price per kWh:</span>
+					<span className="font-semibold text-gray-900">
+						{recommendation.baseRate && recommendation.baseRate > 0
+							? `$${recommendation.baseRate.toFixed(3)}/kWh`
+							: 'N/A'}
+					</span>
+				</div>
+				<div className="flex justify-between text-sm">
+					<span className="text-gray-600">Monthly Service Fee:</span>
+					<span className="font-semibold text-gray-900">
+						${(recommendation.monthlyFee ?? 0).toFixed(2)}
+					</span>
+				</div>
+				<div className="flex justify-between text-sm border-t pt-2 mt-2">
+					<span className="text-gray-600">Est. Monthly Cost:</span>
 					<span className="font-bold text-lg text-gray-900">${recommendation.monthlyPrice.toFixed(2)}</span>
 				</div>
 			</div>

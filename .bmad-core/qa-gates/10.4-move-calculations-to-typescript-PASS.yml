@@ -1,0 +1,258 @@
+# QA Gate Decision: Story 10.4 - Move Cost Calculations from LLM to TypeScript
+# Decision Date: 2025-11-12
+# Test Architect: Quinn (Test Architect & Quality Advisor)
+# Status: PASS - APPROVED FOR PRODUCTION
+
+---
+
+decision: PASS
+severity: P0-CRITICAL
+date_reviewed: 2025-11-12
+reviewer: Quinn (Test Architect & Quality Advisor)
+ticket: story-10.4-move-calculations-to-typescript
+
+---
+
+## Executive Summary
+
+Story 10.4 successfully eliminates the critical P0 arithmetic hallucination risk by moving cost calculations from LLM (non-deterministic) to TypeScript (deterministic). Implementation is thorough, well-tested, and production-ready.
+
+**Quality Gate Decision: PASS** - Approved for immediate production deployment.
+
+---
+
+## Validation Results
+
+### 1. LLM No Longer Calculates Arithmetic: PASS
+
+**Evidence:**
+- Prompt review (plan-scoring.ts lines 54-161):
+  - NO "Calculate:" instructions found
+  - NO arithmetic formulas in prompt
+  - Prompt ONLY requests: index, score, reasoning
+  - Costs provided as read-only reference data (line 100-102)
+
+- Parser review (parsers.ts line 196):
+  - TypeScript costs injected at parse time
+  - LLM response provides: index, score, reasoning only
+  - All cost fields sourced from pre-calculated TypeScript values
+  - Logging confirms "TypeScript costs" usage (line 242)
+
+**Conclusion:** LLM completely restricted to qualitative scoring. Arithmetic eliminated.
+
+---
+
+### 2. TypeScript Calculation Logic: PASS
+
+**Formula Verification:**
+```
+estimatedAnnualCost = (baseRate × usage) + (monthlyFee × 12)
+estimatedSavings = currentAnnualCost - estimatedAnnualCost
+savingsPercent = (estimatedSavings / currentAnnualCost) × 100
+```
+
+**Implementation Review (calculations.ts):**
+- Lines 78-82: Energy cost calculation (baseRate × usage) correct
+- Line 81: Yearly fees calculation (monthlyFee × 12) correct
+- Line 85: Savings calculation matches formula exactly
+- Lines 88-90: Division by zero protection (currentAnnualCost > 0 check)
+- Lines 93-96: Currency rounding to 2 decimal places correct
+
+**Edge Cases Verified:**
+- Negative savings: Handled correctly (plan more expensive than current)
+- Zero current cost: Division by zero prevented
+- Invalid inputs: Comprehensive error checking (lines 62-76)
+- Performance: 100 plans calculated in <1ms
+- Determinism: 1,000 repeated calculations produce identical results
+
+**Conclusion:** Formula correct, edge cases handled, deterministic results validated.
+
+---
+
+### 3. Test Coverage: PASS - 31 Tests (100% Passing)
+
+**Test Execution Results:**
+```
+Test Files:  1 passed (1)
+Tests:       31 passed (31)
+Duration:    78ms
+Status:      ALL PASSING
+```
+
+**Test Breakdown:**
+
+**Unit Tests (21 tests):**
+- calculateAnnualCost (8 tests): Basic cases, edge cases, error handling
+- calculateSavings (6 tests): Normal, negative, zero cost edge cases
+- calculatePlanCosts (7 tests): Full metrics, break-even, cheap plans, error handling
+
+**Integration Tests (5 tests):**
+- Real-world scenarios from story specification
+- Story example validation: cheap plan ($0.108/kWh) = $1,307/year
+- Story example validation: expensive plan ($0.19/kWh) = $2,209/year
+- Consistency testing: 100 repeated calculations (deterministic)
+
+**Performance Tests (2 tests):**
+- 100 plans calculated in <1ms (PASSES - TypeScript fast)
+- Determinism: 1,000 calculations produce identical results (PASSES)
+
+**Conclusion:** Comprehensive test coverage with 100% pass rate.
+
+---
+
+### 4. Pipeline Integration: PASS
+
+**Pre-Calculation Stage (pipeline.ts lines 198-209):**
+- All 152 supplier plans pre-calculated in single batch
+- Calculation happens BEFORE Stage 2 prompt execution
+- Performance: <1ms for all plans
+- Logging: "[CALCULATIONS] Pre-calculated costs for 152 plans using TypeScript"
+
+**Prompt Integration (plan-scoring.ts):**
+- Costs provided to LLM as reference data (read-only)
+- LLM restricted to scoring/ranking task only
+- No calculation instructions in prompt
+
+**Parser Integration (parsers.ts):**
+- costCalculations Map passed to parser (line 232)
+- Parser uses TypeScript costs exclusively
+- Backward compatibility maintained
+
+**Fallback Path (retry.ts lines 148-188):**
+- Fallback uses same calculatePlanCosts() utility function
+- Consistent calculation logic between primary and fallback
+- Error handling with graceful fallback values
+
+**Conclusion:** Integration verified at all layers. Primary and fallback paths consistent.
+
+---
+
+### 5. Production Build: PASS
+
+**Build Results:**
+- Status: Successful
+- Output: 392.60 kB (gzip: 106.88 kB)
+- Modules: 1,771 transformed correctly
+- Errors: None related to calculations
+- Ready: Yes
+
+**Conclusion:** Production build successful, no issues detected.
+
+---
+
+## Acceptance Criteria Verification
+
+**AC1: Move Calculations to TypeScript Code** - COMPLETE
+- Created src/worker/lib/calculations.ts
+- Implemented 5 utility functions with comprehensive documentation
+
+**AC2: Update Stage 2 Prompt to Not Calculate** - COMPLETE
+- Removed all "Calculate:" instructions from plan-scoring.ts
+- LLM now only scores/ranks (qualitative)
+
+**AC3: Update Response Parsing** - COMPLETE
+- parsePlanScoring() receives costCalculations Map
+- Uses TypeScript costs, discards LLM math
+
+**AC4: Verify Fallback Still Works** - COMPLETE
+- Fallback uses same calculation utilities
+- Consistent with primary path
+
+**AC5: Add Validation & Logging** - COMPLETE
+- TypeScript calculations logged
+- Performance metrics tracked
+- Source (TypeScript vs LLM) logged in parser
+
+---
+
+## Critical Validations
+
+**Question 1: Does LLM prompt still contain arithmetic?**
+- Answer: NO
+- Evidence: Prompt reviewed (lines 54-161), NO calculation instructions found
+- Verification: LLM only requests index, score, reasoning
+
+**Question 2: Are calculations deterministic?**
+- Answer: YES
+- Evidence: Test confirms 1,000 repeated calculations produce identical results
+- Conclusion: No random variation, identical results each time
+
+**Question 3: Are tests comprehensive?**
+- Answer: YES
+- Evidence: 31 tests covering unit, integration, real-world, and performance scenarios
+- Coverage: All story examples, edge cases, error handling
+
+**Question 4: Does production build work?**
+- Answer: YES
+- Evidence: Build successful with all modules transformed correctly
+- Status: Ready to deploy
+
+---
+
+## Risk Assessment
+
+**Original P0 Risk:**
+- Hazard: LLM performs arithmetic on every request → hallucination possible
+- Impact: Users see incorrect cost/savings estimates
+- Probability: Medium-High (happens on every request)
+- Severity: CRITICAL (production user-facing)
+- Risk Level: EXTREME
+
+**After Implementation:**
+- Hazard: ELIMINATED - TypeScript performs arithmetic deterministically
+- Impact: Reliable, testable calculations
+- Probability: Zero (code is deterministic)
+- Severity: Not applicable
+- Risk Level: RESOLVED
+
+**Migration Risk:** LOW
+- Clean separation of concerns
+- LLM still handles scoring (its strength)
+- TypeScript handles arithmetic (deterministic strength)
+- Fallback path consistent with primary
+
+---
+
+## Files Reviewed
+
+1. /src/worker/lib/calculations.ts - Calculation utilities
+2. /src/worker/prompts/plan-scoring.ts - LLM prompt
+3. /src/worker/pipeline.ts - Pipeline orchestration
+4. /src/worker/validation/parsers.ts - Response parser
+5. /src/worker/lib/retry.ts - Fallback logic
+6. /test/calculations.spec.ts - Unit tests
+
+---
+
+## Quality Gate Decision
+
+**Status: PASS**
+
+**Rationale:**
+1. All acceptance criteria completed and verified
+2. All tests passing (31/31)
+3. Production build successful
+4. Critical P0 risk eliminated
+5. Code quality meets standards
+6. Integration verified at all layers
+7. Edge cases handled
+8. Determinism validated
+9. Performance acceptable
+10. No blocking issues
+
+**Concerns:** NONE
+
+**Recommendations:**
+- APPROVED for immediate production deployment
+- Consider celebrating team success on P0 resolution
+
+---
+
+## Approval
+
+Signed by: Quinn (Test Architect & Quality Advisor)
+Date: 2025-11-12
+Confidence Level: HIGH
+
+This story is approved for immediate production deployment. All validations passed. No outstanding issues or concerns.
+

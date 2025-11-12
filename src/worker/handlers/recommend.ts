@@ -157,6 +157,8 @@ export async function handleRecommend(request: Request, env: Env, requestId: str
 					renewablePercent: catalogPlan?.renewablePercent ?? 0,
 					contractTermMonths: catalogPlan?.contractTermMonths ?? 12,
 					earlyTerminationFee: catalogPlan?.earlyTerminationFee ?? 0,
+					baseRate: catalogPlan?.baseRate ?? 0,
+					monthlyFee: catalogPlan?.monthlyFee ?? 0,
 				};
 			})
 		: [];

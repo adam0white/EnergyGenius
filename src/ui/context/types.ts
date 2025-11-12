@@ -27,6 +27,8 @@ export interface Recommendation {
 	contractLength?: number;
 	earlyTerminationFee?: number;
 	renewablePercentage?: number;
+	baseRate?: number; // Price per kWh
+	monthlyFee?: number; // Monthly service charge
 }
 
 /**
