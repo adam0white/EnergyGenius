@@ -9,7 +9,7 @@ import https from 'https';
 import http from 'http';
 
 // Default Worker URL - can be overridden via environment variable
-const workerUrl = process.env.WORKER_URL || 'https://energy-genius.21785aeab46b7c081cae0be3a4313dbd.workers.dev';
+const workerUrl = process.env.WORKER_URL || 'https://genius.adamwhite.work';
 
 console.log('\n🔍 Verifying deployment...');
 console.log(`📍 Worker URL: ${workerUrl}`);

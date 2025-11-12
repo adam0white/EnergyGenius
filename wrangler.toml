@@ -1,7 +1,12 @@
 name = "energy-genius"
 main = "src/worker/index.ts"
 compatibility_date = "2025-11-11"
-account_id = "21785aeab46b7c081cae0be3a4313dbd"
+account_id = "a20259cba74e506296745f9c67c1f3bc"
+workers_dev = false
+
+[[routes]]
+pattern = "genius.adamwhite.work"
+custom_domain = true
 
 [assets]
 directory = "./dist"
