@@ -1,13 +1,16 @@
 /**
  * Usage Scenarios - Mock electricity usage profiles
  *
- * This module contains 5 realistic usage scenarios representing different
+ * This module contains 8 realistic usage scenarios representing diverse
  * household and business patterns:
- * - Average Household (10,800 kWh/year)
+ * - Average Household (11,000 kWh/year)
  * - High Summer Usage (14,400 kWh/year)
  * - Low Usage Efficient (6,000 kWh/year)
- * - Small Business (25,000 kWh/year)
- * - Winter-Heavy Usage (13,200 kWh/year)
+ * - Small Business (26,000 kWh/year)
+ * - Winter-Heavy Usage (12,500 kWh/year)
+ * - Large Family Home (19,200 kWh/year)
+ * - Apartment Dweller (4,600 kWh/year)
+ * - Medium Business (50,000 kWh/year)
  *
  * Each scenario includes 12 months of detailed usage data with realistic
  * seasonal variations.
@@ -129,6 +132,72 @@ export const usageScenarios: readonly UsageScenario[] = [
 		],
 		annualKWh: 12500,
 		averageMonthlyKWh: 1042,
+	},
+	{
+		id: 'scenario-large-family',
+		name: 'Large Family Home',
+		description: '4-bedroom suburban home with large family and multiple HVAC zones',
+		type: 'large-family',
+		monthlyUsage: [
+			{ month: 1, kWh: 1550 },
+			{ month: 2, kWh: 1450 },
+			{ month: 3, kWh: 1350 },
+			{ month: 4, kWh: 1250 },
+			{ month: 5, kWh: 1450 },
+			{ month: 6, kWh: 1850 },
+			{ month: 7, kWh: 2050 },
+			{ month: 8, kWh: 1950 },
+			{ month: 9, kWh: 1750 },
+			{ month: 10, kWh: 1450 },
+			{ month: 11, kWh: 1500 },
+			{ month: 12, kWh: 1600 },
+		],
+		annualKWh: 19200,
+		averageMonthlyKWh: 1600,
+	},
+	{
+		id: 'scenario-apartment',
+		name: 'Apartment Dweller',
+		description: '1-bedroom efficient apartment with minimal heating/cooling needs',
+		type: 'apartment',
+		monthlyUsage: [
+			{ month: 1, kWh: 380 },
+			{ month: 2, kWh: 360 },
+			{ month: 3, kWh: 340 },
+			{ month: 4, kWh: 320 },
+			{ month: 5, kWh: 350 },
+			{ month: 6, kWh: 420 },
+			{ month: 7, kWh: 480 },
+			{ month: 8, kWh: 460 },
+			{ month: 9, kWh: 400 },
+			{ month: 10, kWh: 350 },
+			{ month: 11, kWh: 360 },
+			{ month: 12, kWh: 380 },
+		],
+		annualKWh: 4600,
+		averageMonthlyKWh: 383,
+	},
+	{
+		id: 'scenario-medium-business',
+		name: 'Medium Business',
+		description: 'Small office building with HVAC, servers, and extended business hours',
+		type: 'medium-business',
+		monthlyUsage: [
+			{ month: 1, kWh: 3800 },
+			{ month: 2, kWh: 3700 },
+			{ month: 3, kWh: 3900 },
+			{ month: 4, kWh: 4000 },
+			{ month: 5, kWh: 4200 },
+			{ month: 6, kWh: 4500 },
+			{ month: 7, kWh: 4800 },
+			{ month: 8, kWh: 4700 },
+			{ month: 9, kWh: 4400 },
+			{ month: 10, kWh: 4100 },
+			{ month: 11, kWh: 4000 },
+			{ month: 12, kWh: 3900 },
+		],
+		annualKWh: 50000,
+		averageMonthlyKWh: 4167,
 	},
 ] as const;
 

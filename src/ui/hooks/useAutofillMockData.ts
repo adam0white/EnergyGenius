@@ -152,11 +152,24 @@ function applyVariance(baseValue: number): number {
  * @returns Current plan data
  */
 function generateCurrentPlan(scenario: UsageScenario) {
+	/**
+	 * Base current rates for mock data scenarios
+	 *
+	 * Rates are intentionally set higher (0.14-0.17 $/kWh) than average
+	 * catalog plans (0.09-0.13 $/kWh) to enable meaningful savings
+	 * demonstrations showing Gold/Silver tier recommendations.
+	 *
+	 * This reflects realistic scenarios where users are on expensive
+	 * legacy plans or default utility rates.
+	 */
 	const baseRates: Record<string, number> = {
-		residential: 0.12,
-		'small-business': 0.11,
-		'seasonal-high': 0.13,
-		'seasonal-low': 0.115,
+		residential: 0.155,
+		'small-business': 0.145,
+		'seasonal-high': 0.165,
+		'seasonal-low': 0.15,
+		'large-family': 0.17,
+		'apartment': 0.14,
+		'medium-business': 0.16,
 	};
 
 	const monthlyFees: Record<string, number> = {
@@ -164,6 +177,9 @@ function generateCurrentPlan(scenario: UsageScenario) {
 		'small-business': 14.95,
 		'seasonal-high': 9.95,
 		'seasonal-low': 9.95,
+		'large-family': 12.95,
+		'apartment': 9.95,
+		'medium-business': 19.95,
 	};
 
 	// Generate contract end date 1-12 months in future
@@ -230,6 +246,27 @@ function generatePreferences(scenario: UsageScenario) {
 			prioritizeFlexibility: true,
 			maxContractMonths: 6,
 			riskTolerance: 'medium',
+		},
+		'large-family': {
+			prioritizeSavings: true,
+			prioritizeRenewable: false,
+			prioritizeFlexibility: false,
+			maxContractMonths: 24,
+			riskTolerance: 'medium',
+		},
+		'apartment': {
+			prioritizeSavings: true,
+			prioritizeRenewable: true,
+			prioritizeFlexibility: true,
+			maxContractMonths: 6,
+			riskTolerance: 'low',
+		},
+		'medium-business': {
+			prioritizeSavings: true,
+			prioritizeRenewable: false,
+			prioritizeFlexibility: false,
+			maxContractMonths: 12,
+			riskTolerance: 'low',
 		},
 	};
 

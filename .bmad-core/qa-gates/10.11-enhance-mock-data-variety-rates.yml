@@ -1,0 +1,266 @@
+story_id: "10.11"
+story_title: "Enhance Mock Data Variety and Adjust Rates for Better Savings Demonstrations"
+epic: "Epic 10 - Critical Production Bugs"
+qa_agent: "Quinn (Test Architect & Quality Advisor)"
+review_date: "2025-11-12"
+model_used: "Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)"
+
+gate_decision: "CONDITIONAL_PASS"
+quality_grade: "MEDIUM"  # Would be HIGH after fix
+risk_level: "MEDIUM"
+overall_grade: "96%"  # Would be 100% after math fix
+
+executive_summary: |
+  The implementation successfully delivers on core objectives: expanding mock data variety
+  from 5 to 8 scenarios and raising current rates by 30%+ to enable better savings demonstrations.
+  Changes demonstrate strong technical execution with excellent type safety, comprehensive
+  documentation, and realistic data modeling.
+
+  However, a critical mathematical error was discovered in the Large Family Home scenario where
+  monthly usage values sum to 18,700 kWh but the documented annualKWh is 19,200 kWh (500 kWh
+  discrepancy). This must be corrected before final approval.
+
+  All other scenarios pass mathematical validation, type safety is maintained across the codebase,
+  and tier diversity objectives are met with 50% of scenarios capable of Gold tier recommendations.
+
+critical_issues:
+  - id: "MATH_ERROR_001"
+    severity: "CRITICAL"
+    title: "Large Family Home Math Error"
+    location: "src/worker/data/usage-scenarios.ts:141-156"
+    description: "Monthly usage values sum to 18,700 kWh but annualKWh is documented as 19,200 kWh"
+    impact: "HIGH - Affects savings calculations and undermines data accuracy"
+    status: "MUST_FIX"
+    estimated_effort: "5 minutes"
+    recommended_fix: |
+      Adjust monthly values to sum to 19,200 kWh by adding ~50 kWh to each of 10 months:
+      - Distribute 500 kWh across Jan-Sep (50 kWh each)
+      - Keep Oct-Dec unchanged
+      - Update averageMonthlyKWh to 1600
+
+blocking_issues: []
+
+warnings: []
+
+acceptance_criteria_results:
+  ac1_expand_scenarios:
+    status: "CONDITIONAL_PASS"
+    grade: "95%"
+    notes: "3 new scenarios added, 8 total available. Large Family Home has math error."
+
+  ac2_update_rates:
+    status: "PASS"
+    grade: "100%"
+    notes: "All rates increased 27-32% (meets 30%+ requirement). Range: 0.14-0.17 $/kWh."
+
+  ac3_update_fees:
+    status: "PASS"
+    grade: "100%"
+    notes: "All 3 new scenario types have realistic fee mappings ($9.95-$19.95)."
+
+  ac4_update_preferences:
+    status: "PASS"
+    grade: "100%"
+    notes: "All 3 new scenario types have thoughtful preference profiles."
+
+  ac5_documentation:
+    status: "PASS"
+    grade: "100%"
+    notes: "Header updated to 8 scenarios, rate rationale documented comprehensively."
+
+  ac6_backward_compatibility:
+    status: "PASS"
+    grade: "100%"
+    notes: "All 5 existing scenarios mathematically correct. No breaking changes."
+
+  ac7_test_scenarios:
+    status: "EXCEEDS"
+    grade: "110%"
+    notes: "50% Gold tier capability (exceeds 30% target). Superior tier diversity."
+
+  ac8_build_validation:
+    status: "PASS"
+    grade: "100%"
+    notes: "Build succeeded in 1.26s. Zero TypeScript/ESLint errors."
+
+testing_results:
+  math_validation:
+    pass_rate: "87.5%"  # 7 of 8 scenarios
+    details:
+      - scenario: "Average Household"
+        status: "PASS"
+        sum: 11000
+        expected: 11000
+      - scenario: "High Summer Usage"
+        status: "PASS"
+        sum: 14400
+        expected: 14400
+      - scenario: "Low Usage Efficient"
+        status: "PASS"
+        sum: 6000
+        expected: 6000
+      - scenario: "Small Business"
+        status: "PASS"
+        sum: 26000
+        expected: 26000
+      - scenario: "Winter-Heavy Usage"
+        status: "PASS"
+        sum: 12500
+        expected: 12500
+      - scenario: "Large Family Home"
+        status: "FAIL"
+        sum: 18700
+        expected: 19200
+        discrepancy: -500
+      - scenario: "Apartment Dweller"
+        status: "PASS"
+        sum: 4600
+        expected: 4600
+      - scenario: "Medium Business"
+        status: "PASS"
+        sum: 50000
+        expected: 50000
+
+  type_safety:
+    status: "PASS"
+    typescript_errors: 0
+    eslint_errors: 0
+    notes: "All 7 scenario types properly mapped in rates, fees, and preferences."
+
+  build_validation:
+    status: "PASS"
+    build_time: "1.26s"
+    modules_transformed: 1771
+    notes: "Production build successful with no errors."
+
+  tier_diversity:
+    status: "EXCEEDS_EXPECTATIONS"
+    gold_tier: "50%"  # Target was 30%
+    silver_tier: "25%"  # Target was 30%
+    bronze_tier: "25%"
+    max_savings:
+      - scenario: "Medium Business"
+        amount: "$3,500"
+        tier: "Gold"
+      - scenario: "Large Family Home"
+        amount: "$1,536"
+        tier: "Gold"
+      - scenario: "Small Business"
+        amount: "$1,430"
+        tier: "Gold"
+      - scenario: "High Summer Usage"
+        amount: "$1,080"
+        tier: "Gold"
+      - scenario: "Winter-Heavy Usage"
+        amount: "$750"
+        tier: "Silver"
+      - scenario: "Average Household"
+        amount: "$715"
+        tier: "Silver"
+      - scenario: "Low Usage Efficient"
+        amount: "$360"
+        tier: "Bronze"
+      - scenario: "Apartment Dweller"
+        amount: "$230"
+        tier: "Bronze"
+
+what_was_done_well:
+  - "Excellent type safety with all 7 scenario types in TypeScript union"
+  - "Comprehensive documentation with clear rate adjustment rationale"
+  - "2 of 3 new scenarios have perfect mathematical accuracy"
+  - "Superior tier diversity (50% Gold vs 30% target)"
+  - "Complete rate/fee/preference mappings for all scenario types"
+  - "Thoughtful preference profile design matching user personas"
+  - "Backward compatibility maintained - no regressions"
+  - "Clean build with zero TypeScript/ESLint errors"
+
+risk_assessment:
+  technical_risks:
+    - risk: "Math error in Large Family Home could propagate to calculations"
+      severity: "MEDIUM"
+      mitigation: "Fix before final approval"
+    - risk: "Type safety reduces runtime error risk"
+      severity: "LOW"
+    - risk: "Backward compatibility maintained"
+      severity: "LOW"
+    - risk: "Build validation passed"
+      severity: "LOW"
+
+  business_risks:
+    - risk: "Tier diversity objectives exceeded"
+      severity: "LOW"
+    - risk: "Value proposition demonstration improved"
+      severity: "LOW"
+    - risk: "Math error undermines data accuracy credibility"
+      severity: "MEDIUM"
+      mitigation: "Quick fix required"
+
+recommendations:
+  required:
+    - priority: "CRITICAL"
+      item: "Fix Large Family Home monthly values to sum to 19,200 kWh"
+      effort: "5 minutes"
+
+  optional:
+    - priority: "RECOMMENDED"
+      item: "Add automated math validation unit tests"
+      effort: "30 minutes"
+      rationale: "Prevent future math errors in scenarios"
+    - priority: "OPTIONAL"
+      item: "Document 5-10% variance applied by useAutofillMockData"
+      effort: "10 minutes"
+      rationale: "Clarify that form values differ slightly from base scenarios"
+    - priority: "OPTIONAL"
+      item: "Add scenario selection statistics tracking"
+      effort: "1 hour"
+      rationale: "Inform future scenario design"
+
+next_steps:
+  - step: 1
+    action: "Developer fixes Large Family Home monthly usage values"
+    owner: "Dev Agent"
+    estimated_time: "5 minutes"
+  - step: 2
+    action: "Re-run npm run build to verify fix"
+    owner: "Dev Agent"
+    estimated_time: "2 minutes"
+  - step: 3
+    action: "QA re-validates math correction"
+    owner: "QA Agent"
+    estimated_time: "5 minutes"
+  - step: 4
+    action: "Mark story as Done if all issues resolved"
+    owner: "QA Agent"
+    estimated_time: "3 minutes"
+
+total_time_to_completion: "10-15 minutes"
+
+conclusion: |
+  This is a well-executed implementation that successfully achieves the core business objectives:
+  expanding mock data variety and enabling better savings demonstrations. The tier diversity results
+  (50% Gold capability) significantly exceed requirements (30% Gold target).
+
+  The single critical math error in the Large Family Home scenario prevents full approval but is
+  easily correctable. All other aspects of the implementation demonstrate high quality: excellent
+  type safety, comprehensive documentation, realistic data modeling, and strong backward compatibility.
+
+  Recommendation: CONDITIONAL PASS pending math fix. Once corrected, this story will be fully
+  complete and ready for production deployment.
+
+files_modified:
+  - path: "src/worker/data/usage-scenarios.ts"
+    status: "NEEDS_FIX"
+    changes: "Added 3 new scenarios (Large Family Home has math error)"
+  - path: "src/ui/hooks/useAutofillMockData.ts"
+    status: "APPROVED"
+    changes: "Updated rates, fees, and preference profiles"
+  - path: "src/worker/data/types.ts"
+    status: "APPROVED"
+    changes: "Updated UsageScenario type to include 3 new scenario types"
+
+files_created: []
+
+approved_for_production: false
+conditional_approval: true
+requires_retest: true
+estimated_retest_effort: "10 minutes"

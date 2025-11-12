@@ -77,7 +77,7 @@ export interface UsageScenario {
 	description: string;
 
 	/** Usage type classification */
-	type: 'residential' | 'small-business' | 'seasonal-high' | 'seasonal-low';
+	type: 'residential' | 'small-business' | 'seasonal-high' | 'seasonal-low' | 'large-family' | 'apartment' | 'medium-business';
 
 	/** Array of 12 monthly data points */
 	monthlyUsage: UsageData[];
