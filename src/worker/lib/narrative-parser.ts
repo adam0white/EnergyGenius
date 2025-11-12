@@ -44,7 +44,8 @@ export function parseNarrative(text: string): ParsedNarrative {
 	trimmed = trimmed.replace(/\*\*(.+?)\*\*/g, '$1');
 
 	// Remove markdown italic syntax (*text* and _text_)
-	trimmed = trimmed.replace(/\*([^*]+?)\*/g, '$1');
+	// BUT: Don't match asterisks at start of line followed by space (those are bullet points!)
+	trimmed = trimmed.replace(/(?<!^)(?<!\n)\*([^*\n]+?)\*/g, '$1');
 	trimmed = trimmed.replace(/_([^_]+?)_/g, '$1');
 
 	// Remove markdown headers (# Header, ## Header, etc.)
@@ -54,46 +55,158 @@ export function parseNarrative(text: string): ParsedNarrative {
 	trimmed = trimmed.replace(/`([^`]+?)`/g, '$1');
 	const sections: NarrativeSection[] = [];
 
-	// Split into paragraphs (double line breaks or significant breaks)
-	const paragraphs = trimmed
-		.split(/\n\n+/)
-		.map((p) => p.trim())
-		.filter((p) => p.length > 0);
+	// First, try to detect if the text contains embedded bullet lists
+	// This handles cases where the AI returns text like: "text\n- item1\n- item2\nmore text"
+	// But NOT pure lists where every line is a list item (those use the original logic)
+	const lines = trimmed.split('\n').filter((l) => l.trim());
+	const listItemCount = lines.filter((l) => /^[\s]*[-*•]\s+/.test(l)).length;
+	const hasEmbeddedList = listItemCount > 0 && listItemCount < lines.length;
 
-	for (const paragraph of paragraphs) {
-		// Check if it's a bullet list
-		const bulletMatch = paragraph.match(/^[\s]*[-*•]\s+/m);
-		const numberedMatch = paragraph.match(/^[\s]*\d+\.\s+/m);
+	if (hasEmbeddedList) {
+		// Process line by line, but respect blank line paragraph breaks
+		const lines = trimmed.split('\n');
+		let currentList: string[] = [];
+		let currentParagraph: string[] = [];
 
-		if (bulletMatch || numberedMatch) {
-			// Parse as list
-			const listItems = paragraph
-				.split(/\n/)
-				.map((line) => line.trim())
-				.filter((line) => line.length > 0)
-				.map((line) => {
-					// Remove bullet/number markers
-					return line.replace(/^[\s]*[-*•]\s+/, '').replace(/^[\s]*\d+\.\s+/, '');
-				});
+		for (let i = 0; i < lines.length; i++) {
+			const line = lines[i];
+			const trimmedLine = line.trim();
 
+			// Blank line = paragraph break
+			if (!trimmedLine) {
+				// Finish any pending paragraph
+				if (currentParagraph.length > 0) {
+					const paragraphText = currentParagraph.join(' ');
+					if (containsMetric(paragraphText)) {
+						sections.push({
+							type: 'metric',
+							content: paragraphText,
+							value: extractNumericValue(paragraphText),
+						});
+					} else {
+						sections.push({
+							type: 'paragraph',
+							content: paragraphText,
+						});
+					}
+					currentParagraph = [];
+				}
+				// Finish any pending list
+				if (currentList.length > 0) {
+					sections.push({
+						type: 'list',
+						content: currentList,
+					});
+					currentList = [];
+				}
+				continue;
+			}
+
+			const isListItem = /^[-*•]\s+/.test(trimmedLine);
+
+			if (isListItem) {
+				// Finish any pending paragraph
+				if (currentParagraph.length > 0) {
+					const paragraphText = currentParagraph.join(' ');
+					if (containsMetric(paragraphText)) {
+						sections.push({
+							type: 'metric',
+							content: paragraphText,
+							value: extractNumericValue(paragraphText),
+						});
+					} else {
+						sections.push({
+							type: 'paragraph',
+							content: paragraphText,
+						});
+					}
+					currentParagraph = [];
+				}
+
+				// Add to current list
+				currentList.push(trimmedLine.replace(/^[-*•]\s+/, ''));
+			} else {
+				// Not a list item
+				// Finish any pending list
+				if (currentList.length > 0) {
+					sections.push({
+						type: 'list',
+						content: currentList,
+					});
+					currentList = [];
+				}
+
+				// Add to current paragraph
+				currentParagraph.push(trimmedLine);
+			}
+		}
+
+		// Push any remaining list
+		if (currentList.length > 0) {
 			sections.push({
 				type: 'list',
-				content: listItems,
+				content: currentList,
 			});
-		} else if (containsMetric(paragraph)) {
-			// Parse as metric/highlight
-			const value = extractNumericValue(paragraph);
-			sections.push({
-				type: 'metric',
-				content: paragraph,
-				value,
-			});
-		} else {
-			// Regular paragraph
-			sections.push({
-				type: 'paragraph',
-				content: paragraph,
-			});
+		}
+
+		// Push any remaining paragraph
+		if (currentParagraph.length > 0) {
+			const paragraphText = currentParagraph.join(' ');
+			if (containsMetric(paragraphText)) {
+				sections.push({
+					type: 'metric',
+					content: paragraphText,
+					value: extractNumericValue(paragraphText),
+				});
+			} else {
+				sections.push({
+					type: 'paragraph',
+					content: paragraphText,
+				});
+			}
+		}
+	} else {
+		// Original logic: split by double line breaks
+		const paragraphs = trimmed
+			.split(/\n\n+/)
+			.map((p) => p.trim())
+			.filter((p) => p.length > 0);
+
+		for (const paragraph of paragraphs) {
+			// Check if it's a bullet list
+			const bulletMatch = paragraph.match(/^[\s]*[-*•]\s+/m);
+			const numberedMatch = paragraph.match(/^[\s]*\d+\.\s+/m);
+
+			if (bulletMatch || numberedMatch) {
+				// Parse as list
+				const listItems = paragraph
+					.split(/\n/)
+					.map((line) => line.trim())
+					.filter((line) => line.length > 0)
+					.map((line) => {
+						// Remove bullet/number markers
+						return line.replace(/^[\s]*[-*•]\s+/, '').replace(/^[\s]*\d+\.\s+/, '');
+					});
+
+				sections.push({
+					type: 'list',
+					content: listItems,
+				});
+			} else if (containsMetric(paragraph)) {
+				// Parse as metric/highlight
+				const value = extractNumericValue(paragraph);
+				sections.push({
+					type: 'metric',
+					content: paragraph,
+					value,
+				});
+			} else {
+				// Regular paragraph
+				sections.push({
+					type: 'paragraph',
+					content: paragraph,
+				});
+			}
 		}
 	}
 
