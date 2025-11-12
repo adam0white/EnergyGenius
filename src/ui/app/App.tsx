@@ -17,6 +17,7 @@ import { RecommendationDeck } from '../components/results/RecommendationDeck';
 import { useRecommendation } from '../hooks/useRecommendation';
 import { Button } from '../components/ui/button';
 import { Alert } from '../components/ui/alert';
+import { ErrorBoundary } from '../components/ErrorBoundary';
 import type { UserIntakeData } from '../context/types';
 
 /**
@@ -106,7 +107,11 @@ function AppContent() {
 		return <IntakeForm onSubmit={handleFormSubmit} isSubmitting={loading} />;
 	};
 
-	return <Layout>{renderContent()}</Layout>;
+	return (
+		<ErrorBoundary>
+			<Layout>{renderContent()}</Layout>
+		</ErrorBoundary>
+	);
 }
 
 /**

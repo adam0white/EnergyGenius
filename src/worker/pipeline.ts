@@ -348,10 +348,21 @@ Generate a compelling, specific rationale (2-4 sentences) explaining:
 2. Key benefits (savings, features, renewable energy, flexibility)
 3. Any important considerations (contract terms, fees, rate structure)
 
-Respond with valid JSON:
+CRITICAL: Respond with ONLY valid JSON. Do NOT add any text before or after the JSON.
+
+Expected format (copy this structure exactly):
 {
-  "rationale": "Your explanation here..."
-}`;
+  "rationale": "Your 2-4 sentence explanation here as a single string."
+}
+
+WRONG (do not do this):
+- Adding text like "Here is the response:"
+- Wrapping in markdown code blocks
+- Returning nested objects like {"rationale": {"text": "..."}}
+- Adding any text after the JSON
+
+RIGHT (do this):
+{"rationale": "This plan is recommended because..."}`;
 
 		return { planId: plan.planId, prompt };
 	});
@@ -395,22 +406,62 @@ Respond with valid JSON:
 		try {
 			// CRITICAL FIX: Extract raw response text and sanitize it
 			const responseText = (response as any)?.response || JSON.stringify(response);
-
-			// Import sanitizeAIResponse at top of file - for now use inline implementation
-			// Strip markdown code blocks that Workers AI sometimes adds
 			let cleaned = responseText.trim();
-			const codeBlockRegex = /^```(?:json)?\s*\n?([\s\S]*?)\n?```$/;
+
+			// STEP 1: Remove any text before/after code blocks
+			// Match: optional text, code block with optional "json" marker, optional trailing text
+			const codeBlockRegex = /(?:.*?```(?:json)?\s*\n?)?([\s\S]*?)(?:\n?```.*)?$/;
 			const match = cleaned.match(codeBlockRegex);
-			if (match) {
+			if (match && match[1]) {
 				cleaned = match[1].trim();
-				console.log(`[NARRATIVE_PARALLEL] Stripped markdown code blocks from ${planId} response`);
+				console.log(`[NARRATIVE_PARALLEL] Extracted JSON from markdown for ${planId}`);
 			}
+
+			// STEP 2: Remove common AI prefixes
+			const prefixes = [
+				/^Here is the (?:JSON )?response:?\s*/i,
+				/^Sure!?\s*/i,
+				/^(?:Here you go|Here it is):?\s*/i,
+			];
+			for (const prefix of prefixes) {
+				cleaned = cleaned.replace(prefix, '');
+			}
+			cleaned = cleaned.trim();
 
 			// Parse the cleaned JSON
 			const parsed = JSON.parse(cleaned);
+
+			// Extract rationale (handle nested objects)
+			let rationaleText: string;
+
+			if (typeof parsed.rationale === 'string') {
+				rationaleText = parsed.rationale;
+			} else if (typeof parsed.rationale === 'object' && parsed.rationale !== null) {
+				// AI returned nested object - extract text from common fields
+				console.warn(`[NARRATIVE_PARALLEL] Plan ${planId}: AI returned nested rationale object, extracting text`);
+
+				// Try common field names
+				rationaleText =
+					parsed.rationale.text ||
+					parsed.rationale.good_match ||
+					parsed.rationale.explanation ||
+					parsed.rationale.rationale ||
+					JSON.stringify(parsed.rationale); // Last resort
+
+			} else {
+				rationaleText = 'No explanation available';
+			}
+
+			// Final validation
+			if (!rationaleText || typeof rationaleText !== 'string') {
+				console.error(`[NARRATIVE_PARALLEL] Plan ${planId}: Failed to extract string rationale`);
+				const plan = topPlans.find((p) => p.planId === planId);
+				rationaleText = `This plan offers an estimated savings of $${plan?.estimatedSavings || 0}/year with a score of ${plan?.score || 0}.`;
+			}
+
 			return {
 				planId,
-				rationale: parsed.rationale || 'No explanation available',
+				rationale: rationaleText,
 			};
 		} catch (parseError) {
 			console.error(`[NARRATIVE_PARALLEL] Parse error for ${planId}:`, parseError);

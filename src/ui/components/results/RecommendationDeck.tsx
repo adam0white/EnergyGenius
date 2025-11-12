@@ -13,6 +13,7 @@
 import React, { useState } from 'react';
 import { Card } from '../ui/card';
 import { Badge } from '../ui/badge';
+import { ErrorBoundary } from '../ErrorBoundary';
 import { parseNarrative, type NarrativeSection } from '../../../worker/lib/narrative-parser';
 
 interface Recommendation {
@@ -84,6 +85,7 @@ function NarrativeSectionRenderer({ section }: { section: NarrativeSection }) {
  * Formatted Narrative Component
  * Parses and displays narrative text with structure
  * NEW: Supports null text for lazy loading with skeleton
+ * NEW: Defensive rendering to prevent crashes from invalid data
  */
 function FormattedNarrative({ text }: { text: string | null }) {
 	// NEW: Show loading skeleton if text is null
@@ -94,6 +96,16 @@ function FormattedNarrative({ text }: { text: string | null }) {
 				<div className="h-4 bg-gray-200 rounded w-11/12"></div>
 				<div className="h-4 bg-gray-200 rounded w-10/12"></div>
 			</div>
+		);
+	}
+
+	// NEW: Validate text is actually a string
+	if (typeof text !== 'string') {
+		console.error('FormattedNarrative received non-string text:', text);
+		return (
+			<p className="text-sm text-red-600 italic">
+				Unable to display explanation (invalid format)
+			</p>
 		);
 	}
 
@@ -285,7 +297,15 @@ function RecommendationCard({ recommendation, rank }: { recommendation: Recommen
 						<span className="text-xs text-blue-600 font-medium animate-pulse">Loading...</span>
 					)}
 				</div>
+				<ErrorBoundary
+				fallback={
+					<p className="text-sm text-red-600 italic">
+						Unable to display explanation. Please refresh the page.
+					</p>
+				}
+			>
 				<FormattedNarrative text={recommendation.explanation} />
+			</ErrorBoundary>
 			</div>
 
 			{/* Best value indicator for top recommendation */}
