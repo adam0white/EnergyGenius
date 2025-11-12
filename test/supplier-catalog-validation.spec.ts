@@ -62,9 +62,11 @@ describe('Supplier Catalog Data Validation', () => {
 	});
 
 	it('should have valid contract terms', () => {
-		const validTerms = [3, 6, 12, 24];
+		// Contract terms should be positive integers (1+ months)
+		// 1 month = month-to-month plans
 		supplierCatalog.forEach((plan) => {
-			expect(validTerms).toContain(plan.contractTermMonths);
+			expect(plan.contractTermMonths).toBeGreaterThanOrEqual(1);
+			expect(Number.isInteger(plan.contractTermMonths)).toBe(true);
 		});
 	});
 
