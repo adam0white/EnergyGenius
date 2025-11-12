@@ -7,9 +7,10 @@
  * - Contract details (length, termination fee, renewable %)
  * - AI-generated narrative explanation
  * - Savings tier badges (Gold/Silver/Bronze)
+ * - Progressive information display with expandable details
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { parseNarrative, type NarrativeSection } from '../../../worker/lib/narrative-parser';
@@ -150,6 +151,8 @@ function SavingsBadge({ savings }: { savings: number }) {
  * Individual recommendation card
  */
 function RecommendationCard({ recommendation, rank }: { recommendation: Recommendation; rank: number }) {
+	const [showMore, setShowMore] = useState(false);
+
 	// Extract data with fallbacks
 	const supplier = recommendation.supplier || 'Energy Provider';
 	const contractLength = recommendation.contractLength || 12;
@@ -180,16 +183,31 @@ function RecommendationCard({ recommendation, rank }: { recommendation: Recommen
 				<SavingsBadge savings={savings} />
 			</div>
 
-			{/* Contract Details (Prominent) */}
-			<div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-				<div className="text-sm text-gray-700">
-					<span className="font-semibold text-gray-900">Contract:</span> {contractLength} months
-					{earlyTerminationFee > 0 && (
-						<span className="ml-2">
-							• <span className="font-semibold text-gray-900">ETF:</span> ${earlyTerminationFee}
-						</span>
-					)}
+			{/* Key Details (Prominent) */}
+			<div className="mb-4 space-y-2">
+				<div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+					<div className="text-sm text-gray-700">
+						<span className="font-semibold text-gray-900">Contract:</span> {contractLength} months
+						{earlyTerminationFee > 0 ? (
+							<span className="ml-2">
+								• <span className="font-semibold text-gray-900">ETF:</span> ${earlyTerminationFee}
+							</span>
+						) : (
+							<span className="ml-2 text-green-600 font-medium">• No cancellation fee</span>
+						)}
+					</div>
 				</div>
+				{renewablePercentage > 0 && (
+					<div className={`p-3 rounded-lg border ${renewablePercentage >= 50 ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
+						<div className="text-sm text-gray-700">
+							<span className="font-semibold text-gray-900">Renewable Energy:</span>{' '}
+							<span className={`font-bold ${renewablePercentage >= 50 ? 'text-green-700' : 'text-gray-900'}`}>
+								{renewablePercentage}%
+							</span>
+							{renewablePercentage === 100 && <span className="ml-2">🌟 100% Clean Energy</span>}
+						</div>
+					</div>
+				)}
 			</div>
 
 			{/* Savings (prominent) */}
@@ -205,27 +223,55 @@ function RecommendationCard({ recommendation, rank }: { recommendation: Recommen
 			{/* Divider */}
 			<div className="border-t border-gray-200 my-4" />
 
-			{/* Plan details */}
-			<div className="space-y-3 mb-4 bg-gray-50 p-4 rounded-lg">
-				<div className="flex justify-between text-sm">
-					<span className="text-gray-600">Contract Length:</span>
-					<span className="font-medium text-gray-900">{contractLength} months</span>
+			{/* Pricing Summary (always visible) */}
+			<div className="space-y-2 mb-4">
+				<div className="flex justify-between text-sm items-center">
+					<span className="text-gray-600">Estimated Monthly Cost:</span>
+					<span className="font-bold text-lg text-gray-900">${recommendation.monthlyPrice.toFixed(2)}</span>
 				</div>
+			</div>
 
-				<div className="flex justify-between text-sm">
-					<span className="text-gray-600">Early Termination Fee:</span>
-					<span className="font-medium text-gray-900">{earlyTerminationFee === 0 ? 'None' : `$${earlyTerminationFee}`}</span>
-				</div>
+			{/* Expandable "Show more details" section */}
+			<div className="mb-4">
+				<button
+					onClick={() => setShowMore(!showMore)}
+					className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 transition-colors"
+				>
+					{showMore ? '▼' : '▶'} {showMore ? 'Hide details' : 'Show more details'}
+				</button>
 
-				<div className="flex justify-between text-sm">
-					<span className="text-gray-600">Renewable Energy:</span>
-					<span className="font-medium text-gray-900 flex items-center">🌱 {renewablePercentage}%</span>
-				</div>
+				{showMore && (
+					<div className="mt-3 space-y-2 bg-gray-50 p-4 rounded-lg border border-gray-200">
+						<div className="flex justify-between text-sm">
+							<span className="text-gray-600">Contract Length:</span>
+							<span className="font-medium text-gray-900">{contractLength} months</span>
+						</div>
 
-				<div className="flex justify-between text-sm">
-					<span className="text-gray-600">Monthly Price:</span>
-					<span className="font-medium text-gray-900">${recommendation.monthlyPrice.toFixed(2)}</span>
-				</div>
+						<div className="flex justify-between text-sm">
+							<span className="text-gray-600">Contract End Date (approx):</span>
+							<span className="font-medium text-gray-900">{contractEndDate.toLocaleDateString()}</span>
+						</div>
+
+						{earlyTerminationFee > 0 && (
+							<div className="flex justify-between text-sm">
+								<span className="text-gray-600">Cancellation Policy:</span>
+								<span className="font-medium text-gray-900">${earlyTerminationFee} early termination fee</span>
+							</div>
+						)}
+
+						{renewablePercentage > 0 && (
+							<div className="flex justify-between text-sm">
+								<span className="text-gray-600">Environmental Impact:</span>
+								<span className="font-medium text-gray-900">{renewablePercentage}% renewable energy</span>
+							</div>
+						)}
+
+						<div className="flex justify-between text-sm">
+							<span className="text-gray-600">Plan Type:</span>
+							<span className="font-medium text-gray-900">Fixed Rate</span>
+						</div>
+					</div>
+				)}
 			</div>
 
 			{/* Divider */}

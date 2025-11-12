@@ -101,12 +101,18 @@ export function useAutofillMockData(): AutofillMockDataReturn {
 		// Generate realistic preferences based on scenario type
 		const preferences = generatePreferences(scenario);
 
+		// Apply 5-10% variance to monthly kWh values for realistic variation
+		const monthlyUsageWithVariance = scenario.monthlyUsage.map((usage) => ({
+			month: usage.month,
+			kWh: applyVariance(usage.kWh),
+		}));
+
+		// Recalculate annual total based on varied monthly values
+		const annualConsumption = monthlyUsageWithVariance.reduce((sum, usage) => sum + usage.kWh, 0);
+
 		return {
-			monthlyUsage: scenario.monthlyUsage.map((usage) => ({
-				month: usage.month,
-				kWh: usage.kWh,
-			})),
-			annualConsumption: scenario.annualKWh,
+			monthlyUsage: monthlyUsageWithVariance,
+			annualConsumption,
 			currentPlan,
 			preferences,
 		};
@@ -120,6 +126,23 @@ export function useAutofillMockData(): AutofillMockDataReturn {
 		formError,
 		setFormError,
 	};
+}
+
+/**
+ * Applies 5-10% random variance to a kWh value
+ *
+ * Each call produces a slightly different result to simulate realistic
+ * usage variation while maintaining the overall pattern.
+ *
+ * @param {number} baseValue - The base kWh value from the scenario
+ * @returns {number} The value with 5-10% variance applied (rounded)
+ */
+function applyVariance(baseValue: number): number {
+	// Generate 5-10% variance
+	const variancePercent = 0.05 + Math.random() * 0.05;
+	// Randomly apply positive or negative variance
+	const multiplier = 1 + (Math.random() > 0.5 ? variancePercent : -variancePercent);
+	return Math.round(baseValue * multiplier);
 }
 
 /**

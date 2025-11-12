@@ -151,7 +151,7 @@ export function DebugPlans({ open, onOpenChange }: DebugPlansProps) {
 
 	// Export as CSV
 	const exportCSV = () => {
-		const headers = ['Supplier', 'Plan Name', 'Price/kWh', 'Monthly Fee', 'Renewable %', 'Tier', 'Contract (months)', 'ETF', 'Source'];
+		const headers = ['Supplier', 'Plan Name', 'Price/kWh', 'Monthly Fee', 'Renewable %', 'Tier', 'Contract (months)', 'ETF'];
 		const rows = filteredPlans.map((plan) => [
 			plan.supplier,
 			plan.planName,
@@ -161,7 +161,6 @@ export function DebugPlans({ open, onOpenChange }: DebugPlansProps) {
 			plan.tier,
 			plan.contractTermMonths,
 			plan.earlyTerminationFee,
-			'Mock',
 		]);
 
 		const csv = [headers.join(','), ...rows.map((row) => row.map((cell) => `"${cell}"`).join(','))].join('\n');
@@ -315,13 +314,12 @@ export function DebugPlans({ open, onOpenChange }: DebugPlansProps) {
 									<TableHead>Tier</TableHead>
 									<TableHead className="text-right">Contract</TableHead>
 									<TableHead className="text-right">ETF</TableHead>
-									<TableHead>Source</TableHead>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
 								{filteredPlans.length === 0 ? (
 									<TableRow>
-										<TableCell colSpan={9} className="text-center text-muted-foreground py-8">
+										<TableCell colSpan={8} className="text-center text-muted-foreground py-8">
 											No plans match the current filters
 										</TableCell>
 									</TableRow>
@@ -338,9 +336,6 @@ export function DebugPlans({ open, onOpenChange }: DebugPlansProps) {
 											</TableCell>
 											<TableCell className="text-right">{plan.contractTermMonths} mo</TableCell>
 											<TableCell className="text-right">${plan.earlyTerminationFee}</TableCell>
-											<TableCell>
-												<Badge variant="outline">Mock</Badge>
-											</TableCell>
 										</TableRow>
 									))
 								)}
@@ -351,7 +346,7 @@ export function DebugPlans({ open, onOpenChange }: DebugPlansProps) {
 
 				{/* Footer Info */}
 				<div className="text-xs text-muted-foreground text-center">
-					Showing {stats.total} of {stats.totalAvailable} plans • All data is from mock supplier catalog
+					Showing {stats.total} of {stats.totalAvailable} plans • Data updated as of January 2025
 				</div>
 			</DialogContent>
 		</Dialog>
