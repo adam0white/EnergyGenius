@@ -42,7 +42,7 @@ const CONFIG = {
 	/** Output directory for scraped data */
 	OUTPUT_DIR: process.env.SCRAPE_OUTPUT_DIR || 'scripts/scrape/output',
 	/** Maximum number of plans to extract */
-	MAX_PLANS: parseInt(process.env.SCRAPE_MAX_PLANS || '100', 10),
+	MAX_PLANS: parseInt(process.env.SCRAPE_MAX_PLANS || '250', 10),
 	/** Enable verbose debug logging */
 	DEBUG: process.env.DEBUG === 'true',
 };

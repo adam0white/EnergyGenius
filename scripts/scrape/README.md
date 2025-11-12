@@ -94,7 +94,7 @@ You can optionally set environment variables to customize scraper behavior:
 # .env (optional)
 SCRAPE_TIMEOUT_MS=30000         # Request timeout (default: 30000ms)
 SCRAPE_OUTPUT_DIR=scripts/scrape/output  # Output directory
-SCRAPE_MAX_PLANS=100            # Maximum plans to extract (default: 100)
+SCRAPE_MAX_PLANS=250            # Maximum plans to extract (default: 250)
 ```
 
 ### Expected Execution Time

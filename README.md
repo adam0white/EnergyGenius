@@ -124,13 +124,13 @@ The scraper extracts real energy plan data from [Power to Choose](https://www.po
 npx tsx scripts/scrape/powertochoose.ts
 ```
 
-**Expected Output:** `scripts/scrape/output/raw-scrape-output.json` with 20-100 plans
+**Expected Output:** `scripts/scrape/output/raw-scrape-output.json` with 250+ plans
 
 ### Step 2: Validate the Data
 
 ```bash
 cat scripts/scrape/output/raw-scrape-output.json | jq length
-# Should show 20-100 plans
+# Should show 250+ plans
 ```
 
 Manually review a few plans:

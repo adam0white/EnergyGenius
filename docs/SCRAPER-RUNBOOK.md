@@ -119,17 +119,17 @@ npx tsx scripts/scrape/powertochoose.ts
 
 📥 Fetching CSV data from Power to Choose...
 🔎 Parsing CSV data...
-✓ Parsed 150 plans
-✓ Filtered to 100 English plans
+✓ Parsed 1757 plans
+✓ Filtered to 250 English plans
 ✅ Validating extracted data...
-✓ 100 plans passed validation
+✓ 250 plans passed validation
 💾 Writing output file...
 ✓ Output saved to scripts/scrape/output/raw-scrape-output.json
 
 ✅ Scraping complete!
-   Plans parsed: 150
-   Plans filtered: 100
-   Plans validated: 100
+   Plans parsed: 1757
+   Plans filtered: 250
+   Plans validated: 250
 ```
 
 **Runtime:** 10-30 seconds (network-dependent)
@@ -152,15 +152,15 @@ node scripts/validate-plans.mjs
 === Data Quality Validation ===
 
 Statistics:
-  Total plans: 100
-  Unique suppliers: 29
-  Contract terms: 0, 1, 3, 6, 12, 18, 24, 36
-  100% renewable plans: 18
+  Total plans: 250
+  Unique suppliers: 40
+  Contract terms: 0, 1, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 15, 18, 19, 24, 32, 36, 60
+  100% renewable plans: 81
   Base rate range: $0.108 - $0.189/kWh
   Average base rate: $0.147/kWh
 
 Validation Results:
-  Total plans validated: 100
+  Total plans validated: 250
   Issues found: 0
 
 ✅ All plans passed validation!
@@ -214,7 +214,7 @@ npx tsx scripts/scrape/convert-to-catalog.ts
 📝 Converting scraped data to TypeScript catalog...
 
 📥 Reading scraped data from scripts/scrape/output/raw-scrape-output.json
-✓ Loaded 100 plans
+✓ Loaded 250 plans
 💾 Backing up existing catalog...
 ✓ Backup saved to src/worker/data/supplier-catalog.backup.ts
 🔨 Generating TypeScript module...
@@ -222,7 +222,7 @@ npx tsx scripts/scrape/convert-to-catalog.ts
 ✓ Catalog updated successfully
 
 ✅ Conversion complete!
-   Plans in catalog: 100
+   Plans in catalog: 250
    Backup location: src/worker/data/supplier-catalog.backup.ts
 
 ⚠️  Next steps:
@@ -270,15 +270,15 @@ Test 1: Loading catalog TypeScript file...
   ✅ File size: 61.0 KB
 
 Test 2: Verifying data structure...
-  ✅ Contains 100 plans
+  ✅ Contains 250 plans
   ✅ All required fields present
   ✅ Sample plan ID: plan-nec-co-op-energy-residential-electric
   ✅ Sample supplier: NEC Co-op Energy
 
 Test 3: Checking data quality...
-  ✅ 29 unique suppliers
-  ✅ 15 different contract terms
-  ✅ 18 plans with 100% renewable energy
+  ✅ 40 unique suppliers
+  ✅ 19 different contract terms
+  ✅ 81 plans with 100% renewable energy
   ✅ Rate range: $0.108 - $0.189/kWh
   ✅ Average rate: $0.147/kWh
 
@@ -328,7 +328,7 @@ Update changelog and commit:
 echo "### $(date +%Y-%m-%d) - Plan Data Refreshed
 
 **Action**: Ran scraper and updated supplier catalog
-**Plans Updated**: 100 plans from powertochoose.org
+**Plans Updated**: 250 plans from powertochoose.org
 **Validation**: All plans passed validation
 **Testing**: Integration tests passed, recommendation flow tested
 
@@ -344,7 +344,7 @@ git add src/worker/data/supplier-catalog.ts
 git add scripts/scrape/output/raw-scrape-output.json
 git commit -m "Update supplier catalog - $(date +%Y-%m-%d)
 
-- Refreshed 100 plans from powertochoose.org
+- Refreshed 250 plans from powertochoose.org
 - All validation checks passed
 - Tested recommendation flow successfully"
 ```
@@ -377,12 +377,12 @@ Use these metrics to assess data quality:
 
 | Metric | Expected Range | Actual |
 |--------|----------------|--------|
-| Total plans | 80-120 | 100 ✅ |
-| Unique suppliers | 20-40 | 29 ✅ |
+| Total plans | 200-300 | 250 ✅ |
+| Unique suppliers | 30-50 | 40 ✅ |
 | Base rate range | $0.08-$0.20/kWh | $0.108-$0.189/kWh ✅ |
 | Average rate | $0.12-$0.16/kWh | $0.147/kWh ✅ |
-| 100% renewable plans | 10-30 | 18 ✅ |
-| Contract terms | 5-10 different | 15 ✅ |
+| 100% renewable plans | 50-120 | 81 ✅ |
+| Contract terms | 10-20 different | 19 ✅ |
 
 ---
 
