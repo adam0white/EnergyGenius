@@ -8,6 +8,12 @@ workers_dev = false
 pattern = "genius.adamwhite.work"
 custom_domain = true
 
+[observability]
+enabled = true
+
+[observability.traces]
+enabled = true
+
 [assets]
 directory = "./dist"
 

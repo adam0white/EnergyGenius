@@ -47,31 +47,31 @@ Built on **Cloudflare Workers + Workers AI**, the entire recommendation engine r
 │  User Input                                                   │
 │      │                                                        │
 │      ▼                                                        │
-│  ┌─────────────┐         HTTP POST                           │
-│  │ React SPA   │──────────────────────┐                      │
-│  │ (Static)    │                      │                      │
-│  └─────────────┘                      │                      │
+│  ┌─────────────┐         HTTP POST                            │
+│  │ React SPA   │──────────────────────┐                       │
+│  │ (Static)    │                      │                       │
+│  └─────────────┘                      │                       │
 │                                       ▼                       │
-│                            ┌──────────────────────┐          │
-│                            │ /api/recommend       │          │
-│                            │ Worker Endpoint      │          │
-│                            └──────────┬───────────┘          │
+│                            ┌──────────────────────┐           │
+│                            │ /api/recommend       │           │
+│                            │ Worker Endpoint      │           │
+│                            └──────────┬───────────┘           │
 │                                       │                       │
 │                                       ▼                       │
-│                            ┌──────────────────────┐          │
-│                            │  AI Pipeline         │          │
-│                            │  (3 Stages)          │          │
-│                            │                      │          │
-│                            │  1. Normalize Data   │          │
-│                            │  2. Score Plans      │          │
-│                            │  3. Synthesize Recs  │          │
-│                            └──────────┬───────────┘          │
+│                            ┌──────────────────────┐           │
+│                            │  AI Pipeline         │           │
+│                            │  (3 Stages)          │           │
+│                            │                      │           │
+│                            │  1. Normalize Data   │           │
+│                            │  2. Score Plans      │           │
+│                            │  3. Synthesize Recs  │           │
+│                            └──────────┬───────────┘           │
 │                                       │                       │
 │                                       ▼                       │
-│                            ┌──────────────────────┐          │
-│                            │  Workers AI          │          │
-│                            │  (Llama 3.1 & 3.3)   │          │
-│                            └──────────────────────┘          │
+│                            ┌──────────────────────┐           │
+│                            │  Workers AI          │           │
+│                            │  (Llama 3.1 & 3.3)   │           │
+│                            └──────────────────────┘           │
 │                                       │                       │
 │                                       ▼                       │
 │                            Top 3 Recommendations              │
