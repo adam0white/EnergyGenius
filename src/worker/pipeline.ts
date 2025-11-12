@@ -11,6 +11,7 @@ import { buildUsageSummaryPrompt, buildPlanScoringPrompt, buildNarrativePrompt }
 import { supplierCatalog } from './data/supplier-catalog';
 import { withRetry, generateUsageFallback, generatePlanScoringFallback, generateNarrativeFallback } from './lib/retry';
 import { parseUsageSummary, parsePlanScoring, parseNarrative } from './validation';
+import { calculateMultiplePlanCosts } from './lib/calculations';
 
 // ===========================
 // TypeScript Interfaces
@@ -194,12 +195,25 @@ export async function runPlanScoring(
 	const stageStartTime = Date.now();
 	logStageStart('plan-scoring', { usageSummary, preferences: input.preferences });
 
+	// CRITICAL: Pre-calculate all plan costs using TypeScript (NOT LLM)
+	// This prevents LLM hallucination in arithmetic calculations
+	const calcStartTime = Date.now();
+	const supplierPlansArray = Array.from(supplierCatalog);
+	const costCalculations = calculateMultiplePlanCosts(
+		supplierPlansArray,
+		usageSummary.annualCost,
+		usageSummary.totalAnnualUsage
+	);
+	const calcTime = Date.now() - calcStartTime;
+	console.log(`[PERF] [plan-scoring] Cost Calculations (TypeScript): ${calcTime}ms for ${supplierPlansArray.length} plans`);
+	console.log(`[CALCULATIONS] Pre-calculated costs for ${costCalculations.size} plans using TypeScript`);
+
 	// Build optimized prompt using prompt builder with real supplier catalog
 	const promptStartTime = Date.now();
-	const { prompt, indexedPlans } = buildPlanScoringPrompt(usageSummary, Array.from(supplierCatalog), input);
+	const { prompt, indexedPlans } = buildPlanScoringPrompt(usageSummary, supplierPlansArray, input);
 	const promptBuildTime = Date.now() - promptStartTime;
 
-	// Call Workers AI with JSON mode enabled
+	// Call Workers AI with JSON mode enabled (AI only scores/ranks, does NOT calculate)
 	const modelId = env.AI_MODEL_FAST || '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 
 	const inferenceStartTime = Date.now();
@@ -215,7 +229,7 @@ export async function runPlanScoring(
 
 	// Parse and validate AI response using indexed plans for mapping
 	const parseStartTime = Date.now();
-	const result: PlanScoringOutput = parsePlanScoring(responseText, indexedPlans, 'plan-scoring');
+	const result: PlanScoringOutput = parsePlanScoring(responseText, indexedPlans, costCalculations, 'plan-scoring');
 	const parseTime = Date.now() - parseStartTime;
 
 	const totalDuration = Date.now() - stageStartTime;

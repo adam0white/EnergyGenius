@@ -92,14 +92,14 @@ ${JSON.stringify(plansToScore, null, 2)}
 
 TASK:
 Score each plan on a 0-100 scale based on:
-1. Cost savings potential vs. current annual cost
+1. Cost savings potential vs. current annual cost (costs pre-calculated, see below)
 2. Contract length (all plans shown meet user's max contract length preference)
 3. Renewable energy percentage (if user prefers renewable)
 4. Match with usage pattern
 
-For each plan, calculate:
-- Estimated annual cost = (baseRate * totalAnnualUsage) + (monthlyFee * 12)
-- Estimated savings = currentAnnualCost - estimatedAnnualCost
+IMPORTANT: Cost calculations have been pre-computed by our system.
+Your job is to SCORE and RANK plans based on the provided costs, NOT to calculate costs.
+Focus on qualitative assessment: Which plans best match the user's needs and preferences?
 
 OUTPUT FORMAT - CRITICAL:
 Return ONLY valid JSON. No markdown code blocks, no comments, no extra text before or after.
@@ -112,28 +112,30 @@ Required JSON array format (top 10 maximum), sorted by score descending:
   {
     "index": <plan index number 0-${plansToScore.length - 1}>,
     "score": <0-100>,
-    "estimatedAnnualCost": <number>,
-    "estimatedSavings": <number>,
-    "reasoning": "<brief 1-2 sentence explanation>"
+    "reasoning": "<brief 1-2 sentence explanation of why this plan is a good match>"
   }
 ]
 
 ⚠️  CRITICAL: Use the INDEX number (0-${plansToScore.length - 1}), NOT planId/supplier/planName. Just return the number!
+⚠️  DO NOT include estimatedAnnualCost or estimatedSavings - these are calculated separately by our system.
 
 SCORING CRITERIA:
 - Base score: 50 points
-- Add up to +30 for significant savings (>15% savings = +30, 10-15% = +20, 5-10% = +10)
+- Add up to +30 for plans with lower rates that would result in significant savings
+  (Compare baseRate and monthlyFee to estimate relative cost)
 - Add up to +20 for renewable percentage if user prefers (100% = +20, 50% = +10)
 - Add up to +10 for shorter contracts (3mo = +10, 6mo = +7, 12mo = +5)
 - Add up to +10 for low monthly fees
 - Note: All plans shown already meet user's max contract length requirement
 - Minimum 5 plans, maximum 10 plans
+- Remember: You are SCORING plans, not calculating costs. Focus on match quality.
 
 VALIDATION REQUIREMENT - TRIPLE CHECK BEFORE RESPONDING:
 Before submitting your response, verify EVERY plan you selected:
 1. ✓ Index is a valid number from 0 to ${plansToScore.length - 1}
 2. ✓ Index corresponds to a plan in the AVAILABLE PLANS list above
-3. ✓ You are NOT returning planId, supplier, or planName fields
+3. ✓ You are NOT returning planId, supplier, planName fields
+4. ✓ You are NOT returning estimatedAnnualCost or estimatedSavings fields (calculated separately)
 
 CRITICAL: Use INDEX numbers ONLY. We will map them to actual plan data.
 The validation system will REJECT your response if you use anything OTHER than index numbers.
@@ -147,16 +149,12 @@ EXAMPLE OUTPUT (copy this structure exactly):
   {
     "index": 0,
     "score": 92,
-    "estimatedAnnualCost": 1214.50,
-    "estimatedSavings": 214.00,
-    "reasoning": "15% savings with 100% renewable energy and flexible 12-month contract"
+    "reasoning": "Low baseRate with 100% renewable energy and flexible 12-month contract matches user preferences"
   },
   {
     "index": 5,
     "score": 88,
-    "estimatedAnnualCost": 1350.00,
-    "estimatedSavings": 150.00,
-    "reasoning": "Good savings with competitive rate and short contract"
+    "reasoning": "Competitive rate structure with short contract and low monthly fees"
   }
 ]
 

@@ -3,6 +3,8 @@
  * Provides retry wrapper with backoff for transient failures
  */
 
+import { calculatePlanCosts } from './calculations';
+
 /**
  * Error classification - determines if error is retriable
  */
@@ -138,12 +140,13 @@ export function generateUsageFallback(monthlyData: Array<{ month: string; usage:
 
 /**
  * Generates fallback plan scoring (neutral scores for all plans)
+ * Uses TypeScript calculation utilities for consistency
  * @param supplierPlans - Array of supplier plans from catalog
  * @param totalAnnualUsage - Total annual usage in kWh (optional, defaults to average)
  * @param currentAnnualCost - Current annual cost for savings calculation (optional)
  */
 export function generatePlanScoringFallback(supplierPlans: any[], totalAnnualUsage?: number, currentAnnualCost?: number): any {
-	console.log(`[${new Date().toISOString()}] [FALLBACK] Using neutral plan scoring fallback`);
+	console.log(`[${new Date().toISOString()}] [FALLBACK] Using neutral plan scoring fallback with TypeScript calculations`);
 
 	// Use average residential usage if not provided (10,000 kWh/year is typical)
 	const annualUsage = totalAnnualUsage || 10000;
@@ -151,19 +154,32 @@ export function generatePlanScoringFallback(supplierPlans: any[], totalAnnualUsa
 
 	return {
 		scoredPlans: supplierPlans.slice(0, 10).map((plan) => {
-			// Calculate estimated annual cost: (baseRate * totalAnnualUsage) + (monthlyFee * 12)
-			const estimatedAnnualCost = (plan.baseRate * annualUsage) + (plan.monthlyFee * 12);
-
-			// Calculate estimated savings: currentAnnualCost - estimatedAnnualCost
-			const estimatedSavings = currentCost > 0 ? currentCost - estimatedAnnualCost : 0;
+			// CRITICAL: Use TypeScript calculation utilities (same as primary path)
+			// This ensures fallback logic matches primary calculation logic exactly
+			let costs;
+			try {
+				costs = calculatePlanCosts(
+					{ baseRate: plan.baseRate, monthlyFee: plan.monthlyFee },
+					currentCost,
+					annualUsage
+				);
+			} catch (error) {
+				// Handle invalid plan data gracefully
+				console.error(`[FALLBACK] Error calculating costs for plan ${plan.id}:`, error);
+				costs = {
+					estimatedAnnualCost: currentCost,
+					estimatedSavings: 0,
+					savingsPercent: 0,
+				};
+			}
 
 			return {
 				planId: plan.id,
 				supplier: plan.supplier,
 				planName: plan.planName,
 				score: 50, // Neutral score
-				estimatedAnnualCost: Math.round(estimatedAnnualCost * 100) / 100,
-				estimatedSavings: Math.round(estimatedSavings * 100) / 100,
+				estimatedAnnualCost: costs.estimatedAnnualCost,
+				estimatedSavings: costs.estimatedSavings,
 			};
 		}),
 		totalPlansScored: Math.min(supplierPlans.length, 10),

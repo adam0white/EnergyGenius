@@ -93,6 +93,7 @@ export function parseUsageSummary(rawResponse: string, stageName: string = 'usag
  * Parses and validates Plan Scoring response (Stage 2)
  * @param rawResponse - Raw AI response text
  * @param indexedPlans - Array of indexed plans from prompt builder (for mapping indices back to plan IDs)
+ * @param costCalculations - Pre-calculated costs from TypeScript (NOT LLM) - Map of planId to cost data
  * @param stageName - Stage name for error reporting
  * @returns Validated plan scoring output
  * @throws ParseError, ValidationError, MismatchError
@@ -100,8 +101,22 @@ export function parseUsageSummary(rawResponse: string, stageName: string = 'usag
 export function parsePlanScoring(
 	rawResponse: string,
 	indexedPlans: Array<{ index: number; planId: string; supplier: string; planName: string }>,
-	stageName: string = 'plan-scoring',
+	costCalculationsOrStageName?: Map<string, { estimatedAnnualCost: number; estimatedSavings: number; savingsPercent: number }> | string,
+	stageNameParam?: string,
 ): PlanScoringValidated {
+	// Handle backward compatibility: third param can be costCalculations or stageName
+	let costCalculations: Map<string, { estimatedAnnualCost: number; estimatedSavings: number; savingsPercent: number }> | undefined;
+	let stageName: string;
+
+	if (typeof costCalculationsOrStageName === 'string') {
+		// Old API: parsePlanScoring(response, indexedPlans, 'stageName')
+		stageName = costCalculationsOrStageName;
+		costCalculations = undefined;
+	} else {
+		// New API: parsePlanScoring(response, indexedPlans, costMap, 'stageName')
+		costCalculations = costCalculationsOrStageName;
+		stageName = stageNameParam || 'plan-scoring';
+	}
 	// Log raw response (truncated)
 	console.log(
 		`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Raw response (first 500 chars): ${rawResponse.substring(0, 500)}`,
@@ -171,19 +186,60 @@ export function parsePlanScoring(
 			continue;
 		}
 
-		// Build scored plan using ACTUAL catalog data (not AI's)
+		// CRITICAL: Use TypeScript-calculated costs (NOT LLM costs) when available
+		// This prevents LLM arithmetic hallucination from reaching users
+		let estimatedAnnualCost: number;
+		let estimatedSavings: number;
+
+		if (costCalculations) {
+			// NEW PATH: Use TypeScript calculations (Story 10.4)
+			const calculatedCosts = costCalculations.get(actualPlan.planId);
+
+			if (!calculatedCosts) {
+				console.error(
+					`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] No cost calculation found for plan: ${actualPlan.planId}`,
+				);
+				invalidIndices.push(planIndex);
+				continue;
+			}
+
+			// Log if LLM provided costs (should not happen with updated prompt, but detect it)
+			if (aiPlan.estimatedAnnualCost !== undefined || aiPlan.estimatedSavings !== undefined) {
+				console.warn(
+					`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] ⚠️  LLM returned cost fields for plan ${planIndex} (ignoring LLM costs, using TypeScript)`,
+				);
+			}
+
+			estimatedAnnualCost = calculatedCosts.estimatedAnnualCost;
+			estimatedSavings = calculatedCosts.estimatedSavings;
+		} else {
+			// OLD PATH: Backward compatibility for tests - use LLM costs if provided
+			// This path is DEPRECATED and only exists for test compatibility
+			if (aiPlan.estimatedAnnualCost === undefined || aiPlan.estimatedSavings === undefined) {
+				console.error(
+					`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] No cost data available for plan ${planIndex} (LLM or TypeScript)`,
+				);
+				invalidIndices.push(planIndex);
+				continue;
+			}
+
+			estimatedAnnualCost = aiPlan.estimatedAnnualCost;
+			estimatedSavings = aiPlan.estimatedSavings;
+		}
+
+		// Build scored plan using ACTUAL catalog data + cost calculations
 		scoredPlans.push({
 			planId: actualPlan.planId,
 			supplier: actualPlan.supplier,
 			planName: actualPlan.planName,
 			score: aiPlan.score,
-			estimatedAnnualCost: aiPlan.estimatedAnnualCost,
-			estimatedSavings: aiPlan.estimatedSavings,
-			reasoning: aiPlan.reasoning,
+			estimatedAnnualCost,
+			estimatedSavings,
+			reasoning: aiPlan.reasoning || 'No reasoning provided',
 		});
 
 		console.log(
-			`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Mapped index ${planIndex} → ${actualPlan.planId} (${actualPlan.supplier})`,
+			`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Mapped index ${planIndex} → ${actualPlan.planId} (${actualPlan.supplier}) with ${costCalculations ? 'TypeScript' : 'LLM'} costs: $${estimatedAnnualCost}/yr, saves $${estimatedSavings}`,
 		);
 	}
 
