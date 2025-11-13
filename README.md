@@ -13,10 +13,12 @@
 **🎯 Comprehensive Cost Analysis** - We include Early Termination Fees (ETF) amortized over contract length. Most tools ignore switching costs.
 
 **📊 Research-Based Scoring** - Algorithm backed by 8 academic sources & competitive analysis:
+
 - Cost Efficiency: 44% • Flexibility: 22% • Renewable: 11% • Fees: 11%
 - [Full methodology](./docs/research/energy-plan-scoring-weights.md)
 
 **🏅 Smart Tier System** - 4 tiers with educational tooltips:
+
 - Gold Value ($400+ savings) • Silver Value ($200-399) • Bronze Value (-$99 to $199) • ⚠️ No Value (≤-$100 loss)
 
 **⚡ Edge AI** - Runs on Cloudflare Workers AI (Llama 3.3) at the edge, no servers to manage.
@@ -40,7 +42,7 @@ Texas electricity markets overwhelm consumers with **250+ providers and 1,000+ p
 │                  Cloudflare Workers (Edge)                    │
 ├───────────────────────────────────────────────────────────────┤
 │                                                               │
-│  User Input → React SPA → /api/recommend Endpoint            │
+│  User Input → React SPA → /api/recommend Endpoint             │
 │                              │                                │
 │                              ▼                                │
 │                        AI Pipeline (3 Stages)                 │
@@ -68,6 +70,7 @@ npm run dev                    # Start dev server (localhost:8787)
 ```
 
 **Deploy to production:**
+
 ```bash
 npx wrangler login            # One-time Cloudflare auth
 npm run deploy                # Deploy to edge
@@ -78,23 +81,27 @@ npm run deploy                # Deploy to edge
 ## Key Features
 
 ### 💰 True Cost Calculations
+
 - ETF amortization over contract term
 - Monthly service fee differences
 - Complete switching cost transparency
 
 ### 🎨 8 Diverse Test Scenarios
+
 - Large Family (19,200 kWh, $250 ETF) → Gold savings
 - Apartment (4,600 kWh, $0 ETF) → Bronze savings
 - Medium Business (50,000 kWh, $300 ETF) → Gold savings
 - Plus 5 more covering all usage patterns
 
 ### 🤖 AI-Generated Narratives
+
 - Explains savings in plain English
 - Mentions ETF when significant
 - Highlights contract flexibility
 - Notes renewable energy benefits
 
 ### ⚠️ Loss Warning System
+
 - "No Value" tier (red badge) warns about plans that cost MORE
 - Prevents bad switches that damage trust
 
@@ -103,6 +110,7 @@ npm run deploy                # Deploy to edge
 ## Development
 
 ### Project Structure
+
 ```
 src/
   worker/              # Cloudflare Worker backend
@@ -117,6 +125,7 @@ src/
 ```
 
 ### Commands
+
 ```bash
 npm run dev          # Dev server (UI + Worker)
 npm run build        # Production bundle
@@ -125,6 +134,7 @@ npm run verify       # TypeScript + ESLint + Format check
 ```
 
 ### API Endpoints
+
 - `POST /api/recommend` - Generate recommendations
 - `GET /api/health` - Health check
 - `GET /*` - Serve React SPA
