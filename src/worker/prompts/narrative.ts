@@ -4,7 +4,6 @@
  */
 
 import type { PlanScoringOutput, UsageSummaryOutput } from '../pipeline';
-import type { SupplierPlan } from '../data/types';
 import { supplierCatalog } from '../data/supplier-catalog';
 
 /**

@@ -165,7 +165,7 @@ async function fetchCSV(url: string, zipCode: string): Promise<string> {
 					'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
 					'Content-Type': 'application/x-www-form-urlencoded',
 				},
-			}
+			},
 		);
 
 		if (response.status !== 200) {
@@ -391,12 +391,7 @@ function generatePlanId(supplier: string, planName: string): string {
  * @param renewablePercent - Renewable energy percentage
  * @returns Monthly fee in dollars (rounded to $0.95 increments: 0.95, 4.95, 9.95, etc.)
  */
-function generateMonthlyFee(
-	planId: string,
-	contractTermMonths: number,
-	baseRate: number,
-	renewablePercent: number
-): number {
+function generateMonthlyFee(planId: string, contractTermMonths: number, baseRate: number, renewablePercent: number): number {
 	// Create deterministic seed from plan ID (first 8 chars to number)
 	const seed = planId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
 	const random = (seed % 1000) / 1000; // 0-1 deterministic "random" value
@@ -458,8 +453,6 @@ function generateMonthlyFee(
 
 	return Math.max(0, Math.min(20, finalFee));
 }
-
-
 
 /**
  * Validates extracted plans and returns only valid plans

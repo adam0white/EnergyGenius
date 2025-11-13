@@ -9,6 +9,7 @@
 ## Epic Summary
 
 Based on user feedback and QA findings after launch, this epic addresses three critical issues:
+
 1. **Performance** - Recommendations take 45-60 seconds, with progress UI misleading users
 2. **UX/Readability** - "Why" explanations need better formatting for comprehension
 3. **QA/Testing** - Once fixes are done, comprehensive exploratory testing needed
@@ -18,30 +19,37 @@ Based on user feedback and QA findings after launch, this epic addresses three c
 ## User Feedback Issues
 
 ### Issue 1: Performance - Slow Recommendation Time
+
 **User Complaint:** "Recommendation takes almost a minute to complete. Progress UI shows success after ~10 seconds but then waits."
 
 **Root Cause to Investigate:**
+
 - Current model may not be optimal for speed
 - Workers AI has multiple available models with different speed/quality trade-offs
 - Need to research faster models via context7 MCP
 
 **Related Stories:**
+
 - Story 7.1: Workers AI Model Performance Investigation & Optimization
 - Story 7.3: Fix Progress Timeline Timing Issue
 
 ### Issue 2: UX - "Why" Section Formatting
+
 **User Complaint:** "The 'Why' explanation for recommendations is just a text block and hard to read."
 
 **Solution Approach:**
+
 - Parse the natural structure in Claude's explanations
 - Format as lists, paragraphs, key metrics
 - Maintain Tailwind design consistency
 - Ensure mobile responsiveness
 
 **Related Stories:**
+
 - Story 7.2: Fix "Why" Section Formatting
 
 ### Issue 3: QA - Exploratory Testing (Post-Fixes)
+
 **Not yet scheduled** - Will use Playwright MCP for browser-based testing once Issues 1 & 2 are fixed.
 
 ---
@@ -49,6 +57,7 @@ Based on user feedback and QA findings after launch, this epic addresses three c
 ## Stories in This Epic
 
 ### Story 7.1: Workers AI Model Performance Investigation & Optimization
+
 - **Status:** Ready for Development
 - **Priority:** P1 - Critical
 - **Complexity:** High
@@ -60,6 +69,7 @@ Based on user feedback and QA findings after launch, this epic addresses three c
   - Document AI model selection rationale
 
 ### Story 7.2: Fix "Why" Section Formatting
+
 - **Status:** Ready for Development
 - **Priority:** P2 - UX Enhancement
 - **Complexity:** Medium
@@ -71,6 +81,7 @@ Based on user feedback and QA findings after launch, this epic addresses three c
   - Maintain accessibility standards
 
 ### Story 7.3: Fix Progress Timeline Timing Issue
+
 - **Status:** Ready for Development
 - **Priority:** P1 - Critical
 - **Complexity:** Medium
@@ -88,6 +99,7 @@ Based on user feedback and QA findings after launch, this epic addresses three c
 ### Dependency Relationships
 
 **Story Execution Order Recommendation:**
+
 1. **Start: Story 7.1** (longest/highest impact)
    - Uses context7 MCP for model research
    - Benchmarking will take time
@@ -129,21 +141,25 @@ Based on user feedback and QA findings after launch, this epic addresses three c
 ## Testing Strategy
 
 ### For Story 7.1 (Model Performance)
+
 - Benchmark test harness with 5+ sample inputs
 - Compare speed and quality across models
 - Final validation with staging deployment
 
 ### For Story 7.2 (Why Formatting)
+
 - Visual testing on desktop/tablet/mobile
 - Accessibility verification (color contrast, semantic HTML)
 - Test with diverse recommendation types
 
 ### For Story 7.3 (Progress Timing)
+
 - 5+ test submissions with full logging
 - Verify timing matches actual worker progress
 - Check no premature state transitions
 
 ### For Entire Epic
+
 - Exploratory testing (Story 7.4 - future, using Playwright MCP)
 - User acceptance testing with real workflows
 - Performance monitoring in production
@@ -153,14 +169,17 @@ Based on user feedback and QA findings after launch, this epic addresses three c
 ## Files & Documentation
 
 ### Created Documentation
+
 - `/docs/ai-model-analysis.md` - Model research findings (Story 7.1)
 - `/docs/ai-model-optimization.md` - Model selection rationale (Story 7.1)
 
 ### Modified Documentation
+
 - `/docs/architecture.md` - All three stories update this file
 - `wrangler.toml` - Model configuration changes (Story 7.1)
 
 ### Code Files
+
 - `/src/worker/index.ts` - Add timing instrumentation (7.1, 7.3)
 - `/src/worker/ai/orchestration.ts` - Timing investigation (7.3)
 - `/src/worker/ai/response-parsing.ts` - Add "Why" parser (7.2)

@@ -11,7 +11,7 @@ import { buildUsageSummaryPrompt, buildPlanScoringPrompt, buildNarrativePrompt }
 import { supplierCatalog } from './data/supplier-catalog';
 import { withRetry, generateUsageFallback, generatePlanScoringFallback, generateNarrativeFallback } from './lib/retry';
 import { parseUsageSummary, parsePlanScoring, parseNarrative } from './validation';
-import { calculateMultiplePlanCosts, calculateComprehensivePlanCosts } from './lib/calculations';
+import { calculateComprehensivePlanCosts } from './lib/calculations';
 
 // ===========================
 // TypeScript Interfaces
@@ -210,11 +210,7 @@ export async function runPlanScoring(
 	};
 
 	// Use new comprehensive calculation that includes ETF
-	const costCalculations = calculateComprehensivePlanCosts(
-		supplierPlansArray,
-		currentPlanForCalc,
-		usageSummary.totalAnnualUsage
-	);
+	const costCalculations = calculateComprehensivePlanCosts(supplierPlansArray, currentPlanForCalc, usageSummary.totalAnnualUsage);
 	const calcTime = Date.now() - calcStartTime;
 	console.log(`[PERF] [plan-scoring] Cost Calculations (TypeScript): ${calcTime}ms for ${supplierPlansArray.length} plans`);
 	console.log(`[CALCULATIONS] Pre-calculated comprehensive costs (with ETF) for ${costCalculations.size} plans using TypeScript`);
@@ -357,7 +353,7 @@ export async function runNarrativeParallel(
 		// Determine savings terminology based on sign
 		const isProfit = plan.estimatedSavings >= 0;
 		const savingsAmount = Math.abs(plan.estimatedSavings);
-		const financialTerm = isProfit ? "Estimated Annual Savings" : "Additional Annual Cost";
+		const financialTerm = isProfit ? 'Estimated Annual Savings' : 'Additional Annual Cost';
 		const financialExplanation = isProfit
 			? `saves you $${savingsAmount} per year`
 			: `costs $${savingsAmount} MORE per year than your current plan`;
@@ -378,17 +374,22 @@ Recommended Plan:
 - Score: ${plan.score}
 - Estimated Annual Cost: $${plan.estimatedAnnualCost}
 - ${financialTerm}: $${savingsAmount}
-${catalogPlan ? `- Base Rate: $${catalogPlan.baseRate}/kWh
+${
+	catalogPlan
+		? `- Base Rate: $${catalogPlan.baseRate}/kWh
 - Monthly Service Fee: $${catalogPlan.monthlyFee}
 - Contract Length: ${catalogPlan.contractTermMonths} months
 - Early Termination Fee: ${catalogPlan.earlyTerminationFee > 0 ? `$${catalogPlan.earlyTerminationFee}` : 'None (cancel anytime)'}
 - Renewable Energy: ${catalogPlan.renewablePercent}%
-- Plan Type: Fixed Rate` : ''}
+- Plan Type: Fixed Rate`
+		: ''
+}
 
 CRITICAL FINANCIAL INTERPRETATION:
-${isProfit
-	? `This plan SAVES money - ${financialExplanation} compared to the current plan.`
-	: `This plan COSTS MORE - ${financialExplanation} compared to the current plan. Explain the value proposition (renewable energy, better service, rate stability, etc.) that justifies the higher cost.`
+${
+	isProfit
+		? `This plan SAVES money - ${financialExplanation} compared to the current plan.`
+		: `This plan COSTS MORE - ${financialExplanation} compared to the current plan. Explain the value proposition (renewable energy, better service, rate stability, etc.) that justifies the higher cost.`
 }
 
 Generate a compelling, specific rationale (2-4 sentences) explaining:
@@ -398,9 +399,10 @@ Generate a compelling, specific rationale (2-4 sentences) explaining:
 4. MUST mention: Early termination fee (${catalogPlan && catalogPlan.earlyTerminationFee > 0 ? `$${catalogPlan.earlyTerminationFee}` : 'none - cancel anytime'})
 5. Important considerations: Rate structure, renewable energy percentage
 
-${isProfit
-	? 'Focus on: How much the user saves and why this plan offers good value.'
-	: 'Focus on: What benefits justify the higher cost (renewable energy, service quality, rate stability).'
+${
+	isProfit
+		? 'Focus on: How much the user saves and why this plan offers good value.'
+		: 'Focus on: What benefits justify the higher cost (renewable energy, service quality, rate stability).'
 }
 
 CRITICAL: Respond with ONLY valid JSON. Do NOT add any text before or after the JSON.
@@ -439,7 +441,7 @@ RIGHT (do this):
 				return {
 					planId,
 					response: null,
-					error: error instanceof Error ? error.message : 'Unknown error'
+					error: error instanceof Error ? error.message : 'Unknown error',
 				};
 			}
 		}),
@@ -473,11 +475,7 @@ RIGHT (do this):
 			}
 
 			// STEP 2: Remove common AI prefixes
-			const prefixes = [
-				/^Here is the (?:JSON )?response:?\s*/i,
-				/^Sure!?\s*/i,
-				/^(?:Here you go|Here it is):?\s*/i,
-			];
+			const prefixes = [/^Here is the (?:JSON )?response:?\s*/i, /^Sure!?\s*/i, /^(?:Here you go|Here it is):?\s*/i];
 			for (const prefix of prefixes) {
 				cleaned = cleaned.replace(prefix, '');
 			}
@@ -502,7 +500,6 @@ RIGHT (do this):
 					parsed.rationale.explanation ||
 					parsed.rationale.rationale ||
 					JSON.stringify(parsed.rationale); // Last resort
-
 			} else {
 				rationaleText = 'No explanation available';
 			}
@@ -594,7 +591,9 @@ export async function runPipeline(
 	let planScoring: PlanScoringOutput | undefined;
 	let narrative: NarrativeOutput | undefined;
 
-	console.log(`[${new Date().toISOString()}] [PIPELINE] Starting AI pipeline orchestration (skipNarrative: ${options?.skipNarrative ?? false})`);
+	console.log(
+		`[${new Date().toISOString()}] [PIPELINE] Starting AI pipeline orchestration (skipNarrative: ${options?.skipNarrative ?? false})`,
+	);
 
 	// ===========================
 	// Stage 1: Usage Summary
@@ -656,22 +655,14 @@ export async function runPipeline(
 			console.error(`[${new Date().toISOString()}] [PLAN_SCORING] [ERROR] ${errorMessage}`);
 
 			// Use fallback data with usage summary for cost calculation
-			planScoring = generatePlanScoringFallback(
-				Array.from(supplierCatalog),
-				usageSummary?.totalAnnualUsage,
-				usageSummary?.annualCost
-			);
+			planScoring = generatePlanScoringFallback(Array.from(supplierCatalog), usageSummary?.totalAnnualUsage, usageSummary?.annualCost);
 
 			safeCallback(progressCallback, 'plan-scoring', 'error', null);
 		}
 	} else {
 		// Use fallback even if stage 1 failed
 		console.log(`[${new Date().toISOString()}] [PLAN_SCORING] Stage 1 failed, using fallback plan scoring`);
-		planScoring = generatePlanScoringFallback(
-			Array.from(supplierCatalog),
-			usageSummary?.totalAnnualUsage,
-			usageSummary?.annualCost
-		);
+		planScoring = generatePlanScoringFallback(Array.from(supplierCatalog), usageSummary?.totalAnnualUsage, usageSummary?.annualCost);
 	}
 
 	// ===========================
@@ -726,7 +717,9 @@ export async function runPipeline(
 
 	// Log performance summary
 	if (performanceMetrics.usageSummary || performanceMetrics.planScoring || performanceMetrics.narrative) {
-		console.log(`[PERF] [SUMMARY] Total Inference Time: ${(performanceMetrics.usageSummary?.inferenceMs || 0) + (performanceMetrics.planScoring?.inferenceMs || 0) + (performanceMetrics.narrative?.inferenceMs || 0)}ms`);
+		console.log(
+			`[PERF] [SUMMARY] Total Inference Time: ${(performanceMetrics.usageSummary?.inferenceMs || 0) + (performanceMetrics.planScoring?.inferenceMs || 0) + (performanceMetrics.narrative?.inferenceMs || 0)}ms`,
+		);
 	}
 
 	return {

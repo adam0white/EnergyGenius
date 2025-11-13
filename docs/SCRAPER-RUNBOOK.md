@@ -51,13 +51,13 @@ npm run dev
 
 ### Key Files
 
-| File | Purpose |
-|------|---------|
-| `scripts/scrape/powertochoose.ts` | Scraper script |
-| `scripts/scrape/convert-to-catalog.ts` | JSON to TypeScript converter |
-| `scripts/scrape/output/raw-scrape-output.json` | Scraper output |
-| `src/worker/data/supplier-catalog.ts` | Production catalog |
-| `scripts/validate-plans.mjs` | Validation script |
+| File                                           | Purpose                      |
+| ---------------------------------------------- | ---------------------------- |
+| `scripts/scrape/powertochoose.ts`              | Scraper script               |
+| `scripts/scrape/convert-to-catalog.ts`         | JSON to TypeScript converter |
+| `scripts/scrape/output/raw-scrape-output.json` | Scraper output               |
+| `src/worker/data/supplier-catalog.ts`          | Production catalog           |
+| `scripts/validate-plans.mjs`                   | Validation script            |
 
 ---
 
@@ -111,6 +111,7 @@ npx tsx scripts/scrape/powertochoose.ts
 ```
 
 **Expected Output:**
+
 ```
 🔍 Starting Power to Choose scraper...
 📍 Target CSV URL: https://www.powertochoose.org/en-us/Plan/ExportToCsv
@@ -135,6 +136,7 @@ npx tsx scripts/scrape/powertochoose.ts
 **Runtime:** 10-30 seconds (network-dependent)
 
 **Troubleshooting:**
+
 - If timeout, increase with: `SCRAPE_TIMEOUT_MS=60000 npx tsx scripts/scrape/powertochoose.ts`
 - If network error, check internet connection and try again
 - If parsing errors, see [Troubleshooting](#troubleshooting) section
@@ -148,6 +150,7 @@ node scripts/validate-plans.mjs
 ```
 
 **Expected Output:**
+
 ```
 === Data Quality Validation ===
 
@@ -167,12 +170,14 @@ Validation Results:
 ```
 
 **What to Check:**
+
 - ✅ Total plans: Should be 80-120 plans
 - ✅ Unique suppliers: Should be 20-40 suppliers
 - ✅ Rate range: Should be $0.08-$0.20/kWh
 - ✅ Issues found: Should be 0
 
 **If Issues Found:**
+
 - Review validation output for specific errors
 - Check `scripts/scrape/output/raw-scrape-output.json`
 - Manually fix issues or re-run scraper
@@ -188,6 +193,7 @@ node -e "const d=require('./scripts/scrape/output/raw-scrape-output.json'); cons
 ```
 
 **Manual Verification Steps:**
+
 1. Open https://www.powertochoose.org in browser
 2. Search for each plan by supplier and name
 3. Verify:
@@ -197,6 +203,7 @@ node -e "const d=require('./scripts/scrape/output/raw-scrape-output.json'); cons
    - Renewable percentage is accurate
 
 **Acceptable Variance:**
+
 - Rate: ±$0.01/kWh (due to rounding)
 - Renewable %: ±1% (data source differences)
 - Plan name: Minor formatting differences OK
@@ -210,6 +217,7 @@ npx tsx scripts/scrape/convert-to-catalog.ts
 ```
 
 **Expected Output:**
+
 ```
 📝 Converting scraped data to TypeScript catalog...
 
@@ -232,6 +240,7 @@ npx tsx scripts/scrape/convert-to-catalog.ts
 ```
 
 **What Happened:**
+
 - Old catalog backed up
 - New catalog generated from JSON
 - TypeScript types preserved
@@ -248,6 +257,7 @@ npx tsc --noEmit
 **Expected Output:** (No output = success)
 
 **If Type Errors:**
+
 - Review error messages
 - Check catalog file format
 - Verify SupplierPlan interface matches data
@@ -262,6 +272,7 @@ node scripts/test-catalog-integration.mjs
 ```
 
 **Expected Output:**
+
 ```
 === Testing Supplier Catalog Integration ===
 
@@ -305,6 +316,7 @@ npm run dev
 ```
 
 **Expected Build Output:**
+
 ```
 vite v7.2.2 building client environment for production...
 ✓ 1770 modules transformed.
@@ -312,6 +324,7 @@ vite v7.2.2 building client environment for production...
 ```
 
 **Manual Testing:**
+
 1. Open http://localhost:8787 in browser
 2. Click "Generate Mock Data"
 3. Submit intake form
@@ -375,14 +388,14 @@ Use this checklist to ensure successful data refresh:
 
 Use these metrics to assess data quality:
 
-| Metric | Expected Range | Actual |
-|--------|----------------|--------|
-| Total plans | 200-300 | 250 ✅ |
-| Unique suppliers | 30-50 | 40 ✅ |
-| Base rate range | $0.08-$0.20/kWh | $0.108-$0.189/kWh ✅ |
-| Average rate | $0.12-$0.16/kWh | $0.147/kWh ✅ |
-| 100% renewable plans | 50-120 | 81 ✅ |
-| Contract terms | 10-20 different | 19 ✅ |
+| Metric               | Expected Range  | Actual               |
+| -------------------- | --------------- | -------------------- |
+| Total plans          | 200-300         | 250 ✅               |
+| Unique suppliers     | 30-50           | 40 ✅                |
+| Base rate range      | $0.08-$0.20/kWh | $0.108-$0.189/kWh ✅ |
+| Average rate         | $0.12-$0.16/kWh | $0.147/kWh ✅        |
+| 100% renewable plans | 50-120          | 81 ✅                |
+| Contract terms       | 10-20 different | 19 ✅                |
 
 ---
 
@@ -391,11 +404,13 @@ Use these metrics to assess data quality:
 ### Issue: Scraper Timeout
 
 **Symptoms:**
+
 ```
 Error: Request timeout after 30000ms
 ```
 
 **Solution:**
+
 ```bash
 SCRAPE_TIMEOUT_MS=60000 npx tsx scripts/scrape/powertochoose.ts
 ```
@@ -403,11 +418,13 @@ SCRAPE_TIMEOUT_MS=60000 npx tsx scripts/scrape/powertochoose.ts
 ### Issue: Network Error
 
 **Symptoms:**
+
 ```
 Error: Network error: connect ETIMEDOUT
 ```
 
 **Solutions:**
+
 1. Check internet connection: `ping powertochoose.org`
 2. Check firewall/proxy settings
 3. Try again in 5-10 minutes (site may be temporarily down)
@@ -416,12 +433,14 @@ Error: Network error: connect ETIMEDOUT
 ### Issue: No Plans Extracted
 
 **Symptoms:**
+
 ```
 ✓ Parsed 0 plans
 Warning: No plans extracted
 ```
 
 **Solutions:**
+
 1. Enable debug mode: `DEBUG=true npx tsx scripts/scrape/powertochoose.ts`
 2. Check if website structure changed (inspect HTML manually)
 3. Update CSV parsing logic if needed
@@ -430,6 +449,7 @@ Warning: No plans extracted
 ### Issue: Validation Failures
 
 **Symptoms:**
+
 ```
 ⚠️  Validation warnings:
 Plan "X - Y" validation failed:
@@ -437,6 +457,7 @@ Plan "X - Y" validation failed:
 ```
 
 **Solutions:**
+
 1. Review `scripts/scrape/output/raw-scrape-output.json`
 2. Manually verify flagged plans on powertochoose.org
 3. If legitimate data, adjust validation thresholds in `scripts/validate-plans.mjs`
@@ -445,11 +466,13 @@ Plan "X - Y" validation failed:
 ### Issue: TypeScript Errors
 
 **Symptoms:**
+
 ```
 error TS2322: Type 'X' is not assignable to type 'Y'
 ```
 
 **Solutions:**
+
 1. Check catalog file format matches `SupplierPlan` interface
 2. Verify no missing or extra fields
 3. Check for data type mismatches (string vs number)
@@ -458,11 +481,13 @@ error TS2322: Type 'X' is not assignable to type 'Y'
 ### Issue: Build Failures
 
 **Symptoms:**
+
 ```
 ✗ Build failed
 ```
 
 **Solutions:**
+
 1. Run `npx tsc --noEmit` to see detailed errors
 2. Check for syntax errors in catalog file
 3. Verify all imports are correct
@@ -502,13 +527,13 @@ npm run build && npm run dev
 
 ## Data Freshness Schedule
 
-| Frequency | Reason |
-|-----------|--------|
-| Every 3 months (recommended) | Keep pricing current |
-| Every 6 months (minimum) | Prevent significant staleness |
-| After supplier notifications | New plans or pricing changes |
-| Before major releases | Ensure production has latest data |
-| On user reports | Address specific data issues |
+| Frequency                    | Reason                            |
+| ---------------------------- | --------------------------------- |
+| Every 3 months (recommended) | Keep pricing current              |
+| Every 6 months (minimum)     | Prevent significant staleness     |
+| After supplier notifications | New plans or pricing changes      |
+| Before major releases        | Ensure production has latest data |
+| On user reports              | Address specific data issues      |
 
 **Next Refresh Due:** 2026-02-11 (3 months from last refresh)
 

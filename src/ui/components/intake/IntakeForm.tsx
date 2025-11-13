@@ -493,9 +493,7 @@ export function IntakeForm({ onSubmit, isSubmitting = false }: IntakeFormProps) 
 								max="36"
 								className={isAutofilled ? 'bg-blue-50' : ''}
 							/>
-							<p className="text-xs text-gray-500">
-								Choose between 1-36 months. Most plans offer 3, 6, 12, or 24-month contracts.
-							</p>
+							<p className="text-xs text-gray-500">Choose between 1-36 months. Most plans offer 3, 6, 12, or 24-month contracts.</p>
 						</div>
 
 						{/* Risk Tolerance */}

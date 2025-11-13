@@ -48,7 +48,7 @@ export interface UseRecommendationHook {
  * @returns Promise with narratives array
  */
 async function fetchNarratives(usageSummary: any, recommendations: any[], requestStartTime: number): Promise<any[]> {
-	console.log(`[NARRATIVES] Fetching narratives for ${recommendations.length} plans...`);
+	console.warn(`[NARRATIVES] Fetching narratives for ${recommendations.length} plans...`);
 
 	// Build planScoring payload
 	const planScoring = {
@@ -84,7 +84,7 @@ async function fetchNarratives(usageSummary: any, recommendations: any[], reques
 		throw new Error('Invalid narratives response format');
 	}
 
-	console.log(`[NARRATIVES] Received ${data.narratives.length} narratives in ${Date.now() - requestStartTime}ms`);
+	console.warn(`[NARRATIVES] Received ${data.narratives.length} narratives in ${Date.now() - requestStartTime}ms`);
 
 	return data.narratives;
 }
@@ -160,7 +160,7 @@ export function useRecommendation(): UseRecommendationHook {
 	const submit = useCallback(
 		async (intakeData: UserIntakeData) => {
 			const requestStartTime = Date.now();
-			console.log(`[PROGRESS] Request started at ${new Date().toISOString()}`);
+			console.warn(`[PROGRESS] Request started at ${new Date().toISOString()}`);
 
 			// Validate intake data
 			const validationError = validateIntakeData(intakeData);
@@ -188,7 +188,7 @@ export function useRecommendation(): UseRecommendationHook {
 			initializePipelineStages();
 
 			// Start first stage immediately
-			console.log(`[PROGRESS] Stage 1 (Data Interpretation) started at ${Date.now() - requestStartTime}ms`);
+			console.warn(`[PROGRESS] Stage 1 (Data Interpretation) started at ${Date.now() - requestStartTime}ms`);
 			startPipelineStage('dataInterpretation');
 
 			// Create abort controller for request cancellation
@@ -199,16 +199,16 @@ export function useRecommendation(): UseRecommendationHook {
 				// Since we don't have SSE yet, we'll transition stages based on expected timing
 				// Stage 1 starts immediately (already started above)
 				const stage2Timer = setTimeout(() => {
-					console.log(`[PROGRESS] Stage 1 (Data Interpretation) completed at ${Date.now() - requestStartTime}ms`);
+					console.warn(`[PROGRESS] Stage 1 (Data Interpretation) completed at ${Date.now() - requestStartTime}ms`);
 					completePipelineStage('dataInterpretation');
-					console.log(`[PROGRESS] Stage 2 (Plan Scoring) started at ${Date.now() - requestStartTime}ms`);
+					console.warn(`[PROGRESS] Stage 2 (Plan Scoring) started at ${Date.now() - requestStartTime}ms`);
 					startPipelineStage('planScoring');
 				}, 5000); // ~5s for usage summary
 
 				const stage3Timer = setTimeout(() => {
-					console.log(`[PROGRESS] Stage 2 (Plan Scoring) completed at ${Date.now() - requestStartTime}ms`);
+					console.warn(`[PROGRESS] Stage 2 (Plan Scoring) completed at ${Date.now() - requestStartTime}ms`);
 					completePipelineStage('planScoring');
-					console.log(`[PROGRESS] Stage 3 (Narrative Generation) started at ${Date.now() - requestStartTime}ms`);
+					console.warn(`[PROGRESS] Stage 3 (Narrative Generation) started at ${Date.now() - requestStartTime}ms`);
 					startPipelineStage('narrativeGeneration');
 				}, 11000); // ~6s for plan scoring (total 11s)
 
@@ -239,7 +239,7 @@ export function useRecommendation(): UseRecommendationHook {
 				};
 
 				// Send POST request
-				console.log(`[PROGRESS] API request sent at ${Date.now() - requestStartTime}ms`);
+				console.warn(`[PROGRESS] API request sent at ${Date.now() - requestStartTime}ms`);
 				const response = await Promise.race([
 					fetch(API_ENDPOINT, {
 						method: 'POST',
@@ -252,7 +252,7 @@ export function useRecommendation(): UseRecommendationHook {
 					new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Request timeout')), REQUEST_TIMEOUT)),
 				]);
 
-				console.log(`[PROGRESS] API response received at ${Date.now() - requestStartTime}ms`);
+				console.warn(`[PROGRESS] API response received at ${Date.now() - requestStartTime}ms`);
 
 				// Check response status
 				if (!response.ok) {
@@ -261,7 +261,7 @@ export function useRecommendation(): UseRecommendationHook {
 
 				// Parse response
 				const apiResponse = await response.json();
-				console.log(`[PROGRESS] Response parsed at ${Date.now() - requestStartTime}ms`);
+				console.warn(`[PROGRESS] Response parsed at ${Date.now() - requestStartTime}ms`);
 
 				// Validate response structure (API returns data.recommendations)
 				if (!apiResponse.data || !apiResponse.data.recommendations || !Array.isArray(apiResponse.data.recommendations)) {
@@ -304,12 +304,12 @@ export function useRecommendation(): UseRecommendationHook {
 				clearTimers();
 
 				// Update state with recommendations (with null explanations for now)
-				console.log(`[PROGRESS] Recommendations ready at ${Date.now() - requestStartTime}ms (narratives loading...)`);
+				console.warn(`[PROGRESS] Recommendations ready at ${Date.now() - requestStartTime}ms (narratives loading...)`);
 				setRecommendations(transformedRecommendations);
 
 				// NEW: Fetch narratives in the background
 				// Start narrative generation stage
-				console.log(`[PROGRESS] Stage 3 (Narrative Generation) started at ${Date.now() - requestStartTime}ms`);
+				console.warn(`[PROGRESS] Stage 3 (Narrative Generation) started at ${Date.now() - requestStartTime}ms`);
 				startPipelineStage('narrativeGeneration');
 
 				// Call narratives endpoint with usageSummary and planScoring
@@ -324,10 +324,10 @@ export function useRecommendation(): UseRecommendationHook {
 							};
 						});
 
-						console.log(`[PROGRESS] Stage 3 (Narrative Generation) completed at ${Date.now() - requestStartTime}ms`);
+						console.warn(`[PROGRESS] Stage 3 (Narrative Generation) completed at ${Date.now() - requestStartTime}ms`);
 						completePipelineStage('narrativeGeneration');
 						setRecommendations(updatedRecommendations);
-						console.log(`[PROGRESS] Total request time with narratives: ${Date.now() - requestStartTime}ms`);
+						console.warn(`[PROGRESS] Total request time with narratives: ${Date.now() - requestStartTime}ms`);
 					})
 					.catch((error) => {
 						console.error('[PROGRESS] Narrative generation failed:', error);

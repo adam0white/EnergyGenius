@@ -1,3 +1,5 @@
+/* eslint-env node */
+/* eslint-disable no-undef */
 import { readFileSync } from 'fs';
 
 const data = JSON.parse(readFileSync('scripts/scrape/output/raw-scrape-output.json', 'utf-8'));

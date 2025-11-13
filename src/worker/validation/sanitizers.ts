@@ -161,10 +161,10 @@ export function sanitizeAIResponse(response: string): string {
 
 	// First, try to extract content from properly formatted code blocks
 	const codeBlockPatterns = [
-		/^```(?:json)?\s*\n([\s\S]*?)\n```$/m,  // Standard: ```json\n...\n```
-		/```(?:json)?\s*\n([\s\S]*?)\n```/,      // Anywhere in text
-		/^```([\s\S]*?)```$/m,                   // Simple: ```...```
-		/```([\s\S]*?)```/,                      // Simple anywhere
+		/^```(?:json)?\s*\n([\s\S]*?)\n```$/m, // Standard: ```json\n...\n```
+		/```(?:json)?\s*\n([\s\S]*?)\n```/, // Anywhere in text
+		/^```([\s\S]*?)```$/m, // Simple: ```...```
+		/```([\s\S]*?)```/, // Simple anywhere
 	];
 
 	let extracted = false;
@@ -181,7 +181,7 @@ export function sanitizeAIResponse(response: string): string {
 	// If no code block found, remove any leading prose before JSON
 	if (!extracted) {
 		// Remove everything before first { or [
-		const jsonStart = cleaned.search(/[{\[]/);
+		const jsonStart = cleaned.search(/[{[]/);
 		if (jsonStart > 0) {
 			const beforeJSON = cleaned.substring(0, jsonStart).trim();
 			if (beforeJSON.length > 0) {

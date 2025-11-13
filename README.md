@@ -11,13 +11,13 @@
 
 ## Quick Reference
 
-| What | Details |
-|------|---------|
-| **Tech Stack** | React 19 + Cloudflare Workers AI (Llama 3.3) |
-| **AI Pipeline** | 3-stage analysis, 15-20s total |
-| **Bundle Size** | 79KB (gzipped) |
-| **Accessibility** | WCAG 2.1 AA compliant |
-| **Status** | Production Ready (v1.0.0) |
+| What              | Details                                      |
+| ----------------- | -------------------------------------------- |
+| **Tech Stack**    | React 19 + Cloudflare Workers AI (Llama 3.3) |
+| **AI Pipeline**   | 3-stage analysis, 15-20s total               |
+| **Bundle Size**   | 79KB (gzipped)                               |
+| **Accessibility** | WCAG 2.1 AA compliant                        |
+| **Status**        | Production Ready (v1.0.0)                    |
 
 ---
 
@@ -80,6 +80,7 @@ Built on **Cloudflare Workers + Workers AI**, the entire recommendation engine r
 ```
 
 **Data Flow:**
+
 1. User submits usage data via React UI
 2. `/api/recommend` endpoint receives request
 3. 3-stage AI pipeline processes data (15-20s)
@@ -107,6 +108,7 @@ npm run dev                    # Start dev server
 ```
 
 **For deployment:**
+
 ```bash
 npx wrangler login            # One-time Cloudflare auth
 npm run deploy                # Deploy to production
@@ -134,6 +136,7 @@ cat scripts/scrape/output/raw-scrape-output.json | jq length
 ```
 
 Manually review a few plans:
+
 - Check pricing looks realistic (8-15¢/kWh typical)
 - Verify renewable percentages (0-100%)
 - Confirm required fields present (name, supplier, rate)
@@ -197,26 +200,29 @@ npm run lint         # ESLint
 
 ### API Endpoints
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/recommend` | POST | Generate plan recommendations |
-| `/api/health` | GET | Health check |
-| `/*` | GET | Serve React SPA |
+| Endpoint         | Method | Purpose                       |
+| ---------------- | ------ | ----------------------------- |
+| `/api/recommend` | POST   | Generate plan recommendations |
+| `/api/health`    | GET    | Health check                  |
+| `/*`             | GET    | Serve React SPA               |
 
 ---
 
 ## Documentation
 
 **Core Docs:**
+
 - [Technical Specification](./docs/tech-spec.md) - Complete architecture
 - [Deployment Guide](./docs/deployment-guide.md) - Production setup
 
 **Testing & Quality:**
+
 - [E2E Testing Guide](./docs/e2e-testing-guide.md) - Manual test checklist
 - [Accessibility Audit](./docs/accessibility-audit.md) - WCAG 2.1 AA compliance
 - [Performance Report](./docs/performance-optimization-report.md) - Bundle analysis
 
 **Data & Scraper:**
+
 - [Scraper Documentation](./scripts/scrape/README.md) - Power to Choose scraper
 
 ---

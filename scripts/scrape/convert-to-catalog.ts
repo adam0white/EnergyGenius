@@ -6,7 +6,6 @@
  */
 
 import * as fs from 'fs';
-import * as path from 'path';
 
 const INPUT_FILE = 'scripts/scrape/output/raw-scrape-output.json';
 const OUTPUT_FILE = 'src/worker/data/supplier-catalog.ts';

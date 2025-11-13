@@ -1,3 +1,5 @@
+/* eslint-env node */
+/* eslint-disable no-undef */
 /**
  * Test script to verify supplier catalog integration
  * Tests that catalog loads correctly and data is accessible

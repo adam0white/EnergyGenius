@@ -34,12 +34,9 @@ export class ErrorBoundary extends Component<Props, State> {
 			return (
 				<Card className="p-8 m-4 max-w-md mx-auto text-center">
 					<div className="text-red-600 text-6xl mb-4">⚠️</div>
-					<h2 className="text-2xl font-bold text-gray-900 mb-2">
-						Something went wrong
-					</h2>
+					<h2 className="text-2xl font-bold text-gray-900 mb-2">Something went wrong</h2>
 					<p className="text-gray-600 mb-6">
-						We encountered an error while displaying your recommendations.
-						Your data is safe - please try refreshing the page.
+						We encountered an error while displaying your recommendations. Your data is safe - please try refreshing the page.
 					</p>
 					<button
 						onClick={() => window.location.reload()}
@@ -49,12 +46,8 @@ export class ErrorBoundary extends Component<Props, State> {
 					</button>
 					{import.meta.env.DEV && this.state.error && (
 						<details className="mt-4 text-left">
-							<summary className="cursor-pointer text-sm text-gray-600">
-								Error details
-							</summary>
-							<pre className="mt-2 p-2 bg-gray-100 rounded text-xs overflow-auto">
-								{this.state.error.toString()}
-							</pre>
+							<summary className="cursor-pointer text-sm text-gray-600">Error details</summary>
+							<pre className="mt-2 p-2 bg-gray-100 rounded text-xs overflow-auto">{this.state.error.toString()}</pre>
 						</details>
 					)}
 				</Card>

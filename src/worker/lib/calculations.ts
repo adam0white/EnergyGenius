@@ -53,11 +53,7 @@ export interface PlanForCalculation {
  * // result.savingsPercent = 15.60
  * ```
  */
-export function calculatePlanCosts(
-	plan: PlanForCalculation,
-	currentAnnualCost: number,
-	totalAnnualUsage: number
-): PlanCostCalculation {
+export function calculatePlanCosts(plan: PlanForCalculation, currentAnnualCost: number, totalAnnualUsage: number): PlanCostCalculation {
 	// Validate inputs
 	if (typeof plan.baseRate !== 'number' || plan.baseRate < 0) {
 		throw new Error(`Invalid baseRate: ${plan.baseRate}. Must be a non-negative number.`);
@@ -85,9 +81,7 @@ export function calculatePlanCosts(
 	const estimatedSavings = currentAnnualCost - estimatedAnnualCost;
 
 	// Calculate savings percentage (avoid division by zero)
-	const savingsPercent = currentAnnualCost > 0
-		? (estimatedSavings / currentAnnualCost) * 100
-		: 0;
+	const savingsPercent = currentAnnualCost > 0 ? (estimatedSavings / currentAnnualCost) * 100 : 0;
 
 	// Round to 2 decimal places for currency precision
 	return {
@@ -121,7 +115,7 @@ export function calculatePlanCosts(
 export function calculateMultiplePlanCosts(
 	plans: Array<{ id: string } & PlanForCalculation>,
 	currentAnnualCost: number,
-	totalAnnualUsage: number
+	totalAnnualUsage: number,
 ): Map<string, PlanCostCalculation> {
 	const costMap = new Map<string, PlanCostCalculation>();
 
@@ -133,7 +127,7 @@ export function calculateMultiplePlanCosts(
 			// Log error but continue with other plans
 			console.error(
 				`[${new Date().toISOString()}] [CALCULATIONS] Error calculating costs for plan ${plan.id}:`,
-				error instanceof Error ? error.message : 'Unknown error'
+				error instanceof Error ? error.message : 'Unknown error',
 			);
 			// Store a fallback calculation with zero savings
 			costMap.set(plan.id, {
@@ -164,16 +158,12 @@ export function calculateMultiplePlanCosts(
  * // annualCost = 1307.40
  * ```
  */
-export function calculateAnnualCost(
-	baseRate: number,
-	monthlyFee: number,
-	totalAnnualUsage: number
-): number {
+export function calculateAnnualCost(baseRate: number, monthlyFee: number, totalAnnualUsage: number): number {
 	if (baseRate < 0 || monthlyFee < 0 || totalAnnualUsage <= 0) {
 		throw new Error('Invalid inputs for annual cost calculation');
 	}
 
-	const annualCost = (baseRate * totalAnnualUsage) + (monthlyFee * 12);
+	const annualCost = baseRate * totalAnnualUsage + monthlyFee * 12;
 	return Math.round(annualCost * 100) / 100;
 }
 
@@ -191,10 +181,7 @@ export function calculateAnnualCost(
  * // savings.percent = 15.60
  * ```
  */
-export function calculateSavings(
-	currentAnnualCost: number,
-	newAnnualCost: number
-): { amount: number; percent: number } {
+export function calculateSavings(currentAnnualCost: number, newAnnualCost: number): { amount: number; percent: number } {
 	if (currentAnnualCost < 0 || newAnnualCost < 0) {
 		throw new Error('Invalid costs for savings calculation');
 	}
@@ -302,7 +289,7 @@ export interface SavingsCalculation {
 export function calculateTrueAnnualSavings(
 	currentPlan: CurrentPlanForCalculation,
 	recommendedPlan: RecommendedPlanForCalculation,
-	annualKWh: number
+	annualKWh: number,
 ): SavingsCalculation {
 	// Validate inputs
 	if (typeof currentPlan.currentRate !== 'number' || currentPlan.currentRate < 0) {
@@ -388,7 +375,7 @@ export function calculateTrueAnnualSavings(
 export function calculateComprehensivePlanCosts(
 	plans: Array<{ id: string; baseRate: number; monthlyFee: number; contractTermMonths: number }>,
 	currentPlan: CurrentPlanForCalculation,
-	totalAnnualUsage: number
+	totalAnnualUsage: number,
 ): Map<string, SavingsCalculation & { estimatedAnnualCost: number; estimatedSavings: number }> {
 	const costMap = new Map<string, SavingsCalculation & { estimatedAnnualCost: number; estimatedSavings: number }>();
 
@@ -401,7 +388,7 @@ export function calculateComprehensivePlanCosts(
 					monthlyFee: plan.monthlyFee,
 					contractTermMonths: plan.contractTermMonths,
 				},
-				totalAnnualUsage
+				totalAnnualUsage,
 			);
 
 			// Store with both new and old field names for backward compatibility
@@ -415,7 +402,7 @@ export function calculateComprehensivePlanCosts(
 			// Log error but continue with other plans
 			console.error(
 				`[${new Date().toISOString()}] [CALCULATIONS] Error calculating comprehensive costs for plan ${plan.id}:`,
-				error instanceof Error ? error.message : 'Unknown error'
+				error instanceof Error ? error.message : 'Unknown error',
 			);
 
 			// Calculate current annual cost for fallback

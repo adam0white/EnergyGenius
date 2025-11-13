@@ -1,11 +1,13 @@
 # Workers AI JSON Mode Implementation
 
 ## Summary
+
 Fixed persistent JSON parsing issues where AI was returning text after valid JSON.
 
 ## Changes Made
 
 ### 1. Enhanced JSON Sanitizer (`src/worker/validation/sanitizers.ts`)
+
 - **Added `extractFirstJSON()` function** with bracket depth tracking
   - Finds first `{` or `[`
   - Tracks bracket depth accounting for strings and escapes
@@ -18,6 +20,7 @@ Fixed persistent JSON parsing issues where AI was returning text after valid JSO
   - Falls back gracefully on extraction errors
 
 ### 2. Enabled JSON Mode in AI Calls (`src/worker/pipeline.ts`)
+
 - **Added `response_format: { type: 'json_object' }` to all three AI stages:**
   - `runUsageSummary()` - Stage 1
   - `runPlanScoring()` - Stage 2
@@ -26,32 +29,38 @@ Fixed persistent JSON parsing issues where AI was returning text after valid JSO
 ## How It Works
 
 ### JSON Mode Parameter
+
 Workers AI now receives:
+
 ```typescript
 const aiResponse = await env.AI.run(modelId, {
-  prompt,
-  max_tokens: 1024,
-  response_format: { type: 'json_object' }  // <-- Forces JSON output
+	prompt,
+	max_tokens: 1024,
+	response_format: { type: 'json_object' }, // <-- Forces JSON output
 });
 ```
 
 This instructs the LLM to:
+
 - Return ONLY valid JSON
 - Not add explanatory text before/after
 - Follow JSON schema more strictly
 
 ### Robust JSON Extraction
+
 If AI still adds text after JSON (fallback safety):
+
 ```typescript
 function extractFirstJSON(text: string): string {
-  // Find first { or [
-  // Track depth: +1 for {/[, -1 for }/]
-  // When depth reaches 0, stop
-  // Return substring from start to closing bracket
+	// Find first { or [
+	// Track depth: +1 for {/[, -1 for }/]
+	// When depth reaches 0, stop
+	// Return substring from start to closing bracket
 }
 ```
 
 Example input:
+
 ```
 { "valid": "json" }
 This is incorrect. Here is the correct response:
@@ -59,6 +68,7 @@ This is incorrect. Here is the correct response:
 ```
 
 Example output:
+
 ```
 { "valid": "json" }
 ```
@@ -66,11 +76,13 @@ Example output:
 ## Testing Instructions
 
 1. **Rebuild:**
+
    ```bash
    npm run build
    ```
 
 2. **Start dev server:**
+
    ```bash
    npm run dev
    ```
@@ -94,6 +106,7 @@ Example output:
 ## Model Compatibility
 
 The `llama-3.3-70b-instruct-fp8-fast` model supports JSON mode via the `response_format` parameter. This is standard across:
+
 - Llama 3.x models on Workers AI
 - OpenAI-compatible models
 - Most modern instruction-tuned LLMs
@@ -101,6 +114,7 @@ The `llama-3.3-70b-instruct-fp8-fast` model supports JSON mode via the `response
 ## Rollback Plan
 
 If issues occur:
+
 1. Remove `response_format` parameter from AI calls
 2. Rely solely on enhanced `extractFirstJSON()` sanitizer
 3. The sanitizer is backward compatible with old behavior

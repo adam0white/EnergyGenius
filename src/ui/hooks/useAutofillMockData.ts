@@ -168,7 +168,7 @@ function generateCurrentPlan(scenario: UsageScenario) {
 		'seasonal-high': 0.165,
 		'seasonal-low': 0.15,
 		'large-family': 0.18,
-		'apartment': 0.19,
+		apartment: 0.19,
 		'medium-business': 0.16,
 	};
 
@@ -178,7 +178,7 @@ function generateCurrentPlan(scenario: UsageScenario) {
 		'seasonal-high': 4.95,
 		'seasonal-low': 4.95,
 		'large-family': 12.95,
-		'apartment': 4.95,
+		apartment: 4.95,
 		'medium-business': 19.95,
 	};
 
@@ -254,7 +254,7 @@ function generatePreferences(scenario: UsageScenario) {
 			maxContractMonths: 24,
 			riskTolerance: 'medium',
 		},
-		'apartment': {
+		apartment: {
 			prioritizeSavings: true,
 			prioritizeRenewable: true,
 			prioritizeFlexibility: true,

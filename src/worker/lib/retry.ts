@@ -158,11 +158,7 @@ export function generatePlanScoringFallback(supplierPlans: any[], totalAnnualUsa
 			// This ensures fallback logic matches primary calculation logic exactly
 			let costs;
 			try {
-				costs = calculatePlanCosts(
-					{ baseRate: plan.baseRate, monthlyFee: plan.monthlyFee },
-					currentCost,
-					annualUsage
-				);
+				costs = calculatePlanCosts({ baseRate: plan.baseRate, monthlyFee: plan.monthlyFee }, currentCost, annualUsage);
 			} catch (error) {
 				// Handle invalid plan data gracefully
 				console.error(`[FALLBACK] Error calculating costs for plan ${plan.id}:`, error);

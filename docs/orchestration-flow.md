@@ -736,6 +736,7 @@ All 7 stories successfully implemented:
 **Action**: Status synchronization
 **Outcome**: Updated bug-timeout-race-condition.md status to Done
 **Details**:
+
 - Found discrepancy: orchestration-flow.md showed "Done" but story file showed "Ready for Review"
 - QA review was completed and appended to story file
 - Updated story status from "Ready for Review" → "Done"
@@ -746,6 +747,7 @@ All 7 stories successfully implemented:
 **Action**: Comprehensive status synchronization across all epics
 **Outcome**: Updated 29 story files to reflect "Done" status
 **Details**:
+
 - Discovered systematic issue: QA reviews were completed but story file statuses not updated
 - QA gate YAML files exist in .bmad-core/gates/ for Epic 5 & 6 (all passed)
 - QA review sections appended to story files for Epics 1-4
@@ -765,6 +767,7 @@ All 7 stories successfully implemented:
 **Action**: Git commit - Status synchronization
 **Outcome**: Committed all status updates to repository
 **Details**:
+
 - Committed 27 modified story files
 - Committed updated orchestration-flow.md
 - Commit message: "Update all story statuses to Done - Complete status synchronization"
@@ -776,6 +779,7 @@ All 7 stories successfully implemented:
 **Action**: Final verification and session completion
 **Outcome**: All orchestration tasks complete
 **Details**:
+
 - ✅ All 31 stories verified as "Done" status
 - ✅ Bug fix story verified as "Done" status
 - ✅ All changes committed to git (2 commits)
@@ -785,6 +789,7 @@ All 7 stories successfully implemented:
 - ✅ Project 100% complete
 
 **Session Summary:**
+
 - Started: 2025-11-11 11:17
 - Completed: 2025-11-11 11:22
 - Duration: 5 minutes
@@ -798,6 +803,7 @@ All 7 stories successfully implemented:
 ## 🎉 ORCHESTRATION SESSION COMPLETE 🎉
 
 **Current Project State:**
+
 - ✅ 6/6 Epics Complete (100%)
 - ✅ 31/31 Stories Complete (100%)
 - ✅ All story files status: Done
@@ -823,6 +829,7 @@ All 7 stories successfully implemented:
 **Details**:
 
 **Verification Steps Completed:**
+
 1. ✅ Read orchestrator.md configuration (305 lines)
 2. ✅ Read project-overview.md (48 lines)
 3. ✅ Scanned stories/ directory (41 files total)
@@ -830,6 +837,7 @@ All 7 stories successfully implemented:
 5. ✅ Checked all story statuses
 
 **Stories Verification:**
+
 - ✅ Epic 1 (Stories 1.1-1.5): All 5 stories marked "Done"
 - ✅ Epic 2 (Stories 2.3-2.4): All 2 stories marked "Done"
 - ✅ Epic 3 (Stories 3.1-3.5): All 5 stories marked "Done"
@@ -840,17 +848,20 @@ All 7 stories successfully implemented:
 - ✅ Total: 29 implementation stories + 1 bug fix = 30 complete
 
 **Build Status:**
+
 - ✅ TypeScript compilation: No errors
 - ✅ Production build: Success (763ms, 79.76 KB gzip)
 - ✅ Git status: Clean working tree
 - ✅ Recent commits: 10 commits showing complete implementation history
 
 **Git History Verification:**
+
 - Latest commit: 671a559 "Complete orchestration session - All epics 100% done"
 - Previous: Status synchronization, bug fixes, epic completions
 - All work properly committed and tracked
 
 **Decision**: NO ACTION REQUIRED
+
 - All epics complete (6/6)
 - All stories complete (30/30)
 - All acceptance criteria met (1,000+)
@@ -870,6 +881,7 @@ All 7 stories successfully implemented:
 **Last Updated**: 2025-11-11 12:04
 
 **Epic Completion:**
+
 - ✅ Epic 1: Project Setup & Infrastructure (5 stories) - DONE
 - ✅ Epic 2: Mock Data Layer (4 stories, 2 implemented) - DONE
 - ✅ Epic 3: AI Pipeline & Worker Backend (5 stories) - DONE
@@ -878,6 +890,7 @@ All 7 stories successfully implemented:
 - ✅ Epic 6: Integration & Polish (7 stories) - DONE
 
 **Total Deliverables:**
+
 - 🎯 31+ stories completed across 6 epics
 - 📝 1,000+ acceptance criteria met
 - 🧪 Comprehensive test coverage documented
@@ -887,6 +900,7 @@ All 7 stories successfully implemented:
 - ⚡ Performance optimized (79.76 KB gzip, 20-88% under targets)
 
 **Technical Achievements:**
+
 - ✅ Cloudflare Workers + React SPA architecture
 - ✅ Workers AI integration (Llama 3.3 70B)
 - ✅ Three-stage AI pipeline with retry logic
@@ -897,6 +911,7 @@ All 7 stories successfully implemented:
 - ✅ Production deployment workflow
 
 **Quality Metrics:**
+
 - 🏗️ Build: 763ms, 79.76 KB gzipped
 - 📊 TypeScript: 0 errors (strict mode)
 - 🧹 Git: Clean working tree
@@ -904,6 +919,7 @@ All 7 stories successfully implemented:
 - 🐛 Critical bug fixes completed
 
 **No Pending Work:**
+
 - No stories in "Draft" status
 - No stories in "Ready for Development" status
 - No stories in "Ready for Review" status
@@ -911,6 +927,7 @@ All 7 stories successfully implemented:
 - All stories marked "Done"
 
 **Ready for Production Deployment:**
+
 ```bash
 npm run deploy
 ```
@@ -937,12 +954,14 @@ npm run deploy
 **Details**:
 
 **User Feedback Received:**
+
 - ✅ App working, recommendations delivered successfully
 - ⚠️ Performance: Takes ~60s (shows complete at 10s, waits 50s)
 - ⚠️ "Why" section is plain text block (needs formatting)
 - 📋 Need exploratory testing with Playwright MCP
 
 **Stories Created:**
+
 - Story 7.1: Workers AI Model Performance Investigation (P1, High complexity, 2-3 days)
   - Use context7 MCP to research faster models
   - Benchmark alternatives, optimize for speed
@@ -969,12 +988,14 @@ npm run deploy
 **Details**:
 
 **Research Completed:**
+
 - Used context7 MCP to research Cloudflare Workers AI models
 - Evaluated 10+ models across speed, cost, quality dimensions
 - Created comprehensive decision matrix
 - Selected: `@cf/meta/llama-3.1-8b-instruct-fast` (8B model)
 
 **Implementation:**
+
 - Added performance instrumentation to pipeline.ts
 - Updated wrangler.toml: AI_MODEL_FAST now uses 8B model (was 70B)
 - Created docs/ai-model-analysis.md (research documentation)
@@ -982,11 +1003,13 @@ npm run deploy
 - Added `StagePerformance` interface with timing breakdown
 
 **Performance Improvements:**
+
 - Expected latency: 45-60s → 15-20s (66% reduction)
 - Cost reduction: 83% on both input/output tokens
 - Speed increase: 6-8x faster (80+ tokens/sec vs 10-15)
 
 **Files Modified:**
+
 - src/worker/pipeline.ts (performance instrumentation)
 - wrangler.toml (model configuration)
 - docs/ai-model-analysis.md (NEW)
@@ -1002,6 +1025,7 @@ npm run deploy
 **Details**:
 
 **Acceptance Criteria:** 8/8 PASS (100%)
+
 - ✅ context7 MCP research documented (11+ models)
 - ✅ Decision matrix complete (5 weighted criteria)
 - ✅ Model selection rationale clear (8B: 7.8/10 vs 70B: 6.1/10)
@@ -1011,12 +1035,14 @@ npm run deploy
 - ✅ Build/lint passes (0 errors)
 
 **Quality Rating:** EXCELLENT
+
 - Maintainability: Excellent
 - Observability: Excellent
 - Reliability: Good
 - Performance: Expected 6-8x improvement
 
 **Pre-Deployment Required:**
+
 - Smoke tests with 5+ diverse scenarios
 - Verify response times < 25s
 - Monitor [PERF] logs
@@ -1033,6 +1059,7 @@ npm run deploy
 **Details**:
 
 **Implementation:**
+
 - Created narrative-parser.ts (160 lines) - Intelligent text structure detection
 - Updated RecommendationDeck.tsx with FormattedNarrative component
 - Detects and formats: bullet lists, paragraphs, metric highlights
@@ -1040,6 +1067,7 @@ npm run deploy
 - Responsive Tailwind CSS implementation
 
 **Features:**
+
 - Identifies bullet lists (dash, asterisk, numbered)
 - Highlights metrics (dollars, percentages, kWh, comparisons)
 - Renders paragraphs with proper typography
@@ -1047,11 +1075,13 @@ npm run deploy
 - WCAG AA accessibility compliant
 
 **Testing:**
+
 - Created 16 comprehensive test cases
 - All tests passing (16/16)
 - Build succeeds, linting clean
 
 **Files:**
+
 - NEW: src/worker/lib/narrative-parser.ts
 - NEW: test/narrative-parser.spec.ts
 - UPDATED: src/ui/components/results/RecommendationDeck.tsx
@@ -1064,6 +1094,7 @@ npm run deploy
 **Details**:
 
 **Acceptance Criteria:** 7/7 PASS (100%)
+
 - ✅ Parser detects bullet lists, paragraphs, metrics
 - ✅ Visual styling improves readability significantly
 - ✅ Responsive layout verified (mobile/tablet/desktop)
@@ -1073,6 +1104,7 @@ npm run deploy
 - ✅ Build/lint passes (0 errors)
 
 **Quality Rating:** EXCELLENT (92% confidence)
+
 - Parser Quality: Excellent (robust, well-tested)
 - Visual Formatting: Excellent (blue bullets, highlighted metrics)
 - Accessibility: Excellent (semantic HTML, ARIA attributes)
@@ -1089,17 +1121,20 @@ npm run deploy
 **Details**:
 
 **Root Cause Identified:**
+
 - Frontend used optimistic progress simulation with hardcoded 9s total time
 - Backend pipeline actually takes 15-20s
 - Created 5-10s gap showing false "Complete" while waiting for API
 
 **Solution Implemented:**
+
 - Removed optimistic timing logic (STAGE_TIMINGS, runOptimisticStages)
 - Aligned progress with real API completion timing
 - Stages now transition at realistic intervals (5s, 11s, completion)
 - Added comprehensive timing instrumentation with [PROGRESS] logs
 
 **Timing Changes:**
+
 - Stage 1 starts immediately
 - Stage 2 transitions at ~5s
 - Stage 3 transitions at ~11s
@@ -1108,6 +1143,7 @@ npm run deploy
 - Increased timeout: 60s → 90s for safety
 
 **Files Modified:**
+
 - src/ui/hooks/useRecommendation.ts (removed optimistic timing, added instrumentation)
 - src/ui/components/pipeline/ProgressTimeline.tsx (updated duration message)
 
@@ -1121,10 +1157,12 @@ npm run deploy
 **Details**:
 
 **Root Cause Analysis:** VERIFIED ✓
+
 - Correctly identified optimistic 9s vs actual 15-20s mismatch
 - Evidence: Removed STAGE_TIMINGS and runOptimisticStages()
 
 **Implementation Quality:** PASS ✓
+
 - Removed optimistic timing logic
 - Realistic stage transitions at 5s, 11s, completion
 - Real API completion detection implemented
@@ -1133,15 +1171,18 @@ npm run deploy
 - Timeout increased to 90s
 
 **Build Quality:** PASS ✓
+
 - Production build successful (260.49 KB gzip)
 - TypeScript: 0 errors
 - ESLint: 11 warnings (intentional console.log for debugging)
 
 **Integration:** PASS ✓
+
 - Properly coordinated with Story 7.1
 - Will benefit from model performance improvements
 
 **Minor Concerns (Non-blocking):**
+
 - Console logging warnings intentional for production instrumentation
 - Consider adding timing metrics from real-world testing
 
@@ -1156,16 +1197,19 @@ npm run deploy
 **Details**:
 
 **Testing Method:**
+
 - Used Playwright MCP for automated exploratory testing
 - Dev server: http://localhost:52524
 - Complete user flow tested end-to-end
 
 **Epic 7 Story Verification:**
+
 - ✅ Story 7.1 (Model Optimization): VERIFIED - Recommendation time acceptable, no timeouts
 - ✅ Story 7.2 ("Why" Formatting): VERIFIED - Formatted narratives with bullets, highlighted metrics
 - ✅ Story 7.3 (Progress Timing): VERIFIED - Accurate timing, no false "complete" states
 
 **User Flow Tested:**
+
 - ✅ Homepage loads (HTTP 200, ~2s)
 - ✅ Intake form displays with 23 fields
 - ✅ Generate mock data works (2.057s)
@@ -1175,6 +1219,7 @@ npm run deploy
 - ✅ Error handling works with retry capability
 
 **Quality Assessment:**
+
 - Code Quality: EXCELLENT
 - Accessibility: EXCELLENT (ARIA roles, semantic HTML)
 - Visual Design: EXCELLENT
@@ -1183,6 +1228,7 @@ npm run deploy
 - Performance: ACCEPTABLE
 
 **Deliverables Created:**
+
 - QA-EXPLORATORY-TEST-REPORT.md (13 KB comprehensive analysis)
 - EXPLORATORY-TESTING-SUMMARY.txt (11 KB executive summary)
 - QA-EXPLORATORY-TESTING-INDEX.md (navigation guide)
@@ -1207,6 +1253,7 @@ All 3 stories successfully implemented and verified:
 - ✅ Exploratory Testing: All improvements verified with Playwright MCP
 
 **Epic 7 Deliverables:**
+
 - 6-8x model performance improvement (66% latency reduction, 83% cost savings)
 - Intelligent narrative parsing with visual formatting
 - Accurate progress timeline (no false "complete" states)
@@ -1215,6 +1262,7 @@ All 3 stories successfully implemented and verified:
 - Full exploratory testing validation
 
 **Impact:**
+
 - Recommendation time: Optimized for 15-20s (from 60s)
 - "Why" explanations: Formatted with lists, highlighted metrics (from plain text)
 - Progress UI: Accurate timing aligned with actual execution (from false "complete")
@@ -1230,6 +1278,7 @@ All 3 stories successfully implemented and verified:
 **Details**:
 
 **User Feedback Issues Identified:**
+
 - Test suite has failures and hangs
 - "Why" section still shows markdown (regression from 7.2)
 - All plans show 0% renewable and "Bronze" tier
@@ -1240,6 +1289,7 @@ All 3 stories successfully implemented and verified:
 - Error messages not visible from bottom of form
 
 **Stories Created:**
+
 - Story 7.4 (P0): Fix Test Suite Failures & Hanging Tests
 - Story 7.5 (P0): Fix "Why" Section Markdown Regression
 - Story 7.6 (P0): Fix Mock Data - Renewable % and Tiers
@@ -1261,23 +1311,27 @@ All 3 stories successfully implemented and verified:
 **Details**:
 
 **Root Cause:**
+
 - Timeout tests with real 30s delays causing hangs
 - Incompatible with Cloudflare Workers runtime fake timers
 - Hidden 13 pre-existing test failures
 
 **Solution:**
+
 - Added global 10s timeout to vitest.config.mts
 - Skipped timeout test suites with `describe.skip()`
 - Added documentation explaining skipped tests
 - Timeout functionality still works in production
 
 **Results:**
+
 - Test suite completes in ~1.5s (was hanging 60s+)
 - 59 tests passing
 - 3 tests skipped (documented)
 - 13 tests failing (pre-existing, separate story needed)
 
 **Files Modified:**
+
 - vitest.config.mts (added timeout config)
 - test/pipeline.spec.ts (skipped hanging tests)
 
@@ -1291,12 +1345,14 @@ All 3 stories successfully implemented and verified:
 **Details**:
 
 **What Worked:** ✓
+
 - Root cause analysis thorough and accurate
 - Hanging issue resolved (1.7s completion vs 60s+)
 - Test infrastructure configured with global timeouts
 - Clear documentation
 
 **What Failed:** ✗
+
 - 13 failing tests not fixed (AC3, AC4 violated)
 - Only 59/72 tests passing (82%, not 100% required)
 - Timeout tests skipped (workaround, not fix)
@@ -1304,12 +1360,14 @@ All 3 stories successfully implemented and verified:
 - Acceptance criteria marked complete but not met
 
 **Blocking Issues:**
+
 1. Fix 13 failing tests in pipeline.spec.ts (mock data returns plain text, needs JSON)
 2. Address skipped timeout tests (fix properly OR move to integration suite)
 3. Update acceptance criteria to reflect actual state
 4. Achieve 100% pass rate (or adjust AC)
 
 **Specific Feedback:**
+
 - Update mock: `{ response: 'Mock AI response' }` → `{ response: JSON.stringify({...}) }`
 - Choose approach for timeout tests: real timers, integration suite, or config fix
 - Validation: Run tests 3+ times, verify 0 failures
@@ -1325,6 +1383,7 @@ All 3 stories successfully implemented and verified:
 **Details**:
 
 **Issue 1 Fixed:** 13 failing tests (CRITICAL) ✓
+
 - Created proper JSON mock responses for all 3 pipeline stages
 - Smart mock function detects stage type from prompt content
 - Fixed test assertions to destructure `{ result }` properly
@@ -1333,23 +1392,27 @@ All 3 stories successfully implemented and verified:
 - Fixed execution time test (0ms for instant mocks)
 
 **Issue 2 Addressed:** 3 skipped timeout tests ✓
+
 - Confirmed skipping is correct strategy (QA option b)
 - Tests require real 30-60s delays (incompatible with fake timers)
 - Timeout functionality verified working in production
 - Well-documented with explanatory comments
 
 **Issue 3 Achieved:** 100% pass rate ✓
+
 - 72/72 tests passing
 - 3 tests skipped (documented)
 - 0 tests failing
 - Test suite completes in 1.45s
 
 **Validation:**
+
 - Ran tests 3 times - consistent results
 - All acceptance criteria met
 - QA checklist complete
 
 **Files Modified:**
+
 - test/pipeline.spec.ts (comprehensive fixes)
 
 ### [2025-11-11 12:57] - @qa-quality
@@ -1360,6 +1423,7 @@ All 3 stories successfully implemented and verified:
 **Details**:
 
 **Test Results Verified:** ✓
+
 - Ran tests 3 independent times
 - 72/72 tests passing (100% pass rate)
 - 3 tests skipped (documented)
@@ -1368,18 +1432,21 @@ All 3 stories successfully implemented and verified:
 - Consistent results across all runs
 
 **Mock Data Structure:** EXCELLENT ✓
+
 - All 3 mock responses proper JSON (not plain text)
 - Smart mock function detects stage type
 - All 13 previously failing tests now pass
 - "Validation successful" logs confirm parsing works
 
 **Timeout Test Strategy:** ACCEPTABLE ✓
+
 - 3 tests properly skipped with documentation
 - Strategy follows approved "Option B"
 - Timeout functionality verified in production
 - Saves 60s per test run without losing quality
 
 **Acceptance Criteria:** ALL 5 MET (100%) ✓
+
 - AC1: Investigate failures - FULLY MET
 - AC2: Fix hanging tests - FULLY MET
 - AC3: Fix failing tests - FULLY MET (0 failures)
@@ -1387,6 +1454,7 @@ All 3 stories successfully implemented and verified:
 - AC5: Test documentation - FULLY MET
 
 **All Round 1 Blocking Issues:** RESOLVED ✓
+
 1. 13 failing tests → FIXED (proper JSON mocks)
 2. 3 skipped tests → ADDRESSED (documented strategy)
 3. 82% vs 100% pass rate → RESOLVED (100% achieved)
@@ -1403,23 +1471,27 @@ All 3 stories successfully implemented and verified:
 **Details**:
 
 **Root Cause:**
+
 - AI prompt asks for "plain text" but example shows markdown (`**text**`)
 - AI returns markdown bold syntax
 - narrative-parser only parsed structure, didn't strip markdown
 
 **Solution:**
+
 - Enhanced narrative-parser to strip markdown bold syntax
 - Added regex: `**text**` → `text` (line 44)
 - Strips before structural parsing
 - All existing functionality preserved
 
 **Validation:**
+
 - 74 tests passing (18 narrative-parser tests)
 - Added 2 new regression tests
 - Production build successful
 - Minimal, focused fix (1 line change)
 
 **Files Modified:**
+
 - src/worker/lib/narrative-parser.ts (markdown stripping)
 - test/narrative-parser.spec.ts (2 regression tests)
 
@@ -1433,12 +1505,14 @@ All 3 stories successfully implemented and verified:
 **Details**:
 
 **What Worked:** ✓
+
 - Bold markdown stripping implemented
 - 2 regression tests added
 - Minimal, focused change
 - 74 tests passing
 
 **Critical Gaps:** ✗
+
 1. **Incomplete markdown coverage** (HIGH SEVERITY)
    - Only handles bold `**text**`
    - Doesn't strip: `*italic*`, `_italic_`, `# headers`, `` `code` ``, `[links](url)`
@@ -1459,10 +1533,12 @@ All 3 stories successfully implemented and verified:
    - AC2 says "strips markdown syntax" but only bold handled
 
 **Blocking Issues:**
+
 1. Expand markdown stripping to handle: `*italic*`, `_italic_`, `#headers`, `` `code` ``
 2. Add 5-8 test cases covering markdown variants
 
 **High-Priority Issues:**
+
 1. Fix prompt in narrative.ts to request plain text without markdown examples
 2. Add integration test: prompt → AI → parser → verify
 3. Test with real Claude responses
@@ -1479,20 +1555,24 @@ All 3 stories successfully implemented and verified:
 **Details**:
 
 **Blocking Issues Fixed:**
+
 - Expanded markdown coverage: bold, italic, headers, inline code
 - Added 7 new test cases (25 total narrative-parser tests)
 
 **High-Priority Fixes:**
+
 - Fixed root cause in narrative.ts prompt (removed markdown examples)
 - Added explicit "NO markdown syntax" instruction
 - Defense-in-depth: prompt prevents + parser strips
 
 **Validation:**
+
 - 81 tests passing (up from 74)
 - 25 narrative-parser tests (up from 18)
 - No breaking changes
 
 **Files Modified:**
+
 - src/worker/prompts/narrative.ts (fixed prompt)
 - src/worker/lib/narrative-parser.ts (comprehensive stripping)
 - test/narrative-parser.spec.ts (7 new tests)
@@ -1505,6 +1585,7 @@ All 3 stories successfully implemented and verified:
 **Details**:
 
 **Verified:**
+
 - Root cause fixed (prompt no longer shows markdown)
 - Comprehensive markdown stripping (bold, italic, headers, code)
 - 7 new test cases (13 total markdown tests)
@@ -1523,29 +1604,34 @@ All 3 stories successfully implemented and verified:
 **Details**:
 
 **Root Cause:**
+
 - Supplier catalog had correct data (10%-100% renewable)
 - Data flow break: catalog → API → frontend
 - API not enriching responses with renewable%, contract terms
 
 **Solution:**
+
 - Backend: Added catalog lookup in recommend handler
 - Enriched API with renewablePercent, contractTermMonths, ETF
 - Frontend: Updated transformation to extract enriched fields
 - Type safety: Added optional fields to Recommendation interface
 
 **Validation:**
+
 - Created 15 supplier catalog validation tests
 - All 96 tests passing (no regressions)
 - Renewable distribution verified: 10%-100% across 12 plans
 - 100% renewable plan confirmed
 
 **Tier Clarification:**
+
 - "Bronze tier" not a bug - calculated by savings amount
 - Tier = value/savings, not plan quality
 
 **Deployed:** Production (energy-genius.creatordata-tech.workers.dev)
 
 **Files Modified:**
+
 - src/worker/handlers/recommend.ts (API enrichment)
 - src/ui/hooks/useRecommendation.ts (field extraction)
 - src/ui/context/types.ts (type defs)
@@ -1559,6 +1645,7 @@ All 3 stories successfully implemented and verified:
 **Details**:
 
 **Verified:**
+
 - 0% renewable bug fixed (backend + frontend enrichment)
 - Data flow sound: catalog → API → frontend
 - 15 new validation tests (all passing)
@@ -1590,18 +1677,21 @@ Moving to P1 stories (7.7, 7.8, 7.10)
 **Details**:
 
 **Issues Fixed:**
+
 - Removed arbitrary 24-month UI limit (now 36 months)
 - Fixed inconsistent validation (24 vs 36 vs [3,6,12,24])
 - Added maxContractMonths to AI prompts
 - Implemented plan filtering by contract length before scoring
 
 **Changes:**
+
 - UI: 24→36 month limit with helpful hint
 - Validation: [3,6,12,24]→1-60 month range (flexible)
 - AI: Added contract filtering + scoring criteria
 - Documentation: Updated types, catalog, README
 
 **Validation:**
+
 - 96 tests passing (no regressions)
 - Build successful
 - Linting clean
@@ -1616,6 +1706,7 @@ Moving to P1 stories (7.7, 7.8, 7.10)
 **Details**:
 
 **Verified:**
+
 - 24-month limit removed (now 36 UI, 1-60 validation)
 - Contract length used in AI filtering & scoring
 - Consistency across all layers verified
@@ -1635,22 +1726,26 @@ Moving to P1 stories (7.7, 7.8, 7.10)
 **Problem:** AI generating non-existent plans
 
 **Root Causes:**
+
 - Prompts lacked explicit anti-hallucination constraints
 - Narrative prompt had incomplete plan data
 - Validation only warned, didn't reject
 
 **Solution:**
+
 - Added "CRITICAL CONSTRAINT" sections to all prompts
 - Enriched narrative prompt with full catalog details
 - Changed validation: WARNING → STRICT REJECTION
 - Exact match validation for plan IDs, names, suppliers
 
 **Testing:**
+
 - 13 new hallucination tests (all passing)
 - 109 existing tests passing
 - 122 total tests passing
 
 **Files Modified:**
+
 - src/worker/prompts/usage-summary.ts (constraints)
 - src/worker/prompts/plan-scoring.ts (constraints)
 - src/worker/prompts/narrative.ts (full enrichment)
@@ -1665,6 +1760,7 @@ Moving to P1 stories (7.7, 7.8, 7.10)
 **Details**:
 
 **Verified:**
+
 - 3-layer defense strategy (prompts + enrichment + validation)
 - All 7 hallucination scenarios blocked
 - 13 new tests passing
@@ -1678,6 +1774,7 @@ Moving to P1 stories (7.7, 7.8, 7.10)
 ---
 
 ## 📊 Progress: 6/11 Epic 7 Stories Complete
+
 P0: ✅ 7.4, 7.5, 7.6 | P1: ✅ 7.8, 7.10, ⏳ 7.7 | P2: ⏳ 7.9, 7.11
 
 ### [2025-11-11 13:24] - @dev
@@ -1690,22 +1787,26 @@ P0: ✅ 7.4, 7.5, 7.6 | P1: ✅ 7.8, 7.10, ⏳ 7.7 | P2: ⏳ 7.9, 7.11
 **Problem:** Errors at top not visible when clicking from bottom
 
 **Solution:**
+
 - Added auto-scroll with smooth animation to error
 - Enhanced error styling (thicker border, bold text, larger icon)
 - Error scrolls to center of viewport
 
 **Implementation:**
+
 - Added useRef and useEffect hooks
 - scrollIntoView with 'smooth' behavior
 - Enhanced Alert component styling
 
 **Validation:**
+
 - Build successful
 - All 73 tests passing
 - Linting clean
 - Minimal change (1 file, ~20 lines)
 
 **Files Modified:**
+
 - src/ui/components/intake/IntakeForm.tsx
 
 ### [2025-11-11 13:26] - @qa-quality
@@ -1716,6 +1817,7 @@ P0: ✅ 7.4, 7.5, 7.6 | P1: ✅ 7.8, 7.10, ⏳ 7.7 | P2: ⏳ 7.9, 7.11
 **Details**:
 
 **Verified:**
+
 - Auto-scroll implementation (smooth, centered)
 - Enhanced error styling (bold, thick border, large icon)
 - 109 tests passing (no regressions)
@@ -1728,6 +1830,7 @@ P0: ✅ 7.4, 7.5, 7.6 | P1: ✅ 7.8, 7.10, ⏳ 7.7 | P2: ⏳ 7.9, 7.11
 ---
 
 ## 📊 Progress: 7/11 Epic 7 Stories Complete
+
 P0: ✅ 7.4, 7.5, 7.6 | P1: ✅ 7.8, 7.10, ⏳ 7.7 | P2: ✅ 7.11, ⏳ 7.9
 
 ### [2025-11-11 13:28] - @dev
@@ -1738,6 +1841,7 @@ P0: ✅ 7.4, 7.5, 7.6 | P1: ✅ 7.8, 7.10, ⏳ 7.7 | P2: ✅ 7.11, ⏳ 7.9
 **Details**:
 
 **Features:**
+
 - Debug modal showing all 12 catalog plans
 - Responsive table with search (supplier, name, features)
 - Multi-filter: tier, renewable % range
@@ -1746,12 +1850,14 @@ P0: ✅ 7.4, 7.5, 7.6 | P1: ✅ 7.8, 7.10, ⏳ 7.7 | P2: ✅ 7.11, ⏳ 7.9
 - Auto tier classification (Gold/Silver/Bronze)
 
 **Implementation:**
+
 - NEW: DebugPlans component (360 lines)
 - NEW: shadcn Dialog and Table components
 - NEW: 21 comprehensive tests
 - Footer integration (subtle button)
 
 **Validation:**
+
 - 130 tests passing (21 new)
 - Build successful
 - Linting clean
@@ -1766,6 +1872,7 @@ P0: ✅ 7.4, 7.5, 7.6 | P1: ✅ 7.8, 7.10, ⏳ 7.7 | P2: ✅ 7.11, ⏳ 7.9
 **Details**:
 
 **Verified:**
+
 - All 12 plans displayed correctly
 - Filtering/search working (real-time, tier, renewable %)
 - Export functional (CSV download, JSON clipboard)
@@ -1780,6 +1887,7 @@ P0: ✅ 7.4, 7.5, 7.6 | P1: ✅ 7.8, 7.10, ⏳ 7.7 | P2: ✅ 7.11, ⏳ 7.9
 ---
 
 ## 📊 Progress: 8/11 Epic 7 Stories Complete - FINAL STORY!
+
 P0: ✅ 7.4, 7.5, 7.6 | P1: ✅ 7.8, 7.10, ⏳ 7.7 (LAST) | P2: ✅ 7.11, ✅ 7.9
 
 ### [2025-11-11 13:32] - @dev
@@ -1790,18 +1898,21 @@ P0: ✅ 7.4, 7.5, 7.6 | P1: ✅ 7.8, 7.10, ⏳ 7.7 (LAST) | P2: ✅ 7.11, ✅ 7.
 **Details**:
 
 **Achievement:**
+
 - Complete scraper rewrite using Power to Choose CSV API
 - 100 real energy plans from TX suppliers
 - Real data: rates $0.108-$0.189/kWh, 0-100% renewable
 - Real suppliers: CIRRO, CHAMPION, Reliant, Green Mountain, etc.
 
 **Implementation:**
+
 - Robust CSV parser (handles quotes, special chars)
 - Data validation (types, ranges, required fields)
 - Helper tools for easy data refresh
 - Backup of original catalog created
 
 **Testing:**
+
 - 7 integration tests passing
 - TypeScript compilation successful
 - API tested with real plans
@@ -1817,6 +1928,7 @@ P0: ✅ 7.4, 7.5, 7.6 | P1: ✅ 7.8, 7.10, ⏳ 7.7 (LAST) | P2: ✅ 7.11, ✅ 7.
 **Details**:
 
 **Verified:**
+
 - Scraper works, retrieves 100 real plans from powertochoose.org
 - Real data quality: $0.108-0.189/kWh, 0-100% renewable, 29 suppliers
 - 7 integration tests passing (100% pass rate)
@@ -1837,20 +1949,24 @@ P0: ✅ 7.4, 7.5, 7.6 | P1: ✅ 7.8, 7.10, ⏳ 7.7 (LAST) | P2: ✅ 7.11, ✅ 7.
 All 11 stories (3 original + 8 bug fixes) successfully implemented and approved:
 
 **P0 - Critical (3 stories):**
+
 - ✅ Story 7.4: Fix Test Suite Failures & Hanging Tests - Done (2 QA rounds)
 - ✅ Story 7.5: Fix "Why" Section Markdown Regression - Done (2 QA rounds)
 - ✅ Story 7.6: Fix Mock Data - Renewable % and Tiers - Done
 
 **P1 - High Priority (3 stories):**
+
 - ✅ Story 7.7: Implement Web Scraper for Real Plans - Done
 - ✅ Story 7.8: Improve LLM Prompts & Data Constraints - Done
 - ✅ Story 7.10: Fix Contract Length Handling - Done
 
 **P2 - Medium Priority (2 stories):**
+
 - ✅ Story 7.9: Add Debug UI - View All Plans - Done
 - ✅ Story 7.11: Fix Error Message Visibility - Done
 
 **Previously Complete (3 stories):**
+
 - ✅ Story 7.1: Workers AI Model Performance Investigation - Done
 - ✅ Story 7.2: Fix "Why" Section Formatting (Original) - Done
 - ✅ Story 7.3: Fix Progress Timeline Timing - Done
@@ -1866,6 +1982,7 @@ All 11 stories (3 original + 8 bug fixes) successfully implemented and approved:
 **Original:** 3/3 (100%)
 
 **QA Metrics:**
+
 - Stories sent back for rework: 2 (7.4, 7.5)
 - QA review rounds: 13 total (2 stories had 2 rounds)
 - Final approval rate: 11/11 (100%)
@@ -1873,12 +1990,14 @@ All 11 stories (3 original + 8 bug fixes) successfully implemented and approved:
 - Zero failing tests
 
 **Code Quality:**
+
 - TypeScript: 0 errors (strict mode)
 - Build: Passing (357.11 KB, 101.01 KB gzip)
 - Linting: Clean
 - Git: All work committed
 
 **Epic 7 Impact:**
+
 - Performance: 60s → 15-20s recommendations (66% faster)
 - Data Quality: 100 real energy plans (was 12 mock)
 - Test Coverage: 137 tests (was ~80)
@@ -1892,6 +2011,7 @@ All 11 stories (3 original + 8 bug fixes) successfully implemented and approved:
 ## 🏆 ENERGYGENIUS PROJECT STATUS 🏆
 
 **Total Epics:** 7/7 (100%)
+
 - ✅ Epic 1: Project Setup & Infrastructure (5 stories)
 - ✅ Epic 2: Mock Data Layer (4 stories)
 - ✅ Epic 3: AI Pipeline & Worker Backend (5 stories)
@@ -1916,12 +2036,14 @@ All 11 stories (3 original + 8 bug fixes) successfully implemented and approved:
 **Details**:
 
 **Production Issues Reported:**
+
 - ✗ Validation rejecting valid AI responses (planName exact matching too strict)
 - ✗ All recommendations showing $0/month with $0 savings
 - ✗ Progress duration shows "0s" when complete
 - ? Scraper status unknown, plan data availability uncertain
 
 **Stories Created:**
+
 - Story 8.1: Fix Validation - Relax Strict Plan Name Matching (P0, 2 days)
   - Relax planName validation to fuzzy matching
   - Keep supplier/planId strict validation
@@ -1950,6 +2072,7 @@ All 11 stories (3 original + 8 bug fixes) successfully implemented and approved:
 **Status**: Ready for Development → Ready for Review
 **Outcome**: Scraper verified working - 100 real plans confirmed
 **Details**:
+
 - Scraper from Story 7.7 fully operational
 - 100 plans from 29 suppliers verified
 - Data quality: 100% validation pass rate
@@ -1966,6 +2089,7 @@ All 11 stories (3 original + 8 bug fixes) successfully implemented and approved:
 **Status**: Ready for Review → Done ✓
 **Outcome**: Story approved - Scraper verified operational
 **Details**:
+
 - All 7 acceptance criteria verified complete
 - 100 plans from 29 suppliers confirmed
 - 100% data quality validation pass rate
@@ -1981,6 +2105,7 @@ All 11 stories (3 original + 8 bug fixes) successfully implemented and approved:
 **Status**: Ready for Development → Ready for Review
 **Outcome**: Validation relaxed for planName - fuzzy matching implemented
 **Details**:
+
 - Created planNamesMatch() helper with contract length stripping
 - Strips numbers (3,6,9,12,15,18,19,24,32,36,60) before comparison
 - Kept supplier and planId validation STRICT (exact match)
@@ -1997,6 +2122,7 @@ All 11 stories (3 original + 8 bug fixes) successfully implemented and approved:
 **Status**: Ready for Review → Done ✓
 **Outcome**: Story approved - Fuzzy matching solves production error
 **Details**:
+
 - Fuzzy matching verified working for contract length variations
 - Security maintained: planId and supplier still STRICT
 - All 41 tests passing (15 validation, 34 pipeline, 18 catalog)
@@ -2012,9 +2138,10 @@ All 11 stories (3 original + 8 bug fixes) successfully implemented and approved:
 **Status**: Ready for Development → Ready for Review
 **Outcome**: $0 cost bug fixed - Fallback now calculates realistic costs
 **Details**:
+
 - Root cause: generatePlanScoringFallback() set costs to 0
 - Updated retry.ts to calculate real costs from catalog data
-- Formula: (baseRate * totalAnnualUsage) + (monthlyFee * 12)
+- Formula: (baseRate _ totalAnnualUsage) + (monthlyFee _ 12)
 - Savings: currentAnnualCost - estimatedAnnualCost
 - Updated pipeline.ts to pass usage data to fallback
 - Created 17 new tests (14 unit, 3 integration) - all passing
@@ -2028,6 +2155,7 @@ All 11 stories (3 original + 8 bug fixes) successfully implemented and approved:
 **Status**: Ready for Review → Done ✓
 **Outcome**: Story approved - $0 cost bug fixed
 **Details**:
+
 - All 7 acceptance criteria verified complete
 - Cost calculation formula verified correct (matches AI scoring)
 - 17 new tests passing (14 unit, 3 integration)
@@ -2044,6 +2172,7 @@ All 11 stories (3 original + 8 bug fixes) successfully implemented and approved:
 **Status**: Ready for Development → Ready for Review
 **Outcome**: Duration display bug fixed - Shows actual elapsed time
 **Details**:
+
 - Root cause: PipelineStage only had one timestamp field for both start/end
 - Added endTime field to PipelineStage interface
 - Updated reducers to set endTime when stages complete
@@ -2060,6 +2189,7 @@ All 11 stories (3 original + 8 bug fixes) successfully implemented and approved:
 **Status**: Ready for Review → Done ✓
 **Outcome**: Story approved - Duration display fixed
 **Details**:
+
 - All 6 acceptance criteria verified complete
 - Root cause analysis verified correct (single timestamp issue)
 - Solution elegant and minimal (4 files changed)
@@ -2079,11 +2209,13 @@ All 11 stories (3 original + 8 bug fixes) successfully implemented and approved:
 All 4 production bug fix stories successfully implemented and approved:
 
 **P0 - Critical (3 stories):**
+
 - ✅ Story 8.1: Fix Validation - Relax Strict Plan Name Matching - Done
 - ✅ Story 8.2: Fix $0 Cost Display - Improve Fallback Data - Done
 - ✅ Story 8.4: Verify Scraper & Plan Data Availability - Done
 
 **P2 - Medium (1 story):**
+
 - ✅ Story 8.3: Fix Progress Duration Display - Done
 
 ---
@@ -2095,6 +2227,7 @@ All 4 production bug fix stories successfully implemented and approved:
 **P2 Medium:** 1/1 (100%)
 
 **QA Metrics:**
+
 - Stories sent back for rework: 0
 - QA review rounds: 4 total (all passed first round)
 - Final approval rate: 4/4 (100%)
@@ -2103,12 +2236,14 @@ All 4 production bug fix stories successfully implemented and approved:
 - Zero regressions
 
 **Code Quality:**
+
 - TypeScript: 0 errors (strict mode)
 - Build: Passing (1.24-1.26s)
 - Linting: Clean (pre-existing warnings only)
 - Git: All work committed
 
 **Epic 8 Impact:**
+
 - ✅ Validation fixed: AI can recommend different contract lengths
 - ✅ $0 costs fixed: Fallback shows realistic cost data
 - ✅ Progress duration fixed: Users see accurate elapsed time (not "0s")
@@ -2120,6 +2255,7 @@ All 4 production bug fix stories successfully implemented and approved:
 ## 🏆 ENERGYGENIUS PROJECT STATUS 🏆
 
 **Total Epics:** 8/8 (100%)
+
 - ✅ Epic 1: Project Setup & Infrastructure (5 stories)
 - ✅ Epic 2: Mock Data Layer (4 stories)
 - ✅ Epic 3: AI Pipeline & Worker Backend (5 stories)
@@ -2142,6 +2278,7 @@ All 4 production bug fix stories successfully implemented and approved:
 **Action**: Status verification and synchronization
 **Outcome**: Story 7.2 status corrected
 **Details**:
+
 - Activated orchestrator per orchestrator.md configuration
 - Read project-overview.md and scanned stories/ directory
 - Verified orchestration-flow.md showing Epic 7 complete
@@ -2153,6 +2290,7 @@ All 4 production bug fix stories successfully implemented and approved:
 - All 42 stories across 7 epics confirmed complete
 
 **Verification Complete:**
+
 - ✅ All 11 Epic 7 stories: Done
 - ✅ All 42 project stories: Done
 - ✅ Build: Passing
@@ -2161,13 +2299,13 @@ All 4 production bug fix stories successfully implemented and approved:
 
 ---
 
-
 ### [2025-01-16] - @qa-quality
 
 **Story**: Production investigation
 **Status**: Investigation Complete
 **Outcome**: 2 issues identified and documented
 **Details**:
+
 - Issue 1: Health endpoint 503 (ASSETS binding validation)
 - Issue 2: Text formatting regression in "Why" sections
 - Created 5 investigation reports (50+ KB)
@@ -2180,6 +2318,7 @@ All 4 production bug fix stories successfully implemented and approved:
 **Status**: Ready for Development → Ready for Review
 **Outcome**: Health endpoint fixed - ASSETS now optional
 **Details**:
+
 - Made ASSETS binding optional (Option A approach)
 - Health endpoint always returns HTTP 200
 - Status field indicates health: ok/degraded/error
@@ -2189,13 +2328,13 @@ All 4 production bug fix stories successfully implemented and approved:
 - Committed: 76e2b0e
 - Production impact: No more false 503 errors
 
-
 ### [2025-01-16] - @qa-quality
 
 **Story**: 9.1-fix-health-endpoint-assets-binding.md
 **Status**: Ready for Review → Done ✓
 **Outcome**: Story approved - Health endpoint fixed
 **Details**:
+
 - All acceptance criteria verified complete
 - HTTP 200 always returned (fixes 503 error)
 - ASSETS binding now optional (safe logic)
@@ -2207,13 +2346,13 @@ All 4 production bug fix stories successfully implemented and approved:
 - Confidence: 99%
 - Production ready - Authorized for immediate deployment
 
-
 ### [2025-01-16] - @dev
 
 **Story**: 9.2-verify-fix-text-formatting-regression.md
 **Status**: Ready for Development → Ready for Review
 **Outcome**: Text formatting regression fixed - Two bugs identified
 **Details**:
+
 - Root cause 1: Markdown italic regex removing bullet markers
 - Root cause 2: Limited embedded list support (mixed content)
 - Fixed markdown stripping with negative lookbehind
@@ -2224,13 +2363,13 @@ All 4 production bug fix stories successfully implemented and approved:
 - No regressions
 - Production impact: "Why" sections now properly formatted
 
-
 ### [2025-01-16] - @qa-quality
 
 **Story**: 9.2-verify-fix-text-formatting-regression.md
 **Status**: Ready for Review → Done ✓
 **Outcome**: Story approved - Text formatting fixed
 **Details**:
+
 - All acceptance criteria verified complete
 - Two bugs correctly identified and fixed
 - Regex fix preserves bullet markers (negative lookbehind)
@@ -2254,10 +2393,10 @@ Both production issues successfully resolved:
 - ✅ Story 9.2: Fix Text Formatting Regression - Done
 
 **Production Impact:**
+
 - ✅ Health endpoint returns 200 (no more 503 errors)
 - ✅ "Why" sections properly formatted (lists, paragraphs, metrics)
 - 🚀 Both fixes ready for deployment
-
 
 ### [2025-01-16] - @dev
 
@@ -2267,6 +2406,7 @@ Both production issues successfully resolved:
 **Details**:
 
 **Deployment:**
+
 - URL: https://genius.adamwhite.work
 - Version: d29a5537-56c1-45c6-ae5b-d38d7a11d4fb
 - Build time: 1.28s
@@ -2275,11 +2415,13 @@ Both production issues successfully resolved:
 - Status: ✅ SUCCESSFUL
 
 **Story 9.1 Verified:**
+
 - ✅ Health endpoint returns HTTP 200 (was 503)
 - ✅ Status: "ok"
 - ✅ ASSETS optional working as designed
 
 **Story 9.2 Verified:**
+
 - ✅ Narrative parser fixes deployed
 - ✅ Markdown stripping with negative lookbehind
 - ✅ Embedded list parsing active
@@ -2287,6 +2429,7 @@ Both production issues successfully resolved:
 - ⚠️ Note: Formatting happens client-side (by design)
 
 **Production Health:**
+
 - HTTP 200 OK
 - All bindings operational
 - AI model configured
@@ -2297,6 +2440,7 @@ Both production issues successfully resolved:
 ## 🏆 PRODUCTION STABLE - ORCHESTRATION CYCLE COMPLETE 🏆
 
 **Session Summary (2025-01-16):**
+
 - Started: Epic 8 production bugs
 - Created: 4 bug fix stories (Epic 8)
 - Deployed: Epic 8 fixes to production
@@ -2306,10 +2450,12 @@ Both production issues successfully resolved:
 - Status: All issues resolved
 
 **Total Stories Completed:** 6 stories in one session
+
 - Epic 8: 8.1, 8.2, 8.3, 8.4 (4 stories)
 - Epic 9: 9.1, 9.2 (2 stories)
 
 **Production Status:**
+
 - ✅ Health endpoint working (200 OK)
 - ✅ Text formatting fixed
 - ✅ Validation relaxed (fuzzy matching)
@@ -2319,7 +2465,6 @@ Both production issues successfully resolved:
 - 🚀 Application stable and operational
 
 **Project Status:** 8 Epics Complete, 48 Stories Done, Production Ready
-
 
 ---
 
@@ -2332,6 +2477,7 @@ Both production issues successfully resolved:
 **Details**:
 
 **Cleanup Phase 1: Gates and Project Files**
+
 - Deleted /gates directory (3 historical QA review YAML files)
 - Deleted /qa-gates directory (3 historical QA review YAML files)
 - Deleted PROJECT-COMPLETE.md (redundant, less comprehensive)
@@ -2339,6 +2485,7 @@ Both production issues successfully resolved:
 - Committed: a2c54b9
 
 **Cleanup Phase 2: Documentation Files**
+
 - Deleted 25 files (test scripts, investigation reports, epic summaries)
 - Archived 3 files to docs/archive/ (sprint status, implementation notes)
 - Reduced root documentation from 27+ files to 5 essential files
@@ -2346,6 +2493,7 @@ Both production issues successfully resolved:
 - Committed: 3783ae2
 
 **README Overhaul Workflow:**
+
 1. @bmm-technical-evaluator - Created comprehensive README outline
 2. @dev - Implemented new README from outline (243 lines)
 3. @bmm-document-reviewer - Reviewed quality (scored 6.8/10, 85% ready)
@@ -2353,6 +2501,7 @@ Both production issues successfully resolved:
 5. Committed: 88c6657
 
 **README Improvements:**
+
 - Length: 331 → 231 lines (within 200-250 target)
 - Quick Start: 7+ commands → 4 commands
 - Added crystal-clear scraper workflow (5 numbered steps)
@@ -2364,6 +2513,7 @@ Both production issues successfully resolved:
 - Quality score: 6.8/10 → 9/10 (estimated)
 
 **Final Repository State:**
+
 - Root directory: 5 essential files
 - Documentation: Organized in /docs
 - README: Production-ready, comprehensive yet concise
@@ -2380,14 +2530,17 @@ Both production issues successfully resolved:
 **Outcome**: Found and committed final uncommitted changes
 
 **Uncommitted Changes Found:**
+
 1. README.md - ASCII diagram whitespace alignment (cosmetic)
 2. wrangler.toml - Observability/traces configuration added
 
 **Action Taken:**
+
 - Committing final changes to ensure clean repository state
 - Verifying all epics and stories are complete
 
 **Project Status Verification:**
+
 - ✅ 8 Epics Complete (Epics 1-9, including post-launch fixes)
 - ✅ 48 Stories Done
 - ✅ Production deployment successful
@@ -2396,6 +2549,7 @@ Both production issues successfully resolved:
 - ✅ README production-ready
 
 **Final Commit:**
+
 - Committing observability configuration and README formatting
 - Project ready for handoff
 
@@ -2407,6 +2561,7 @@ Both production issues successfully resolved:
 **Status**: Ready for Review → Done
 **Outcome**: Story 8.3 finalized - QA had already approved (PASS) but status field wasn't updated
 **Details**:
+
 - Story had QA approval from 2025-11-11 (PASS - APPROVED FOR PRODUCTION)
 - All tests passing (12 new + 150 existing = 162 total)
 - Already deployed to production
@@ -2424,6 +2579,7 @@ Both production issues successfully resolved:
 **Repository Status:** Clean and Documented
 
 ### Epic Summary (9 Epics Complete)
+
 1. ✅ Epic 1: Project Setup & Infrastructure (5 stories)
 2. ✅ Epic 2: Mock Data & Scraper (2 stories)
 3. ✅ Epic 3: AI Pipeline Backend (5 stories)
@@ -2437,6 +2593,7 @@ Both production issues successfully resolved:
 **Total Stories Completed:** 46 stories across 9 epics
 
 ### Production Verification
+
 - ✅ Application deployed: https://genius.adamwhite.work
 - ✅ Health endpoint: 200 OK
 - ✅ AI pipeline: Fully functional
@@ -2447,6 +2604,7 @@ Both production issues successfully resolved:
 - ✅ Error handling: Comprehensive
 
 ### Repository Status
+
 - ✅ All code committed
 - ✅ Documentation complete
 - ✅ README production-ready
@@ -2455,6 +2613,7 @@ Both production issues successfully resolved:
 - ✅ Working tree clean
 
 ### Orchestration Statistics
+
 - **Session Duration:** Multiple sessions from 2025-11-10 to 2025-11-11
 - **Agents Used:** @sm-scrum, @dev, @qa-quality
 - **Total Agent Invocations:** 100+ across all stories
@@ -2463,6 +2622,7 @@ Both production issues successfully resolved:
 - **Deployment Success Rate:** 100%
 
 ### Key Achievements
+
 1. Greenfield Cloudflare Workers application built from scratch
 2. Full AI pipeline with Workers AI (Llama 3.1 & 3.3)
 3. Complete React SPA with shadcn/ui components
@@ -2489,8 +2649,9 @@ Both production issues successfully resolved:
 **Fixes Implemented:** 6 QA findings + 2 major improvements
 
 **Issues Resolved:**
+
 1. ✅ BLOCKER: Annual usage auto-calculation
-2. ✅ HIGH: Savings badge contradiction  
+2. ✅ HIGH: Savings badge contradiction
 3. ✅ HIGH: Narrative corruption prevention
 4. ✅ MEDIUM: Contract validation (1-36 months)
 5. ✅ MEDIUM: Debug UI polish (renamed to "View All Plans")
@@ -2499,17 +2660,20 @@ Both production issues successfully resolved:
 8. ✅ IMPROVEMENT: Debug Plans screen polish
 
 **Performance Impact:**
+
 - Time to first result: 19s → 11s (40% faster)
 - Narrative generation: 8s → 2s (75% faster)
 - Total end-to-end: 19s → 13s (32% faster)
 
 **QA Verification:**
+
 - Test suite: 178/184 passing (96.7%)
 - Regressions found: ZERO
 - Overall grade: A+ (EXCELLENT)
 - Status: APPROVED FOR PRODUCTION
 
 **Commits:**
+
 - e5bc864 - Fix 4 critical UX issues
 - e6c633b - Implement lazy narrative generation
 
@@ -2530,17 +2694,20 @@ Both production issues successfully resolved:
 **Status**: Root causes identified, comprehensive fix story created
 
 **Bug Details:**
+
 - **Symptom**: React Error #31 - "Objects are not valid as a React child (found: object with keys {header, text})"
 - **Impact**: Complete app failure after successful recommendation display
 - **Trigger**: Lazy narrative loading with malformed AI response
 
 **Root Causes Identified:**
+
 1. **Inadequate Markdown Stripping**: Regex doesn't handle text prefix before code blocks
 2. **Nested Rationale Objects**: AI returns `{"rationale": {"good_match": "..."}}` instead of `{"rationale": "string"}`
 3. **No Error Boundary**: No React error boundary to catch rendering errors
 4. **No Type Safety**: Objects slip through to frontend without validation
 
 **Story Created**: `stories/10.1-critical-blank-page-crash.md`
+
 - Comprehensive fix plan with 7 acceptance criteria
 - Backend fixes: markdown stripping, object handling, type validation
 - Frontend fixes: ErrorBoundary component, defensive rendering
@@ -2548,13 +2715,13 @@ Both production issues successfully resolved:
 
 **Next**: Invoke @sm-scrum to finalize story
 
-
 ### [2025-11-12] - @sm-scrum
 
 **Story**: 10.1-critical-blank-page-crash.md
 **Status**: Draft → Ready for Development
 **Outcome**: Story finalized and approved for development
 **Details**:
+
 - SM Review: PASS - Exceptional story quality
 - All 7 acceptance criteria verified as clear and testable
 - Implementation guidance sufficient with code examples
@@ -2562,13 +2729,13 @@ Both production issues successfully resolved:
 - Multiple defensive layers planned to prevent recurrence
 - Zero ambiguity for dev team handoff
 
-
 ### [2025-11-12] - @dev
 
 **Story**: 10.1-critical-blank-page-crash.md
 **Status**: Ready for Development → Ready for Review
 **Outcome**: All 7 acceptance criteria implemented successfully
 **Details**:
+
 - Backend fixes: Enhanced markdown stripping, nested object handling, type validation, improved AI prompt
 - Frontend fixes: Error Boundary component, App/FormattedNarrative wrapping, defensive rendering
 - Files changed: 5 files (4 modified, 1 created)
@@ -2578,13 +2745,13 @@ Both production issues successfully resolved:
 - Commit: e5fc194 - "Fix P0 critical bug: blank page crash after recommendations (Story 10.1)"
 - Multiple defensive layers ensure page never goes blank
 
-
 ### [2025-11-12] - @qa-quality
 
 **Story**: 10.1-critical-blank-page-crash.md
 **Status**: Ready for Review → Done ✓
 **Outcome**: Story approved - PASS for production deployment
 **Details**:
+
 - All 7 acceptance criteria validated and met
 - Critical validations: Malformed responses can't crash page ✓
 - Error boundaries display user-friendly messages ✓
@@ -2613,6 +2780,7 @@ Both production issues successfully resolved:
 **Cycle:** SM → Dev → QA → Done
 
 **Completion Details:**
+
 - Root causes: 4 distinct issues identified and documented
 - Implementation: 7 acceptance criteria, all met
 - Files changed: 5 files (4 modified, 1 new)
@@ -2624,11 +2792,11 @@ Both production issues successfully resolved:
 The production bug causing blank page crashes after successfully showing recommendations is now completely resolved with multiple defensive layers preventing recurrence.
 
 **Production Impact:**
+
 - Page will never go blank even if narratives fail
 - Graceful degradation with fallback rationales
 - User-friendly error messages if errors occur
 - Multiple validation layers ensure type safety
-
 
 ---
 
@@ -2638,6 +2806,7 @@ The production bug causing blank page crashes after successfully showing recomme
 
 **Action**: User reported multiple calculation and data quality issues
 **Issues**:
+
 1. Incorrect savings calculations (cheap plans show savings, expensive plans don't)
 2. All recommendations showing Bronze tier only
 3. Missing kWh rate display on recommendations
@@ -2645,6 +2814,7 @@ The production bug causing blank page crashes after successfully showing recomme
 5. Tiered pricing (< 500, 500-2000, >2000 kWh) may not be supported
 
 **Story Created**: `stories/10.2-investigate-calculation-data-accuracy.md`
+
 - 6 comprehensive acceptance criteria
 - Systematic audit of: calculations, scoring, data quality, tiered pricing, LLM involvement, UI
 - Investigation will produce findings report and fix stories
@@ -2655,11 +2825,11 @@ The production bug causing blank page crashes after successfully showing recomme
 **Status**: Draft → Ready for Development
 **Outcome**: Story finalized with comprehensive investigation scope
 **Details**:
+
 - All 6 acceptance criteria verified as clear and investigable
 - Specific files, test cases, and code examples provided
 - Investigation scope covers all reported issues
 - Excellent developer handoff with minimal ambiguity
-
 
 ### [2025-11-12] - @dev
 
@@ -2667,27 +2837,26 @@ The production bug causing blank page crashes after successfully showing recomme
 **Status**: Ready for Development → Ready for Review
 **Outcome**: Comprehensive investigation completed - 5 bugs identified
 **Details**:
+
 - Analyzed cost calculation logic, scoring, data quality, tiered pricing, and LLM involvement
 - Tested with manual examples and data analysis
 - Discovered 2 critical bugs, 2 high priority issues, 1 medium priority enhancement
 
 **Critical Bugs Found:**
+
 1. All 250 plans have identical $9.95 monthly fee (scraper bug)
 2. LLM performs cost calculations (hallucination risk)
 
-**High Priority Issues:**
-3. Price per kWh not displayed in UI
-4. All recommendations show Bronze tier (caused by bug #1)
+**High Priority Issues:** 3. Price per kWh not displayed in UI 4. All recommendations show Bronze tier (caused by bug #1)
 
-**Medium Priority:**
-5. Tiered pricing not supported (acceptable for now)
+**Medium Priority:** 5. Tiered pricing not supported (acceptable for now)
 
 **Deliverables:**
+
 - Comprehensive investigation report in story Dev Notes
 - 4 recommended fix stories documented
 - Data quality analysis completed
 - Ready for QA validation
-
 
 ### [2025-11-12] - @qa-quality
 
@@ -2695,6 +2864,7 @@ The production bug causing blank page crashes after successfully showing recomme
 **Status**: Ready for Review → Done ✓
 **Outcome**: Investigation findings validated and approved
 **Details**:
+
 - All 6 acceptance criteria verified as thoroughly completed
 - All 5 bugs confirmed through code verification:
   1. CRITICAL: All 250 plans have $9.95 monthly fee (100% affected)
@@ -2708,17 +2878,17 @@ The production bug causing blank page crashes after successfully showing recomme
 - Risk level: LOW (findings accurate, fixes well-scoped)
 - Ready to proceed with fix story implementation
 
-
 ### [2025-11-12] - @sm-scrum
 
 **Action**: Created 4 fix stories from investigation 10.2 findings
 **Outcome**: All fix stories created and marked Ready for Development
 **Stories Created**:
+
 - 10.3: Fix Monthly Fee Data - Re-scrape Supplier Catalog (P0 - CRITICAL)
 - 10.4: Move Cost Calculations from LLM to TypeScript (P0 - CRITICAL)
 - 10.5: Display kWh Rate in UI (P1 - HIGH)
 - 10.6: Add Tiered Pricing Support (P2 - FUTURE/DEFERRED)
-**Details**:
+  **Details**:
 - All stories have clear acceptance criteria based on investigation
 - Implementation guidance provided with code examples
 - Test requirements documented
@@ -2738,12 +2908,12 @@ The production bug causing blank page crashes after successfully showing recomme
 **Fix Stories Created:** 4 (3 for immediate implementation, 1 deferred)
 
 **Critical Path:**
+
 1. Story 10.3: Re-scrape supplier catalog (P0)
 2. Story 10.4: Move calculations to TypeScript (P0)
 3. Story 10.5: Display kWh rate in UI (P1)
 
 **Next Action:** Begin implementation of critical fix stories
-
 
 ---
 
@@ -2757,13 +2927,13 @@ The production bug causing blank page crashes after successfully showing recomme
 
 **Starting with Story 10.3: Fix Monthly Fee Data - Re-scrape Supplier Catalog (P0)**
 
-
 ### [2025-11-12] - @dev
 
 **Story**: 10.3-fix-monthly-fee-data.md
 **Status**: Ready for Development → Ready for Review
 **Outcome**: Critical monthly fee bug fixed with re-scraped data
 **Details**:
+
 - Root cause: Hardcoded $9.95 in scraper (Power to Choose CSV lacks fee data)
 - Solution: Generated realistic fees based on contract term, rate, renewable %
 - Results: 152 plans with 28 unique monthly fees ($0-$15.95)
@@ -2772,13 +2942,13 @@ The production bug causing blank page crashes after successfully showing recomme
 - Files: 3 modified (scraper, catalog, story)
 - Commit: 5aefe8c
 
-
 ### [2025-11-12] - @qa-quality
 
 **Story**: 10.3-fix-monthly-fee-data.md
 **Status**: Ready for Review → Done ✓
 **Outcome**: Story approved for production deployment
 **Details**:
+
 - All 6 acceptance criteria validated and passed
 - Data quality metrics: 152 plans, 28 unique fees, $0-$15.95 range
 - Scraper logic verified: deterministic, realistic fee generation
@@ -2797,7 +2967,6 @@ The production bug causing blank page crashes after successfully showing recomme
 **Outcome:** P0 critical bug fixed and validated
 **Impact:** Savings calculations now accurate, tier distribution proper
 
-
 ---
 
 ### [2025-11-12] - Orchestrator
@@ -2806,13 +2975,13 @@ The production bug causing blank page crashes after successfully showing recomme
 **Context**: Critical bug where LLM performs arithmetic for production user-facing numbers
 **Approach**: Move all cost calculations to TypeScript code, LLM only scores/ranks
 
-
 ### [2025-11-12] - @dev
 
 **Story**: 10.4-move-calculations-to-typescript.md
 **Status**: Ready for Development → Ready for Review
 **Outcome**: All cost calculations moved from LLM to TypeScript
 **Details**:
+
 - Created calculations.ts module with 5 utility functions
 - Removed arithmetic from LLM prompts (LLM now only scores/ranks)
 - Updated pipeline to pre-calculate costs in TypeScript
@@ -2823,13 +2992,13 @@ The production bug causing blank page crashes after successfully showing recomme
 - Files: 2 created, 5 modified
 - Architecture: TypeScript calculates (deterministic), LLM scores (qualitative)
 
-
 ### [2025-11-12] - @qa-quality
 
 **Story**: 10.4-move-calculations-to-typescript.md
 **Status**: Ready for Review → Done ✓
 **Outcome**: Story approved for production deployment
 **Details**:
+
 - All 5 acceptance criteria validated and passed
 - LLM prompt verified: NO arithmetic instructions (LLM only scores)
 - TypeScript calculations verified: correct formula, deterministic
@@ -2849,7 +3018,6 @@ The production bug causing blank page crashes after successfully showing recomme
 **Outcome:** P0 critical bug fixed - LLM no longer performs arithmetic
 **Impact:** Calculations now deterministic, testable, and hallucination-proof
 
-
 ---
 
 ### [2025-11-12] - Orchestrator
@@ -2858,13 +3026,13 @@ The production bug causing blank page crashes after successfully showing recomme
 **Context**: Users cannot see price per kWh in recommendation cards (critical comparison metric)
 **Approach**: Add baseRate and monthlyFee to API response and UI display
 
-
 ### [2025-11-12] - @dev
 
 **Story**: 10.5-display-kwh-rate-in-ui.md
 **Status**: Ready for Development → Ready for Review
 **Outcome**: kWh rate and monthly fee now displayed in recommendation cards
 **Details**:
+
 - Added baseRate and monthlyFee to backend API response
 - Updated TypeScript interfaces (types.ts, RecommendationDeck.tsx)
 - Added pricing display section in UI:
@@ -2876,13 +3044,13 @@ The production bug causing blank page crashes after successfully showing recomme
 - Files: 4 modified
 - Impact: Users can now see and compare the most critical pricing metric
 
-
 ### [2025-11-12] - @qa-quality
 
 **Story**: 10.5-display-kwh-rate-in-ui.md
 **Status**: Ready for Review → Done ✓
 **Outcome**: Story approved for production deployment
 **Details**:
+
 - All 4 acceptance criteria validated and passed
 - Backend: baseRate and monthlyFee added to API response
 - Frontend: Pricing section displays kWh rate and monthly fee
@@ -2913,32 +3081,36 @@ The production bug causing blank page crashes after successfully showing recomme
 **All Stories Status:** Done and Approved for Production
 
 **Story 10.3:** Fix Monthly Fee Data - Re-scrape Supplier Catalog (P0)
+
 - Fixed: All plans had $9.95 monthly fee
 - Result: 152 plans with 28 unique fees
 - Impact: Savings calculations now accurate, tier distribution proper
 
 **Story 10.4:** Move Cost Calculations from LLM to TypeScript (P0)
+
 - Fixed: LLM performed arithmetic (hallucination risk)
 - Result: Deterministic TypeScript calculations, 31 tests passing
 - Impact: Calculations reliable, testable, hallucination-proof
 
 **Story 10.5:** Display kWh Rate in UI (P1)
+
 - Fixed: Users couldn't see price per kWh
 - Result: kWh rate and monthly fee displayed in cards
 - Impact: Users can compare critical pricing metric
 
 **Code Quality:**
+
 - All stories: Production builds successful
 - All stories: Comprehensive test coverage
 - All stories: QA approved with HIGH confidence
 - All stories: Ready for immediate deployment
 
 **Next Steps:**
+
 - Commit all changes
 - Push to production
 - Monitor for regressions
 - Story 10.6 (Tiered Pricing) deferred for future sprint
-
 
 ---
 
@@ -2948,12 +3120,14 @@ The production bug causing blank page crashes after successfully showing recomme
 
 **Action**: User reported critical data flow issues despite previous fixes
 **Issues**:
+
 1. All recommendations show Bronze tier (should show Gold/Silver/Bronze mix)
 2. Price per kWh shows "N/A" (should show actual rates)
 3. Monthly fee shows "$0.00" (should show actual fees)
 4. Narrative prompt doesn't handle negative savings correctly (says "savings" for losses)
 
 **Story Created**: `stories/10.7-fix-recommendation-data-flow.md`
+
 - 6 comprehensive acceptance criteria
 - Investigation of backend→API→frontend data flow
 - Narrative prompt fix for negative savings
@@ -2964,11 +3138,11 @@ The production bug causing blank page crashes after successfully showing recomme
 **Status**: Draft → Ready for Development
 **Outcome**: Story finalized with comprehensive investigation steps
 **Details**:
+
 - All 6 acceptance criteria verified as actionable
 - Investigation path clear with specific file references
 - Dev notes include debugging steps and potential issues
 - P0 priority appropriate for broken recommendations display
-
 
 ### [2025-11-12] - @dev
 
@@ -2976,6 +3150,7 @@ The production bug causing blank page crashes after successfully showing recomme
 **Status**: Ready for Development → Ready for Review
 **Outcome**: Critical data flow bugs investigated and fixed
 **Details**:
+
 - **Root Cause:** Frontend transformation layer missing field mappings
 - **Fix 1:** Added `baseRate` mapping in useRecommendation.ts (line 296)
 - **Fix 2:** Added `monthlyFee` mapping in useRecommendation.ts (line 297)
@@ -2986,13 +3161,13 @@ The production bug causing blank page crashes after successfully showing recomme
 - **Documentation:** Created TESTING-GUIDE-10.7.md and test utilities
 - Files: 1 modified, 3 docs created
 
-
 ### [2025-11-12] - @qa-quality
 
 **Story**: 10.7-fix-recommendation-data-flow.md
 **Status**: Ready for Review → Done ✓
 **Outcome**: Story approved for production deployment
 **Details**:
+
 - All 4 acceptance criteria validated and passed
 - Code quality: EXCELLENT (minimal, surgical fix)
 - Data flow: Backend → API → Frontend verified correct
@@ -3013,7 +3188,6 @@ The production bug causing blank page crashes after successfully showing recomme
 **Outcome:** P0 critical data flow bugs fixed
 **Impact:** Users now see complete pricing information and correct tier badges
 
-
 ---
 
 ## 🔧 FINAL TWO CRITICAL FIXES (2025-11-12)
@@ -3022,15 +3196,16 @@ The production bug causing blank page crashes after successfully showing recomme
 
 **Action**: User reported two remaining critical issues
 **Issues**:
+
 1. All recommendations showing Bronze tier despite varied savings
 2. Narrative prompt doesn't understand negative savings = loss, missing ETF/contract/plan type
 
 **Stories Created**:
+
 - `stories/10.8-fix-bronze-tier-calculation.md` (P0 - Critical)
 - `stories/10.9-fix-narrative-prompt-data.md` (P0 - Critical)
 
 **Approach**: Full SM-Dev-QA cycle for each story
-
 
 ### [2025-11-12] - @dev
 
@@ -3038,6 +3213,7 @@ The production bug causing blank page crashes after successfully showing recomme
 **Status**: Ready for Development → Ready for Review
 **Outcome**: Investigation complete - added defensive programming
 **Details**:
+
 - Investigated tier calculation logic: CORRECT
 - Verified annualSavings data flow: CORRECT
 - Verified API sends estimatedSavings: CORRECT
@@ -3047,13 +3223,13 @@ The production bug causing blank page crashes after successfully showing recomme
 - Production build successful (1.24s)
 - Files: 1 modified (defensive improvement)
 
-
 ### [2025-11-12] - @qa-quality
 
 **Story**: 10.8-fix-bronze-tier-calculation.md
 **Status**: Ready for Review → In Progress (QA Gate - Conditional)
 **Outcome**: Code quality good, but investigation incomplete
 **Details**:
+
 - Code change: Technically sound defensive programming
 - Investigation: Code inspection only, no runtime validation
 - Testing: AC5 required manual testing + screenshots - NOT PROVIDED
@@ -3062,13 +3238,13 @@ The production bug causing blank page crashes after successfully showing recomme
 - **BLOCKED**: Needs runtime test evidence before approval
 - Next: Dev must provide actual test results showing tier badges work
 
-
 ### [2025-11-12] - @dev (Round 2)
 
 **Story**: 10.8-fix-bronze-tier-calculation.md
 **Status**: In Progress → Ready for Review (with runtime evidence)
 **Outcome**: Runtime testing completed - NOT a bug, working as designed
 **Details**:
+
 - Tested 3 scenarios with actual API calls
 - All recommendations correctly showing Bronze tier
 - Reason: All savings < $500 (many negative) = correct Bronze assignment
@@ -3077,13 +3253,13 @@ The production bug causing blank page crashes after successfully showing recomme
 - Defensive type checking still valuable for edge cases
 - Evidence provided: API responses, tier calculations, data flow verification
 
-
 ### [2025-11-12] - @qa-quality (Round 2)
 
 **Story**: 10.8-fix-bronze-tier-calculation.md
 **Status**: Ready for Review → Done ✓
 **Outcome**: Story approved with runtime evidence
 **Details**:
+
 - Runtime evidence: 3 scenarios tested with actual API calls
 - Finding: NOT a bug - all Bronze is correct for test data (savings < $500)
 - Root cause: Alternative plans offer minimal/negative savings (cost MORE)
@@ -3102,7 +3278,6 @@ The production bug causing blank page crashes after successfully showing recomme
 **Outcome:** Defensive hardening approved, no bug found
 **Impact:** Prevents type coercion edge cases in tier calculation
 
-
 ---
 
 ### [2025-11-12] - Orchestrator
@@ -3111,13 +3286,13 @@ The production bug causing blank page crashes after successfully showing recomme
 **Context**: Narrative prompt doesn't understand negative savings = loss, missing ETF/contract/plan type
 **Approach**: Full SM-Dev-QA cycle
 
-
 ### [2025-11-12] - @dev
 
 **Story**: 10.9-fix-narrative-prompt-data.md
 **Status**: Ready for Development → Ready for Review
 **Outcome**: Narrative prompt completely restructured for accuracy
 **Details**:
+
 - AC1: Fixed negative savings handling with conditional logic
 - AC2: Added all missing plan details (ETF, contract, base rate, monthly fee, renewable %, plan type)
 - AC3: Updated instructions with explicit requirements for contract/ETF mentions
@@ -3128,14 +3303,13 @@ The production bug causing blank page crashes after successfully showing recomme
 - Impact: Users get accurate, comprehensive narratives with all plan details
 - Files: 1 modified (pipeline.ts)
 
-
-
 ### [2025-11-12] - @qa-quality
 
 **Story**: 10.9-fix-narrative-prompt-data.md
 **Status**: Ready for Review → Done ✓
 **Outcome**: Story approved - comprehensive narrative improvements
 **Details**:
+
 - AC1-AC5: All acceptance criteria met with excellent implementation
 - Negative savings: Properly handled with conditional terminology
 - Missing fields: All 6 missing fields added to narrative prompt
@@ -3154,7 +3328,6 @@ The production bug causing blank page crashes after successfully showing recomme
 **Outcome:** Narrative prompt comprehensively improved
 **Impact:** Users receive accurate, informative narratives with all plan details
 
-
 ---
 
 ### [2025-11-12] - Orchestrator
@@ -3163,12 +3336,12 @@ The production bug causing blank page crashes after successfully showing recomme
 **Context**: User reports "all recommended plans show Bronze, not the plans' actual tiers" - Critical investigation needed
 **Critical Insight**: Story 10.8 investigated SAVINGS-BASED tier calculation (Gold ≥$1000, Silver ≥$500, Bronze <$500). User now reports plans may have ACTUAL tier data (Gold Plan, Silver Plan, Bronze Plan) from energy providers that we're ignoring.
 **Approach**: Comprehensive investigation story (8 ACs) to determine:
-  1. Do plans in catalog have tier field/data?
-  2. Are we displaying plan tier or savings tier?
-  3. Should we show plan tier, savings tier, or both?
-  4. Why is everything showing Bronze?
-  5. What's the correct display strategy?
 
+1. Do plans in catalog have tier field/data?
+2. Are we displaying plan tier or savings tier?
+3. Should we show plan tier, savings tier, or both?
+4. Why is everything showing Bronze?
+5. What's the correct display strategy?
 
 ### [2025-11-12] - @sm
 
@@ -3176,6 +3349,7 @@ The production bug causing blank page crashes after successfully showing recomme
 **Status**: Draft → Ready for Development
 **Outcome**: Investigation story created and finalized
 **Details**:
+
 - User identified critical disconnect: expected to see plan tiers from catalog, seeing savings tiers instead
 - Different from Story 10.8: savings calculation vs plan classification
 - 8 comprehensive acceptance criteria covering:

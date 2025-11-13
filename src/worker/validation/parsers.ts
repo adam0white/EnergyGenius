@@ -4,11 +4,10 @@
  */
 
 import { z } from 'zod';
-import { UsageSummarySchema, PlanScoringSchema, NarrativeSchema } from './schemas';
+import { UsageSummarySchema, NarrativeSchema } from './schemas';
 import type { UsageSummaryValidated, PlanScoringValidated, NarrativeValidated } from './schemas';
 import { ParseError, ValidationError } from './errors';
 import { sanitizeAIResponse, sanitizeText, truncateText } from './sanitizers';
-import { supplierCatalog } from '../data/supplier-catalog';
 
 /**
  * Fuzzy plan name matching - allows contract length variations
@@ -23,7 +22,7 @@ import { supplierCatalog } from '../data/supplier-catalog';
  * @param catalogPlanName - Plan name from catalog
  * @returns true if names match (allowing contract length variations)
  */
-function planNamesMatch(aiPlanName: string, catalogPlanName: string): boolean {
+function _planNamesMatch(aiPlanName: string, catalogPlanName: string): boolean {
 	// Exact match always passes
 	if (aiPlanName === catalogPlanName) {
 		return true;
@@ -38,9 +37,7 @@ function planNamesMatch(aiPlanName: string, catalogPlanName: string): boolean {
 
 	// Compare normalized names
 	if (normalizedAI === normalizedCatalog) {
-		console.log(
-			`[${new Date().toISOString()}] [VALIDATION] Plan name fuzzy match: AI="${aiPlanName}" ≈ Catalog="${catalogPlanName}"`,
-		);
+		console.log(`[${new Date().toISOString()}] [VALIDATION] Plan name fuzzy match: AI="${aiPlanName}" ≈ Catalog="${catalogPlanName}"`);
 		return true;
 	}
 
@@ -314,13 +311,11 @@ export function parseNarrative(rawResponse: string, topPlanIds: string[], stageN
 	const rawSections = sanitized.split(/\s*---+\s*/);
 
 	// Filter out empty/too-short sections and trim
-	const sections = rawSections
-		.map(s => s.trim())
-		.filter(s => s.length > 50);
+	const sections = rawSections.map((s) => s.trim()).filter((s) => s.length > 50);
 
 	// CRITICAL: Log section parsing for debugging
 	console.log(
-		`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Split into ${sections.length} sections (expected ${topPlanIds.length})`
+		`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Split into ${sections.length} sections (expected ${topPlanIds.length})`,
 	);
 
 	// ROBUSTNESS: Handle malformed AI responses
@@ -332,13 +327,11 @@ export function parseNarrative(rawResponse: string, topPlanIds: string[], stageN
 			planId,
 			rationale: truncateText(sections[index].trim(), 2000),
 		}));
-		console.log(
-			`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Using ${sections.length} properly separated sections`
-		);
+		console.log(`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Using ${sections.length} properly separated sections`);
 	} else {
 		// AI generated too few sections - split by character count as fallback
 		console.warn(
-			`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Warning: Expected ${topPlanIds.length} sections but got ${sections.length}. Using character-based fallback.`
+			`[${new Date().toISOString()}] [PARSE] [${stageName.toUpperCase()}] Warning: Expected ${topPlanIds.length} sections but got ${sections.length}. Using character-based fallback.`,
 		);
 
 		const charsPerPlan = Math.floor(sanitized.length / topPlanIds.length);

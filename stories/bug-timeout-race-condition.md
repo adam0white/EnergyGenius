@@ -33,24 +33,28 @@ So that production workloads don't trigger spurious fallback attempts that mask 
 ## Acceptance Criteria
 
 ### AC1: Investigate Promise.race Pattern
+
 - **Given** the plan-scoring pipeline executes successfully
 - **When** the stage completes and logs [COMPLETE]
 - **Then** the timeout promise must be immediately cleared/cancelled
 - **And** no retry logic should execute after successful completion
 
 ### AC2: Verify Timeout Cleanup
+
 - **Given** a stage completes before the timeout threshold (30s)
 - **When** examining retry.ts timeout implementation
 - **Then** the code must explicitly clear the timeout via `clearTimeout()` or equivalent
 - **And** any Promise.race pattern must handle race condition between completion and timeout
 
 ### AC3: Test Exact Failure Scenario
+
 - **Given** the exact logs from production (plan-scoring completing in 1.1s then timeout at 29s)
 - **When** replicating this scenario in dev/test environment
 - **Then** the stage must NOT trigger a second attempt
 - **And** completion must be honored over timeout
 
 ### AC4: Edge Case Testing
+
 - **Given** stages completing at timeout boundaries
 - **When** testing completion times at 28.9s, 29.9s, and 30.1s with 30s timeout
 - **Then** all must either complete successfully or timeout consistently
@@ -61,6 +65,7 @@ So that production workloads don't trigger spurious fallback attempts that mask 
 ## Implementation Details
 
 ### Suspected Files
+
 - `src/worker/lib/retry.ts` - Timeout and retry logic implementation
 - `src/worker/pipeline.ts` - Stage execution and Promise.race orchestration
 
@@ -113,6 +118,7 @@ So that production workloads don't trigger spurious fallback attempts that mask 
 This is a race condition bug in the timeout/retry orchestration. The stage completes successfully in 1.1 seconds with valid output and logs completion, but the timeout cleanup mechanism fails to prevent the timeout promise from resolving ~29 seconds later, triggering a spurious retry attempt.
 
 The fix requires ensuring that:
+
 1. Timeout promises are explicitly cancelled/cleared when stages complete
 2. The Promise.race between completion and timeout properly resolves to completion
 3. Retry logic never executes after a successful stage completion signal
@@ -137,6 +143,7 @@ The fix requires ensuring that:
 ### Key Code References
 
 Production failure occurred in pipeline stage with 30s timeout configuration. Look for:
+
 - `setTimeout()`/`clearTimeout()` calls in retry logic
 - `Promise.race()` patterns combining stage completion with timeout
 - Retry attempt logic that executes on timeout
@@ -148,6 +155,7 @@ Production failure occurred in pipeline stage with 30s timeout configuration. Lo
 **Bug Context:** Production incident on 2025-11-11 affecting plan-scoring pipeline stage with 30-second timeout configuration.
 
 **Related Components:**
+
 - Plan-scoring AI pipeline execution
 - Retry and fallback mechanism
 - Timeout orchestration in worker process
@@ -172,6 +180,7 @@ The `withTimeout` function in `src/worker/pipeline.ts` created a setTimeout that
 
 **Fix Implemented:**
 Modified the `withTimeout` function to:
+
 1. Store the timeout ID when creating the timeout promise
 2. Clear the timeout immediately when the stage promise resolves (success path)
 3. Clear the timeout when any error occurs (error path)
@@ -181,6 +190,7 @@ The fix ensures that once a stage completes (either successfully or with an erro
 
 **Testing:**
 Added 5 comprehensive regression tests in `test/pipeline.spec.ts`:
+
 1. Fast completion (1.1s) - verifies no timeout after 2s wait
 2. Edge case: 28.9s completion - verifies no spurious retry
 3. Edge case: 29.9s completion - verifies no spurious retry
@@ -188,6 +198,7 @@ Added 5 comprehensive regression tests in `test/pipeline.spec.ts`:
 5. Race condition handling - verifies completion wins over timeout
 
 All tests verify:
+
 - No timeout errors when stage completes within timeout window
 - Proper error reporting when stage exceeds timeout
 - No spurious retries after successful completion
@@ -206,6 +217,7 @@ All tests verify:
 ### Test Results
 
 Test suite running with new regression tests. The fix properly handles:
+
 - ✓ Immediate timeout clearance on stage completion
 - ✓ Edge cases at 28.9s, 29.9s (no spurious retries)
 - ✓ Proper timeout at 30.1s (expected behavior)
@@ -225,12 +237,14 @@ Test suite running with new regression tests. The fix properly handles:
 ### Code Review Summary
 
 **withTimeout Function (pipeline.ts:373-399):** EXCELLENT
+
 - Timeout ID properly tracked and cleared in both success and error paths
 - Promise.race pattern correctly handles race between completion and timeout
 - Defensive null-check on clearTimeout prevents errors
 - Clear comments documenting race condition prevention
 
 **Integration with Retry Logic (pipeline.ts:249,279,314):** EXCELLENT
+
 - Nesting order correct (timeout wraps stage, retry wraps timeout)
 - Each retry attempt gets fresh timeout timer
 - Backoff logic (100ms) properly separated from timeout logic
@@ -238,6 +252,7 @@ Test suite running with new regression tests. The fix properly handles:
 ### Test Coverage Review
 
 **Regression Test Suite (pipeline.spec.ts:452-606):** EXCELLENT
+
 - Test 1: Fast completion (1.1s) with 2s wait post-completion - validates main bug fix
 - Test 2: Edge case 28.9s - boundary testing
 - Test 3: Edge case 29.9s - critical boundary testing
@@ -261,6 +276,7 @@ All 5 regression tests specifically designed to prevent this bug from regressing
 - Debuggability: PASS - Timeout ID tracking prevents silent failures
 
 ### Risk Assessment: LOW
+
 - No memory leaks from orphaned timers
 - No timeout enforcement regression
 - No impact on retry logic

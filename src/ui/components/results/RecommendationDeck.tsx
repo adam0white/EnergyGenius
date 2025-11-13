@@ -121,11 +121,7 @@ function FormattedNarrative({ text }: { text: string | null }) {
 	// NEW: Validate text is actually a string
 	if (typeof text !== 'string') {
 		console.error('FormattedNarrative received non-string text:', text);
-		return (
-			<p className="text-sm text-red-600 italic">
-				Unable to display explanation (invalid format)
-			</p>
-		);
+		return <p className="text-sm text-red-600 italic">Unable to display explanation (invalid format)</p>;
 	}
 
 	const parsed = parseNarrative(text);
@@ -251,12 +247,12 @@ function RecommendationCard({ recommendation, rank }: { recommendation: Recommen
 					</div>
 				</div>
 				{renewablePercentage > 0 && (
-					<div className={`p-3 rounded-lg border ${renewablePercentage >= 50 ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
+					<div
+						className={`p-3 rounded-lg border ${renewablePercentage >= 50 ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}
+					>
 						<div className="text-sm text-gray-700">
 							<span className="font-semibold text-gray-900">Renewable Energy:</span>{' '}
-							<span className={`font-bold ${renewablePercentage >= 50 ? 'text-green-700' : 'text-gray-900'}`}>
-								{renewablePercentage}%
-							</span>
+							<span className={`font-bold ${renewablePercentage >= 50 ? 'text-green-700' : 'text-gray-900'}`}>{renewablePercentage}%</span>
 							{renewablePercentage === 100 && <span className="ml-2">🌟 100% Clean Energy</span>}
 						</div>
 					</div>
@@ -281,16 +277,12 @@ function RecommendationCard({ recommendation, rank }: { recommendation: Recommen
 				<div className="flex justify-between text-sm">
 					<span className="text-gray-600">Price per kWh:</span>
 					<span className="font-semibold text-gray-900">
-						{recommendation.baseRate && recommendation.baseRate > 0
-							? `$${recommendation.baseRate.toFixed(3)}/kWh`
-							: 'N/A'}
+						{recommendation.baseRate && recommendation.baseRate > 0 ? `$${recommendation.baseRate.toFixed(3)}/kWh` : 'N/A'}
 					</span>
 				</div>
 				<div className="flex justify-between text-sm">
 					<span className="text-gray-600">Monthly Service Fee:</span>
-					<span className="font-semibold text-gray-900">
-						${(recommendation.monthlyFee ?? 0).toFixed(2)}
-					</span>
+					<span className="font-semibold text-gray-900">${(recommendation.monthlyFee ?? 0).toFixed(2)}</span>
 				</div>
 				<div className="flex justify-between text-sm border-t pt-2 mt-2">
 					<span className="text-gray-600">Est. Monthly Cost:</span>
@@ -348,19 +340,11 @@ function RecommendationCard({ recommendation, rank }: { recommendation: Recommen
 			<div>
 				<div className="flex items-center justify-between mb-2">
 					<h4 className="text-sm font-semibold text-gray-700">Why We Recommend This</h4>
-					{recommendation.explanation === null && (
-						<span className="text-xs text-blue-600 font-medium animate-pulse">Loading...</span>
-					)}
+					{recommendation.explanation === null && <span className="text-xs text-blue-600 font-medium animate-pulse">Loading...</span>}
 				</div>
-				<ErrorBoundary
-				fallback={
-					<p className="text-sm text-red-600 italic">
-						Unable to display explanation. Please refresh the page.
-					</p>
-				}
-			>
-				<FormattedNarrative text={recommendation.explanation} />
-			</ErrorBoundary>
+				<ErrorBoundary fallback={<p className="text-sm text-red-600 italic">Unable to display explanation. Please refresh the page.</p>}>
+					<FormattedNarrative text={recommendation.explanation} />
+				</ErrorBoundary>
 			</div>
 
 			{/* Best value indicator for top recommendation */}
