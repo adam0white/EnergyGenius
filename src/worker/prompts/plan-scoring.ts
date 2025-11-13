@@ -119,14 +119,22 @@ Required JSON array format (top 10 maximum), sorted by score descending:
 ⚠️  CRITICAL: Use the INDEX number (0-${plansToScore.length - 1}), NOT planId/supplier/planName. Just return the number!
 ⚠️  DO NOT include estimatedAnnualCost or estimatedSavings - these are calculated separately by our system.
 
-SCORING CRITERIA:
+SCORING CRITERIA (Story 10.12 - Research-Based Weights):
 - Base score: 50 points
-- Add up to +30 for plans with lower rates that would result in significant savings
-  (Compare baseRate and monthlyFee to estimate relative cost)
-- Add up to +20 for renewable percentage if user prefers (100% = +20, 50% = +10)
-- Add up to +10 for shorter contracts (3mo = +10, 6mo = +7, 12mo = +5)
-- Add up to +10 for low monthly fees
+- Cost/Savings: +40 points (PRIMARY DRIVER - 87% of consumers prioritize cost)
+  Compare baseRate and monthlyFee to estimate relative cost savings potential
+  Lower cost = higher score (most important factor)
+- Contract Flexibility: +20 points (SECONDARY - enables future switching)
+  (3mo = +20, 6mo = +15, 12mo = +10, 18mo = +5, 24mo = +2)
+  Subtract for high ETF: $150-200 = -3, $200-300 = -5, $300+ = -8
+- Renewable Energy: +10 points (TERTIARY - important to subset of users)
+  (100% = +10, 75% = +7, 50% = +5, 25% = +2, 0% = 0)
+  Note: Give full weight if user explicitly prefers renewable energy
+- Low Monthly Fees: +10 points (cost-related but separate consideration)
+  ($0-5 = +10, $5-10 = +7, $10-15 = +5, $15-20 = +2, $20+ = 0)
 - Note: All plans shown already meet user's max contract length requirement
+- Weight Distribution: Cost 44%, Flexibility 22%, Renewable 11%, Fees 11%
+- Research Source: docs/research/energy-plan-scoring-weights.md
 - Minimum 5 plans, maximum 10 plans
 - Remember: You are SCORING plans, not calculating costs. Focus on match quality.
 

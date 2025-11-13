@@ -163,22 +163,22 @@ function generateCurrentPlan(scenario: UsageScenario) {
 	 * legacy plans or default utility rates.
 	 */
 	const baseRates: Record<string, number> = {
-		residential: 0.155,
+		residential: 0.185,
 		'small-business': 0.145,
 		'seasonal-high': 0.165,
 		'seasonal-low': 0.15,
-		'large-family': 0.17,
-		'apartment': 0.14,
+		'large-family': 0.18,
+		'apartment': 0.19,
 		'medium-business': 0.16,
 	};
 
 	const monthlyFees: Record<string, number> = {
 		residential: 9.95,
 		'small-business': 14.95,
-		'seasonal-high': 9.95,
-		'seasonal-low': 9.95,
+		'seasonal-high': 4.95,
+		'seasonal-low': 4.95,
 		'large-family': 12.95,
-		'apartment': 9.95,
+		'apartment': 4.95,
 		'medium-business': 19.95,
 	};
 
@@ -188,7 +188,7 @@ function generateCurrentPlan(scenario: UsageScenario) {
 	contractEndDate.setMonth(contractEndDate.getMonth() + monthsRemaining);
 
 	// Early termination fee based on months remaining
-	const earlyTerminationFee = monthsRemaining > 6 ? 150 : 75;
+	const earlyTerminationFee = monthsRemaining > 6 ? 100 : 25;
 
 	return {
 		supplier: 'Current Energy Co',
@@ -223,7 +223,7 @@ function generatePreferences(scenario: UsageScenario) {
 			prioritizeSavings: true,
 			prioritizeRenewable: true,
 			prioritizeFlexibility: false,
-			maxContractMonths: 12,
+			maxContractMonths: 36,
 			riskTolerance: 'medium',
 		},
 		'small-business': {
@@ -237,14 +237,14 @@ function generatePreferences(scenario: UsageScenario) {
 			prioritizeSavings: true,
 			prioritizeRenewable: false,
 			prioritizeFlexibility: false,
-			maxContractMonths: 12,
+			maxContractMonths: 24,
 			riskTolerance: 'high',
 		},
 		'seasonal-low': {
 			prioritizeSavings: false,
 			prioritizeRenewable: true,
 			prioritizeFlexibility: true,
-			maxContractMonths: 6,
+			maxContractMonths: 12,
 			riskTolerance: 'medium',
 		},
 		'large-family': {
@@ -265,7 +265,7 @@ function generatePreferences(scenario: UsageScenario) {
 			prioritizeSavings: true,
 			prioritizeRenewable: false,
 			prioritizeFlexibility: false,
-			maxContractMonths: 12,
+			maxContractMonths: 36,
 			riskTolerance: 'low',
 		},
 	};

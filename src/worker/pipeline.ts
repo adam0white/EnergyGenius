@@ -11,7 +11,7 @@ import { buildUsageSummaryPrompt, buildPlanScoringPrompt, buildNarrativePrompt }
 import { supplierCatalog } from './data/supplier-catalog';
 import { withRetry, generateUsageFallback, generatePlanScoringFallback, generateNarrativeFallback } from './lib/retry';
 import { parseUsageSummary, parsePlanScoring, parseNarrative } from './validation';
-import { calculateMultiplePlanCosts } from './lib/calculations';
+import { calculateMultiplePlanCosts, calculateComprehensivePlanCosts } from './lib/calculations';
 
 // ===========================
 // TypeScript Interfaces
@@ -34,6 +34,7 @@ export interface StageInput {
 		rateStructure: string;
 		monthlyFee?: number;
 		rate?: number;
+		earlyTerminationFee?: number; // Story 10.12: Include ETF in savings calculation
 	};
 	preferences: {
 		prioritizeSavings?: boolean;
@@ -197,16 +198,26 @@ export async function runPlanScoring(
 
 	// CRITICAL: Pre-calculate all plan costs using TypeScript (NOT LLM)
 	// This prevents LLM hallucination in arithmetic calculations
+	// Story 10.12: Now includes ETF in comprehensive savings calculation
 	const calcStartTime = Date.now();
 	const supplierPlansArray = Array.from(supplierCatalog);
-	const costCalculations = calculateMultiplePlanCosts(
+
+	// Build current plan object for calculation
+	const currentPlanForCalc = {
+		currentRate: input.currentPlan.rate || 0,
+		monthlyFee: input.currentPlan.monthlyFee || 0,
+		earlyTerminationFee: input.currentPlan.earlyTerminationFee || 0,
+	};
+
+	// Use new comprehensive calculation that includes ETF
+	const costCalculations = calculateComprehensivePlanCosts(
 		supplierPlansArray,
-		usageSummary.annualCost,
+		currentPlanForCalc,
 		usageSummary.totalAnnualUsage
 	);
 	const calcTime = Date.now() - calcStartTime;
 	console.log(`[PERF] [plan-scoring] Cost Calculations (TypeScript): ${calcTime}ms for ${supplierPlansArray.length} plans`);
-	console.log(`[CALCULATIONS] Pre-calculated costs for ${costCalculations.size} plans using TypeScript`);
+	console.log(`[CALCULATIONS] Pre-calculated comprehensive costs (with ETF) for ${costCalculations.size} plans using TypeScript`);
 
 	// Build optimized prompt using prompt builder with real supplier catalog
 	const promptStartTime = Date.now();

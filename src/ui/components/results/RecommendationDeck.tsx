@@ -44,15 +44,27 @@ interface RecommendationDeckProps {
 
 /**
  * Determine savings tier based on amount
- * FIXED: Ensure savings is a number (Story 10.8)
+ * UPDATED: Story 10.12 - New tier thresholds and "No Value" tier
+ * - Gold: ≥$400 (was ≥$1000)
+ * - Silver: $200-399 (was $500-999)
+ * - Bronze: -$99 to $199 (was <$500)
+ * - No Value: ≤-$100 (new tier for significant losses)
  * Defensive type checking prevents edge cases with undefined/null/string values
  */
-function getSavingsTier(savings: number): 'gold' | 'silver' | 'bronze' {
+function getSavingsTier(savings: number): 'gold' | 'silver' | 'bronze' | 'no-value' {
 	// Ensure savings is a number (defensive programming against type coercion issues)
 	const numericSavings = typeof savings === 'number' ? savings : Number(savings) || 0;
 
-	if (numericSavings >= 1000) return 'gold';
-	if (numericSavings >= 500) return 'silver';
+	// Significant loss - clear warning needed
+	if (numericSavings <= -100) return 'no-value';
+
+	// Excellent savings - meaningful for most households
+	if (numericSavings >= 400) return 'gold';
+
+	// Good savings - worthwhile, covers switching hassle
+	if (numericSavings >= 200) return 'silver';
+
+	// Modest savings or small losses - marginal benefit
 	return 'bronze';
 }
 
@@ -144,19 +156,25 @@ function SavingsBadge({ savings }: { savings: number }) {
 			icon: '⭐',
 			label: 'Gold Value',
 			className: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-			description: '$1,000+ annual savings',
+			description: '$400+ annual savings',
 		},
 		silver: {
 			icon: '⚪',
 			label: 'Silver Value',
 			className: 'bg-gray-100 text-gray-800 border-gray-300',
-			description: '$500-$999 annual savings',
+			description: '$200-$399 annual savings',
 		},
 		bronze: {
 			icon: '🔶',
 			label: 'Bronze Value',
 			className: 'bg-orange-100 text-orange-800 border-orange-300',
-			description: 'Under $500 annual savings',
+			description: '$0-$199 annual savings',
+		},
+		'no-value': {
+			icon: '⚠️',
+			label: 'No Value',
+			className: 'bg-red-100 text-red-800 border-red-300',
+			description: 'Switching costs more than current plan',
 		},
 	};
 

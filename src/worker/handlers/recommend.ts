@@ -27,6 +27,7 @@ export interface IntakeFormData {
 		rateStructure: string;
 		monthlyFee?: number;
 		rate?: number;
+		earlyTerminationFee?: number; // Story 10.12: Include ETF in savings calculation
 	};
 }
 

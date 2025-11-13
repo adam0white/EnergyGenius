@@ -86,6 +86,13 @@ CUSTOMER CONTEXT:
 - Usage Pattern: ${usageSummary.usagePattern}
 - Peak Usage: ${usageSummary.peakUsageMonth}
 
+IMPORTANT - COST CALCULATION CONTEXT (Story 10.12):
+The estimatedSavings values shown for each plan include:
+- Energy cost difference (kWh × rate)
+- Monthly service fee difference over 12 months
+- Early Termination Fee (ETF) - amortized over the contract term of the recommended plan
+This gives you the TRUE annual savings after accounting for ALL switching costs.
+
 TOP RECOMMENDED PLANS (REAL DATA - DO NOT MODIFY):
 ${JSON.stringify(enrichedPlans, null, 2)}
 
@@ -133,7 +140,7 @@ Write a friendly, easy-to-understand explanation for each of the top ${enrichedP
 
 1. Why we're recommending it (focus on benefits - even if cost increases, there may be other benefits like renewable energy, flexibility, or features)
 2. Key advantages specific to their usage pattern
-3. Important considerations or things to note
+3. Important considerations or things to note (if earlyTerminationFee > $100, mention the switching cost is already factored into savings)
 4. Financial impact vs. current plan (CORRECTLY interpret positive savings vs. negative additional costs)
 
 TONE & STYLE:
